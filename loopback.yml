@@ -1,0 +1,12 @@
+---
+- name: Configure loopback on IOS devices
+  hosts: ios
+  gather_facts: no
+
+  tasks:
+         -name:Configure loopback10
+          cisco.ios.ios_config:
+                  lines:
+                          -interface Loopback10
+                          -ip address 10.10.10.{{inventory_hostname[-1] }} 255.255.255.255
+                          -description ANSIBLE_MANAGED
