@@ -5,4 +5,5 @@ This project documents my journey building a network automation and CI/CD-style 
 The environment currently includes Cisco routers, switches, and ASA firewalls managed through Ansible playbooks and version-controlled through GitHub. Future goals include automated configuration deployments, configuration drift detection, compliance validation, and integrating more advanced automation tooling and pipelines.
 
 
-<img width="1865" height="1273" alt="image" src="https://github.com/user-attachments/assets/580296ef-e431-4215-ba98-a9b4315f1074" />
+<img width="1919" height="1283" alt="image" src="https://github.com/user-attachments/assets/4feeed3e-8c01-41c2-b226-45ab1dab7a12" />
+
