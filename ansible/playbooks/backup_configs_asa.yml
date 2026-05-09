@@ -1,0 +1,17 @@
+---
+- name: Backup Cisco Configs
+  hosts: asa_firewalls
+  gather_facts: False
+
+  tasks:
+
+    - name: Pull running config
+      cisco.asa.asa_command:
+        commands:
+          - show running-config
+      register: config
+
+    - name: Save config locally
+      copy:
+        content: "{{ config.stdout[0] }}"
+        dest: "{{ playbook_dir }}/../../backups/asa/{{ inventory_hostname }}.cfg"
