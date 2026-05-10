@@ -11,13 +11,13 @@
           - show running-config
       register: config
     
-    - name: Pull running config ASA
-      cisco.asa.asa_command:
-        commands:
-          - show running-config
-      register: config
+    # - name: Pull running config ASA
+    #   cisco.asa.asa_command:
+    #     commands:
+    #       - show running-config
+    #   register: config
 
     - name: Save config locally
       copy:
         content: "{{ config.stdout[0] }}"
-        dest: "{{ playbook_dir }}/../../backups/pre_change/{{ inventory_hostname }}.cfg"
+        dest: "{{ playbook_dir }}/../backups/pre_change/{{ inventory_hostname }}.cfg"
