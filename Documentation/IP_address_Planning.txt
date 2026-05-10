@@ -1,0 +1,156 @@
+VRF MGMT:
+----------------------------------------------------------------------------------------------
+10.8.0.0/22:
+
+    10.8.0.0/24 - reserved
+
+    10.8.1.0/24 - OSPF broadcast segment
+        - inet_rtr, R1, R2, R3, AUTO_box
+
+    10.8.2.0/24
+        - device loopbacks
+
+    10.8.3.0/24
+        - P2P transit links
+
+
+
+VRF default:
+----------------------------------------------------------------------------------------------
+10.0.0.0/16 - Global lab data plane summary
+----------------------------------------------------------------------------------------------
+
+10.0.0.0/20 - ASN 65513 - External / Internet / Automation Data
+
+    10.0.0.0/24 - AUTO_box data
+        10.0.0.1 - AUTO_box
+        10.0.0.254 - inet_rtr gi3.900
+
+    10.0.1.0/24 - External data / services
+
+    10.0.2.0/24 - External loopbacks / infrastructure
+        10.0.2.254/32 - inet_rtr lo900
+
+    10.0.3.0/24 - BGP transit links
+        10.0.3.0/30
+            10.0.3.1 - inet_rtr Gi2
+            10.0.3.2 - R1 Gi4
+
+    10.0.4.0/24 - reserved
+    10.0.5.0/24 - reserved
+    10.0.6.0/24 - reserved
+    10.0.7.0/24 - reserved
+    10.0.8.0/24 - reserved
+    10.0.9.0/24 - reserved
+    10.0.10.0/24 - reserved
+    10.0.11.0/24 - reserved
+    10.0.12.0/24 - reserved
+    10.0.13.0/24 - reserved
+    10.0.14.0/24 - reserved
+    10.0.15.0/24 - reserved
+
+----------------------------------------------------------------------------------------------
+
+10.0.16.0/20 - ASN 65512 - Core / Internal OSPF Domain
+
+    10.0.16.0/21 - OSPF Area 0
+
+        10.0.16.0/24 - Area 0 data VLAN 1
+        10.0.17.0/24 - Area 0 data VLAN 2
+        10.0.18.0/24 - Area 0 data VLAN 3
+        10.0.19.0/24 - Area 0 data VLAN 4
+        10.0.20.0/24 - Area 0 data VLAN 5
+        10.0.21.0/24 - Area 0 data VLAN 6
+        10.0.22.0/24 - Area 0 data VLAN 7
+        10.0.23.0/24 - Area 0 data VLAN 8
+
+    10.0.24.0/24 - OSPF Area 0 broadcast/multiaccess segment
+        - 10.0.24.1 R1 int Gi1.900
+        - 10.0.24.2 R2 int Gi1.900
+        - 10.0.24.3 R3 int Gi1.900
+
+    10.0.25.0/24 - Area 0 point-to-point transit links
+        10.0.25.0/26     - router-to-router P2P links
+            10.0.25.0/30
+                - 10.0.25.1 R2 Gi4
+                - 10.0.25.2 R3 Gi1
+        10.0.25.64/26    - router-to-firewall P2P transit links
+        10.0.25.128/25   - reserved
+
+    10.0.26.0/24 - Area 0 loopbacks
+        10.0.26.0/26     - router loopbacks
+            - 10.0.26.1 R1 lo900
+            - 10.0.26.2 R2 lo900
+            - 10.0.26.3 R3 lo900
+
+        10.0.26.64/26    - service loopbacks
+        10.0.26.128/25   - reserved
+
+    10.0.27.0/23 - OSPF Area 1
+    
+        10.0.27.0/24 Area 1 data VLAN 1
+        
+        10.0.28.0/25 Area 1 point-to-point transit links
+            10.0.28.0/30
+                10.0.28.1 R5 int Gi1.900
+                10.0.28.2 R1 int Gi2.900
+
+        10.0.28.128/25 Area 1 loopbacks
+            10.0.28.129 R5 lo900 
+
+    10.0.29.0/23 - OSPF Area 2
+
+        10.0.29.0/24 Area 2 data VLAN 1
+        
+        10.0.30.0/25 Area 2 point-to-point transit links
+            10.0.30.0/30
+                10.0.30.1 R4 int Gi2.900
+                10.0.30.2 R3 int Gi2.900
+            10.0.30.4/30
+                10.0.30.5 R4 int Gi1.900
+                10.0.30.6 R2 int Gi3.900
+
+        10.0.30.128/25 Area 1 loopbacks
+            10.0.30.129 R5 lo900
+
+    10.0.30.0/24 - reserved
+    10.0.31.0/24 - reserved
+
+----------------------------------------------------------------------------------------------
+
+  10.0.32.0/20 - ASN 65514 - Firewall / Edge / Remote Domain
+
+    10.0.32.0/24 - Firewall inside/data segments
+
+    10.0.33.0/24 - DMZ / edge services
+        10.0.33.0/25     - DMZ segment
+        10.0.33.128/25   - reserved
+
+    10.0.34.0/24 - Firewall/router point-to-point transit links
+        10.0.34.0/26     - firewall/router P2P links
+        
+        10.0.34.64/26    - BGP transit links
+            10.0.34.64/30 - BGP R4 FW1 P2P
+                10.0.34.65 - FW1 Gi0/0
+                10.0.34.66 - R4 Gi3
+
+        10.0.34.128/25   - reserved
+
+    10.0.35.0/24 - Firewall/edge loopbacks
+        10.0.35.0/26     - device loopbacks
+        10.0.35.64/26    - reserved
+        10.0.35.128/25   - reserved
+
+    10.0.36.0/24 - remote site data
+    10.0.37.0/24 - remote site transit
+    10.0.38.0/24 - remote site loopbacks
+    10.0.39.0/24 - reserved
+    10.0.40.0/24 - reserved
+    10.0.41.0/24 - reserved
+    10.0.42.0/24 - reserved
+    10.0.43.0/24 - reserved
+    10.0.44.0/24 - reserved
+    10.0.45.0/24 - reserved
+    10.0.46.0/24 - reserved
+    10.0.47.0/24 - reserved
+
