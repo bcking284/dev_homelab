@@ -2,7 +2,7 @@
 
 This project documents my journey building a network automation and CI/CD-style workflow using EVE-NG, Linux, Ansible, Python, Git, and GitHub. The lab is focused on automating configuration management, backing up multi-vendor device configurations, and developing repeatable infrastructure workflows similar to those used in modern enterprise environments.
 
-# Topology 05/10/26:
+# Intended State:
 
 <img width="1635" height="1148" alt="image" src="https://github.com/user-attachments/assets/bd790255-a3f8-4f69-a9e2-e79f30a12de3" />
 
