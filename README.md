@@ -23,6 +23,10 @@ The environment currently includes Cisco routers, switches, and ASA firewalls ma
   - Commit successful changes, backups, and validation artifacts to Git
   - Execute rollback from known-good configuration if validation fails
 - The first implementation using this process is going to simply be configuring the "PROD" IP address layout
+- Planned prod IP address layout, giving myself plenty of room for expansion in the future.
+  - used /20s for ASNs
+  - /21 area 0 
+  - /23 area 1 and 2
 
 # 05/09/26
 - Basically a pure network engineering day
