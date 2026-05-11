@@ -27,7 +27,10 @@ The environment currently includes Cisco routers, switches, and ASA firewalls ma
   - used /20s for ASNs
   - /21 area 0 
   - /23 area 1 and 2
-
+- generated ASCII of logical network topology for both mgmt and professional VRFs and saved to docs, alongside ip address planning
+ - pushed ospf stub config area 1 between R1 and R5 with cli based intended state R1.cfg,R5.cfg
+ - will experiment with different data formats soon
+   
 # 05/09/26
 - Basically a pure network engineering day
 - Network Architecture
