@@ -10,6 +10,20 @@ This project documents my journey building a network automation and CI/CD-style 
 
 The environment currently includes Cisco routers, switches, and ASA firewalls managed through Ansible playbooks and version-controlled through GitHub. Future goals include automated configuration deployments, configuration drift detection, compliance validation, and integrating more advanced automation tooling and pipelines.
 
+# 05/20/26
+- Not much time today, wanted to get back into it though
+- Instead of manually typing configuration, added some host vars yml files
+- Spotted some errors in my address planning doc, fixed a few, will need debugging later
+- Decided to start with the OSPF configuration. Base area 0, not adding stubs yet, will not push to devices today
+- Created playbook to render ospf config that will be pushed to devices after some refinement
+- Using as validation playbook before pushing changes
+- Brushed off the dust on some Jinja, used it to call host vars and dynamically populate configuration commands
+- Computer needs more RAM
+- Plan for next work session is to complete the entire topology using this approach
+  - This way, when the topology expands, I will be able to re-use a lot of this
+- Future pipeline, once full topology is spun up using this toolset, (and I have more RAM) is to spin up netbox on another ubuntu server
+- Will integrate netbox to replace host_vars and inventory files via API
+
 # 05/10/26
 - Caught up on notes from yesterday, reposted a slightly cleaner intended-state network topology
 - Now that I've got the entire backplane set up on a dedicated VRF, my time in the CLI can be done with.

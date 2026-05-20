@@ -1,0 +1,30 @@
+router_id: 10.0.26.4
+
+ospf_interfaces:
+  - name: GigabitEthernet2.900
+    description: Link to R3
+    ip_address: 10.0.30.1
+    subnet_mask: 255.255.255.252
+    ospf_enabled: true
+    passive: false
+
+  - name: GigabitEthernet1.900
+    description: Link to R2
+    ip_address: 10.0.30.5
+    subnet_mask: 255.255.255.252
+    ospf_enabled: true
+    passive: false
+
+  - name: GigabitEthernet3.23
+    description: Link to FW
+    ip_address: 10.0.34.66
+    subnet_mask: 255.255.255.252
+    ospf_enabled: true
+    passive: false
+
+  - name: Loopback900
+    description: R4 Router ID
+    ip_address: 10.0.26.3
+    subnet_mask: 255.255.255.255
+    ospf_enabled: true
+    passive: true

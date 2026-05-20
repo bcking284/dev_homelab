@@ -1,0 +1,10 @@
+---
+- name: Render OSPF configs
+  hosts: ios
+  gather_facts: false
+
+  tasks:
+    - name: Render OSPF config from template
+      ansible.builtin.template:
+        src: ../templates/ospf_config.j2
+        dest: ../rendered_configs/{{ inventory_hostname }}_ospf.cfg

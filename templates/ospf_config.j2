@@ -1,0 +1,24 @@
+!
+hostname {{ inventory_hostname }}
+!
+{% for intf in ospf_interfaces %}
+interface {{ intf.name }}
+ description {{ intf.description }}
+ ip address {{ intf.ip_address }} {{ intf.subnet_mask }}
+ no shutdown
+!
+{% endfor %}
+router ospf {{ ospf_process_id }}
+ router-id {{ router_id }}
+{% for intf in ospf_interfaces %}
+{% if intf.ospf_enabled %}
+ network {{ intf.ip_address }} 0.0.0.0 area {{ ospf_area }}
+{% endif %}
+{% endfor %}
+{% for intf in ospf_interfaces %}
+{% if intf.passive %}
+ passive-interface {{ intf.name }}
+{% endif %}
+{% endfor %}
+!
+end
