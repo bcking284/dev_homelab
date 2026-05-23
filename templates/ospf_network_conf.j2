@@ -1,7 +1,0 @@
-{% for intf in ospf_interfaces %}
-{% if intf.ospf_enabled %}
-no network {{ intf.ip_address }} 0.0.0.0 area {{ intf.ospf_area }}
-network {{ intf.ip_address }} 0.0.0.255 area {{ intf.ospf_area }}
-{% endif %}
-{% endfor %}
-{% for intf in ospf_interfaces %}

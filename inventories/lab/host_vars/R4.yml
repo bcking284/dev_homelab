@@ -10,6 +10,8 @@ ospf_interfaces:
     passive: false
     stub: false
     ospf_area: 0
+    istagged: true
+    vlan_tag: 900
 
   - name: GigabitEthernet1.900
     description: Link to R2
@@ -19,6 +21,8 @@ ospf_interfaces:
     passive: false
     stub: false
     ospf_area: 0
+    istagged: true
+    vlan_tag: 900
 
   - name: GigabitEthernet3.23
     description: Link to FW
@@ -28,6 +32,8 @@ ospf_interfaces:
     passive: false
     stub: false
     ospf_area: 0
+    istagged: true
+    vlan_tag: 900
 
   - name: Loopback900
     description: R4 Router ID
@@ -37,3 +43,5 @@ ospf_interfaces:
     passive: true
     stub: false
     ospf_area: 0
+    istagged: true
+    vlan_tag: 900
