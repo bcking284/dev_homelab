@@ -1,10 +1,38 @@
 ---
-- name: Deploy intended prod/default-VRF state
-  hosts: ios
-  gather_facts: False
+- name: Deploy intended IOS configs
+  hosts: ios_ospf_routers
+  gather_facts: false
 
   tasks:
-    - name: Push intended prod config
+    - name: Backup running config before change
+      cisco.ios.ios_command:
+        commands:
+          - show running-config
+      register: pre_change_config
+
+    - name: Save pre-change backup locally
+      ansible.builtin.copy:
+        content: "{{ pre_change_config.stdout[0] }}"
+        dest: "{{ playbook_dir }}/../backups/pre_change/{{ inventory_hostname }}.cfg"
+      delegate_to: localhost
+
+    - name: Push intended config to IOS device
       cisco.ios.ios_config:
-        src: "../intended_state/{{ inventory_hostname }}.cfg"
-        save_when: modified
+        src: "{{ playbook_dir }}/../rendered_configs/{{ inventory_hostname }}_ospf.cfg"
+
+    - name: Save running config to startup config
+      cisco.ios.ios_command:
+        commands:
+          - write memory
+
+    - name: Pull post-change running config
+      cisco.ios.ios_command:
+        commands:
+          - show running-config
+      register: post_change_config
+
+    - name: Save post-change backup locally
+      ansible.builtin.copy:
+        content: "{{ post_change_config.stdout[0] }}"
+        dest: "{{ playbook_dir }}/../backups/post_change/{{ inventory_hostname }}.cfg"
+      delegate_to: localhost
