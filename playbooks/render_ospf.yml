@@ -1,6 +1,6 @@
 ---
 - name: Render OSPF configs
-  hosts: ios
+  hosts: ios_ospf_routers
   gather_facts: false
 
   tasks:
