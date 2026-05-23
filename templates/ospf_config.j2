@@ -1,6 +1,6 @@
 {% for intf in ospf_interfaces %}
 interface {{ intf.name }}
- {% if intf.istagged %}
+ {% if intf.istagged | default(false) %}
  encapsulation dot1Q {{ intf.vlan_tag }}
  {% endif %}
  description {{ intf.description }}
