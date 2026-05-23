@@ -12,7 +12,7 @@ router ospf {{ ospf_process_id }}
  router-id {{ router_id }}
 {% for intf in ospf_interfaces %}
 {% if intf.ospf_enabled %}
- network {{ intf.ip_address }} 0.0.0.0 area {{ ospf_area }}
+ network {{ intf.ip_address }} 0.0.0.0 area {{ ospf_area }}{% if intf.stub %} stub{% endif %}
 {% endif %}
 {% endfor %}
 {% for intf in ospf_interfaces %}
