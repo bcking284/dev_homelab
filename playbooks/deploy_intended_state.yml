@@ -19,6 +19,7 @@
     - name: Push intended config to IOS device
       cisco.ios.ios_config:
         src: "{{ playbook_dir }}/../rendered_configs/{{ inventory_hostname }}_ospf.cfg"
+      ignore_errors: true
 
     - name: Save running config to startup config
       cisco.ios.ios_command:
