@@ -9,6 +9,7 @@ ospf_interfaces:
     ospf_enabled: true
     passive: false
     stub: false
+    ospf_area: 0
 
   - name: GigabitEthernet4.900
     description: Link to R3
@@ -17,6 +18,7 @@ ospf_interfaces:
     ospf_enabled: true
     passive: false
     stub: false
+    ospf_area: 0
 
   - name: Loopback900
     description: R2 Router ID
@@ -25,3 +27,13 @@ ospf_interfaces:
     ospf_enabled: true
     passive: true
     stub: false
+    ospf_area: 0
+
+  - name: GigabitEthernet3.900
+    description: Link to R4 NSSA
+    ip_address: 10.0.25.1
+    subnet_mask: 255.255.255.252
+    ospf_enabled: true
+    passive: false
+    stub: true
+    ospf_area: 2
