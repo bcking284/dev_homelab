@@ -1,7 +1,7 @@
 {% for intf in ospf_interfaces %}
 interface {{ intf.name }}
  {% if intf.istagged %}
- encapsulation dot1Q {{ vlan_tag }}
+ encapsulation dot1Q {{ intf.vlan_tag }}
  {% endif %}
  description {{ intf.description }}
  ip address {{ intf.ip_address }} {{ intf.subnet_mask }}
