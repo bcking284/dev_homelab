@@ -1,12 +1,9 @@
-!
 hostname {{ inventory_hostname }}
-!
 {% for intf in ospf_interfaces %}
 interface {{ intf.name }}
  description {{ intf.description }}
  ip address {{ intf.ip_address }} {{ intf.subnet_mask }}
  no shutdown
-!
 {% endfor %}
 router ospf {{ prod_ospf_process_id }}
  router-id {{ router_id }}

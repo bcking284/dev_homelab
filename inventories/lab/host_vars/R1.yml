@@ -18,6 +18,7 @@ ospf_interfaces:
     ospf_enabled: true
     passive: false
     stub: true
+    stubtype: stub
     ospf_area: 1
 
   - name: Loopback900
