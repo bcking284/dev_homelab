@@ -6,10 +6,10 @@ interface {{ intf.name }}
  no shutdown
 {% endfor %}
 router ospf {{ prod_ospf_process_id }}
- router-id {{ router_id }}
+router-id {{ router_id }}
 {% for intf in ospf_interfaces %}
 {% if intf.ospf_enabled %}
- network {{ intf.ip_address }} 0.0.0.0 area {{ ospf_area }}
+ network {{ intf.ip_address }} 0.0.0.0 area {{ intf.ospf_area }}
 {% endif %}
 {% endfor %}
 {% for intf in ospf_interfaces %}
