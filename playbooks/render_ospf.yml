@@ -4,7 +4,16 @@
   gather_facts: false
 
   tasks:
+    - name: Ensure rendered_configs directory exists
+      ansible.builtin.file:
+        path: "{{ playbook_dir }}/../rendered_configs"
+        state: directory
+        mode: '0755'
+      delegate_to: localhost
+      run_once: true
+
     - name: Render OSPF config from template
       ansible.builtin.template:
-        src: ../templates/ospf_config.j2
-        dest: ../rendered_configs/{{ inventory_hostname }}_ospf.cfg
+        src: "{{ playbook_dir }}/../templates/ospf_config.j2"
+        dest: "{{ playbook_dir }}/../rendered_configs/{{ inventory_hostname }}_ospf.cfg"
+      delegate_to: localhost
