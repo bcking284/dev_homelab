@@ -1,4 +1,3 @@
-hostname {{ inventory_hostname }}
 {% for intf in ospf_interfaces %}
 interface {{ intf.name }}
  description {{ intf.description }}
@@ -9,7 +8,7 @@ router ospf {{ prod_ospf_process_id }}
 router-id {{ router_id }}
 {% for intf in ospf_interfaces %}
 {% if intf.ospf_enabled %}
- network {{ intf.ip_address }} 0.0.0.0 area {{ intf.ospf_area }}
+ network {{ intf.ip_address }} 0.0.0.255 area {{ intf.ospf_area }}
 {% endif %}
 {% endfor %}
 {% for intf in ospf_interfaces %}
