@@ -7,7 +7,6 @@ ospf_interfaces:
     subnet_mask: 255.255.255.252
     ospf_enabled: true
     passive: false
-    stub: false
 
   - name: GigabitEthernet1.900
     description: Link to R5
@@ -15,7 +14,6 @@ ospf_interfaces:
     subnet_mask: 255.255.255.252
     ospf_enabled: true
     passive: false
-    stub: false
 
   - name: GigabitEthernet2.900
     description: Link to R5
@@ -23,7 +21,6 @@ ospf_interfaces:
     subnet_mask: 255.255.255.252
     ospf_enabled: true
     passive: false
-    stub: false
 
   - name: Loopback900
     description: R3 Router ID
@@ -31,4 +28,3 @@ ospf_interfaces:
     subnet_mask: 255.255.255.255
     ospf_enabled: true
     passive: true
-    stub: false

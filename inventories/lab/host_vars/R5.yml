@@ -7,7 +7,6 @@ ospf_interfaces:
     subnet_mask: 255.255.255.252
     ospf_enabled: true
     passive: false
-    stub: false
 
   - name: Loopback0
     description: R1 Router ID
@@ -15,4 +14,3 @@ ospf_interfaces:
     subnet_mask: 255.255.255.255
     ospf_enabled: true
     passive: true
-    stub: false

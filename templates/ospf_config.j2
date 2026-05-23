@@ -8,15 +8,15 @@ interface {{ intf.name }}
  no shutdown
 !
 {% endfor %}
-router ospf {{ ospf_process_id }}
+router ospf {{ prod_ospf_process_id }}
  router-id {{ router_id }}
 {% for intf in ospf_interfaces %}
 {% if intf.ospf_enabled %}
- network {{ intf.ip_address }} 0.0.0.0 area {{ ospf_area }}{% if intf.stub %} stub{% endif %}
+ network {{ intf.ip_address }} 0.0.0.0 area {{ ospf_area }}
 {% endif %}
 {% endfor %}
 {% for intf in ospf_interfaces %}
-{% if intf.passive %}
+{% if intf.passive | default(false) %}
  passive-interface {{ intf.name }}
 {% endif %}
 {% endfor %}
