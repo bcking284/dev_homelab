@@ -6,8 +6,6 @@ ansible_network_os: cisco.ios.ios
 ansible_become: true
 ansible_become_method: enable
 
-#hard coded variables for 
-mgmt_vrf_ospf_process_id: 1
+#hard coded variables for vrfs
 mgmt_vrf_vlan: 10
-prod_ospf_process_id: 900
 prof_vrf_vlan: 900
