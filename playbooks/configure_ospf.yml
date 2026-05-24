@@ -19,7 +19,7 @@
     - name: Configure passive interfaces
       cisco.ios.ios_config:
         parents:
-          - "router ospf {{ ospf_process_id }}"
+          - "router ospf {{ prod_ospf_process_id }}"
         lines:
           - "passive-interface {{ item.name }}"
         match: line
