@@ -13,7 +13,7 @@ ospf_interfaces:
     istagged: true
     vlan_tag: 900
 
-  - name: Loopback0
+  - name: Loopback900
     description: R1 Router ID
     ip_address: 10.0.28.129
     subnet_mask: 255.255.255.255
