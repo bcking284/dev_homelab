@@ -33,7 +33,7 @@ ospf_interfaces:
     stub: false
     ospf_area: 0
     istagged: true
-    vlan_tag: 900
+    vlan_tag: 23
 
   - name: Loopback900
     description: R4 Router ID
