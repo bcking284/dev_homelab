@@ -26,7 +26,7 @@ ospf_interfaces:
 
   - name: GigabitEthernet3.900
     description: Link to R4 NSSA
-    ip_address: 10.0.25.1
+    ip_address: 10.0.30.6
     subnet_mask: 255.255.255.252
     ospf_enabled: true
     passive: false
@@ -35,7 +35,7 @@ ospf_interfaces:
     ospf_area: 2
     istagged: true
     vlan_tag: 900
-    
+
   - name: Loopback900
     description: R2 Router ID
     ip_address: 10.0.26.2
