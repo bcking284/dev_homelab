@@ -2,9 +2,13 @@
 router_id: 10.0.26.3
 
 ospf_areas:
+  - area_id: 0
+    type: backbone
+  
   - area_id: 2
     type: nssa
-
+    no_summary: true
+    
 abr: false
 asbr: false
 
