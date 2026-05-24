@@ -5,7 +5,7 @@ ospf_interfaces:
   - name: GigabitEthernet1.900
     description: Link to Broadcast
     ip_address: 10.0.24.2
-    subnet_mask: 255.255.255.252
+    subnet_mask: 255.255.255.0
     ospf_enabled: true
     passive: false
     stub: false

@@ -12,6 +12,9 @@ The environment currently includes Cisco routers, switches, and ASA firewalls ma
 
 # 05/24/26
 - moving from host_vars -> Jinja -> rendered_configs -> push entire file -- to host_vars -> Ansible loops -> exact CLI commands under exact parents
+- worked perfectly for R2, just had to fix some IP addressing in my host vars
+- R3 needed some troubleshooting
+- -vvv showed me I had a bad mask on my interfaces, fixed in host_vars on R1-3
 
 # 05/23/26
 - Plan was to configure OSPF areas 0-2 all on one go

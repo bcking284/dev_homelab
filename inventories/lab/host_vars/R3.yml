@@ -2,17 +2,6 @@
 router_id: 10.0.26.3
 
 ospf_interfaces:
-  - name: GigabitEthernet3.900
-    description: Link to Broadcast
-    ip_address: 10.0.24.3
-    subnet_mask: 255.255.255.252
-    ospf_enabled: true
-    passive: false
-    stub: false
-    ospf_area: 0
-    istagged: true
-    vlan_tag: 900
-
   - name: GigabitEthernet1.900
     description: Link to R5
     ip_address: 10.0.25.2
@@ -28,6 +17,17 @@ ospf_interfaces:
     description: Link to R5
     ip_address: 10.0.30.2
     subnet_mask: 255.255.255.252
+    ospf_enabled: true
+    passive: false
+    stub: false
+    ospf_area: 0
+    istagged: true
+    vlan_tag: 900
+
+  - name: GigabitEthernet3.900
+    description: Link to Broadcast
+    ip_address: 10.0.24.3
+    subnet_mask: 255.255.255.0
     ospf_enabled: true
     passive: false
     stub: false
