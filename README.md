@@ -10,6 +10,24 @@ This project documents my journey building a network automation and CI/CD-style 
 
 The environment currently includes Cisco routers, switches, and ASA firewalls managed through Ansible playbooks and version-controlled through GitHub. Future goals include automated configuration deployments, configuration drift detection, compliance validation, and integrating more advanced automation tooling and pipelines.
 
+# 05/23/26
+- Plan was to configure OSPF areas 0-2 all on one go
+- I started off by organizing the variables using the all.yml file for the network connection method, telling it to execute commands from priv enable, basic things that applied to all devices
+- I had some issues reaching the firewall via SSH. I realized there was an access list I was missing, so I added that
+- I configured an "ospf_interfaces" group in yml on each of those host_vars file. Taking time to make sure the heirarchy made sense. I started off with area 0
+- I wrote an ospf_config.j2 to make sense with those host variables I had set, manually going through one of the routers to make sure the commands were being sent in the right order and the right syntax
+- I was tired of the latency between my home PC and my port-forwarded configuration on my jump box, so I decided to just work from my home PC on all of this and commit and comment every change I made
+- When I was ready to test it out, I would push to github, then pull down from my lab linux ansible host
+- I ran the playbook for "render_ospf.yml", and checked the output, and the CLI looked good.
+- The errors I was getting about module compatibility were annoying, and weren't affecting functionality. I tried to fix it the right way, but ansible was already up to date, so I also made some tweaks to my ansible.cfg file and they went away
+- My playbook to actually push the configuration used a source file as that rendered config, so the idea was that it would push those commands out one by one and they'd all be fine and come right up
+- I ran into an error, checked the configs, and it varied between them all what state they were in.
+- Some had the router-id configured under the management vrf ospf process, which I still have no idea how that happened, some had no network statements, it just seemed the push didn't go out correctly
+- I manually entered those cli commands in the exact order as the rendered config file I pushed, and it worked fine
+- I started with CLI config for it to be the most familiar to me with my network engineering background. The idea was simple first, but since I wasn't sure what happened, I started looking into just jumping straight into RESTCONF
+- I made a plan for 05/24 to give CLI configuration one more try, but move away from the intended config, render ospf, and push model.
+- Going to try using slightly more logic in the playbooks, going piece by piece for interfaces and then the ospf config instead of pushing a config snippet
+
 # 05/20/26
 - Not much time today, wanted to get back into it though
 - Instead of manually typing configuration, added some host vars yml files
