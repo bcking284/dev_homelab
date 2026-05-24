@@ -1,0 +1,30 @@
+---
+- name: Configure IOS interfaces
+  hosts: ios_ospf_routers
+  gather_facts: false
+
+  tasks:
+    - name: Configure subinterface encapsulation when tagged
+      cisco.ios.ios_config:
+        parents:
+          - "interface {{ intf.name }}"
+        lines:
+          - "encapsulation dot1q {{ intf.vlan_tag }}"
+        match: line
+      loop: "{{ ospf_interfaces }}"
+      loop_control:
+        loop_var: intf
+      when: intf.istagged | default(false)
+
+    - name: Configure interface description, IP, and no shutdown
+      cisco.ios.ios_config:
+        parents:
+          - "interface {{ intf.name }}"
+        lines:
+          - "description {{ intf.description }}"
+          - "ip address {{ intf.ip_address }} {{ intf.subnet_mask }}"
+          - "no shutdown"
+        match: line
+      loop: "{{ ospf_interfaces }}"
+      loop_control:
+        loop_var: intf

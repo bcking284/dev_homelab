@@ -10,6 +10,9 @@ This project documents my journey building a network automation and CI/CD-style 
 
 The environment currently includes Cisco routers, switches, and ASA firewalls managed through Ansible playbooks and version-controlled through GitHub. Future goals include automated configuration deployments, configuration drift detection, compliance validation, and integrating more advanced automation tooling and pipelines.
 
+# 05/24/26
+- moving from host_vars -> Jinja -> rendered_configs -> push entire file -- to host_vars -> Ansible loops -> exact CLI commands under exact parents
+
 # 05/23/26
 - Plan was to configure OSPF areas 0-2 all on one go
 - I started off by organizing the variables using the all.yml file for the network connection method, telling it to execute commands from priv enable, basic things that applied to all devices
