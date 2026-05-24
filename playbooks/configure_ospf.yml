@@ -7,7 +7,7 @@
     - name: Configure OSPF network statements
       cisco.ios.ios_config:
         parents:
-          - "router ospf {{ ospf_process_id }}"
+          - "router ospf {{ prod_ospf_process_id }}"
         lines:
           - "router-id {{ router_id }}"
           - "network {{ item.ip_address }} 0.0.0.255 area {{ item.ospf_area | default(ospf_area) }}"
