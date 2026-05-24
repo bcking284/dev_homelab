@@ -5,6 +5,9 @@ ospf_areas:
   - area_id: 2
     type: nssa
 
+abr: true
+asbr: true
+
 ospf_interfaces:
   - name: GigabitEthernet2.900
     description: Link to R3

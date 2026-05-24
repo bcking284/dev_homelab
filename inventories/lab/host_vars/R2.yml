@@ -4,6 +4,8 @@ router_id: 10.0.26.2
 ospf_areas:
   - area_id: 2
     type: nssa
+abr: true
+asbr: false
 
 ospf_interfaces:
   - name: GigabitEthernet1.900

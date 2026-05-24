@@ -5,6 +5,9 @@ ospf_areas:
   - area_id: 1
     type: stub
 
+abr: true
+asbr: false
+
 ospf_interfaces:
   - name: GigabitEthernet1.900
     description: Link to R1
