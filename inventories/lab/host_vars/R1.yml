@@ -1,6 +1,17 @@
 ---
 router_id: 10.0.26.1
 
+ospf_areas:
+  - area_id: 0
+    type: backbone
+
+  - area_id: 1
+    type: stub
+    no_summary: true
+
+abr: true
+asbr: true
+
 ospf_interfaces:
   - name: GigabitEthernet1.900
     description: Link to Broadcast
