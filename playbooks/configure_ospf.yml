@@ -9,7 +9,8 @@
         parents:
           - "router ospf {{ ospf_process_id }}"
         lines:
-          - "network {{ item.ip_address }} 0.0.0.0 area {{ item.ospf_area | default(ospf_area) }}"
+          - "router-id {{ router_id }}"
+          - "network {{ item.ip_address }} 0.0.0.255 area {{ item.ospf_area | default(ospf_area) }}"
         match: line
       loop: "{{ ospf_interfaces }}"
       when: item.ospf_enabled | default(false)

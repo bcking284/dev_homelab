@@ -16,6 +16,7 @@ The environment currently includes Cisco routers, switches, and ASA firewalls ma
 - R3 needed some troubleshooting
 - -vvv showed me I had a bad mask on my interfaces, fixed in host_vars on R1-3
 - fixed mask, working like a charm
+- fixed some other annoying typos like vlan tags I shouldn't have had added
 - 
 
 # 05/23/26
