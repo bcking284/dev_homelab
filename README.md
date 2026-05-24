@@ -4,7 +4,7 @@ This project documents my journey building a network automation and CI/CD-style 
 
 # Intended State:
 
-<img width="1635" height="1148" alt="image" src="https://github.com/user-attachments/assets/bd790255-a3f8-4f69-a9e2-e79f30a12de3" />
+<img width="1635" height="1132" alt="image" src="https://github.com/user-attachments/assets/7020bde3-13bd-4d77-8cff-bd1e5514c495" />
 
 # Work Notes:
 
