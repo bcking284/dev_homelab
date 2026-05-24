@@ -20,7 +20,7 @@ ospf_interfaces:
     ospf_enabled: true
     passive: false
     stub: false
-    ospf_area: 0
+    ospf_area: 2
     istagged: true
     vlan_tag: 900
 
