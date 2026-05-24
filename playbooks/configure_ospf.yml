@@ -11,6 +11,7 @@
         lines:
           - "router-id {{ router_id }}"
           - "network {{ item.ip_address }} 0.0.0.255 area {{ item.ospf_area | default(ospf_area) }}"
+          - "log-adjacency-changes"
         match: line
       loop: "{{ ospf_interfaces }}"
       when: item.ospf_enabled | default(false)
