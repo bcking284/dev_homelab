@@ -17,7 +17,13 @@ The environment currently includes Cisco routers, switches, and ASA firewalls ma
 - -vvv showed me I had a bad mask on my interfaces, fixed in host_vars on R1-3
 - fixed mask, working like a charm
 - fixed some other annoying typos like vlan tags I shouldn't have had added
-- 
+- once base ospf configuration was done with CLI automation, changed workflow up
+- Breaking new configs into features, using scp to copy new files to lab for test instead of pulling master branch
+- created branch for ospf tuning, added stub and not so stubby area configuration
+- added abr and asbr variables for later
+- decided to switch up to restconf
+- made branch for bgp/restconf
+- enabled restconf on all routers
 
 # 05/23/26
 - Plan was to configure OSPF areas 0-2 all on one go
