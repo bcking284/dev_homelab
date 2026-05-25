@@ -13,7 +13,7 @@
     - name: Save IOS config locally
       ansible.builtin.copy:
         content: "{{ config.stdout[0] }}"
-        dest: "{{ playbook_dir }}/../backups/pre_change/{{ inventory_hostname }}.cfg"
+        dest: "{{ playbook_dir }}/../../backups/pre_change/{{ inventory_hostname }}.cfg"
 
 
 - name: Backup ASA configs
@@ -30,4 +30,4 @@
     - name: Save ASA config locally
       ansible.builtin.copy:
         content: "{{ config.stdout[0] }}"
-        dest: "{{ playbook_dir }}/../backups/pre_change/{{ inventory_hostname }}.cfg"
+        dest: "{{ playbook_dir }}/../../backups/pre_change/{{ inventory_hostname }}.cfg"
