@@ -24,6 +24,8 @@ The environment currently includes Cisco routers, switches, and ASA firewalls ma
 - decided to switch up to restconf
 - made branch for bgp/restconf
 - enabled restconf on all routers
+- was unable to enable restconf on the switch, I can do netconf though. 
+- will consider merging this branch tomorrow and doing netconf instead next, pivoting to restconf later
 
 # 05/23/26
 - Plan was to configure OSPF areas 0-2 all on one go
