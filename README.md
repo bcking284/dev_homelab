@@ -11,6 +11,31 @@ This project documents my journey building a network automation and CI/CD-style 
 The environment currently includes Cisco routers, switches, and ASA firewalls managed through Ansible playbooks and version-controlled through GitHub. Future goals include automated configuration deployments, configuration drift detection, compliance validation, and integrating more advanced automation tooling and pipelines.
 
 # 05/24/26
+- Beginning of day:
+- decided to stick with RESTCONF. I will proceed with the goal of this branch which is to configure those BGP routers via RESTCONF, write some python for some GETs, then PUT when I'm comfortable.
+- I'll start with one router, pure python, then move on to doing the same thing with Ansible and jinja
+- Basic BGP config, nothing fancy yet
+
+- Bonus/Pipeline:
+- I'd like to move to a csv IPAM soon, using a python script to update the hosts.ini file
+  - This would let me run a python script that could update that file and possibly also get me a diff
+- implement some route maps
+- add in some new links and play around with path selection
+- configure the ASA for BGP as well
+
+Log:
+- ![enabled restconf on IOS XE routers](image.png)
+- Wrote python script to grab restconf interface configs and drop them into a new directory in the scripts file
+- removed validation folder (for now) and removed some old script placeholders
+- I created a new directory for restconf outputs, first pulled the interfaces json, then did the full native
+- Looked through them both and studied them a little bit.
+- searched through some github repos for RESTCONF API reference for IOS XE
+- searched through cisco devnet website
+- with the interfaces json complete, some python scripts made, current running configs pulled to backups/pre_change, making my first commit on this branch
+- 
+
+
+# 05/24/26
 - moving from host_vars -> Jinja -> rendered_configs -> push entire file -- to host_vars -> Ansible loops -> exact CLI commands under exact parents
 - worked perfectly for R2, just had to fix some IP addressing in my host vars
 - R3 needed some troubleshooting
@@ -24,6 +49,8 @@ The environment currently includes Cisco routers, switches, and ASA firewalls ma
 - decided to switch up to restconf
 - made branch for bgp/restconf
 - enabled restconf on all routers
+- was unable to enable restconf on the switch, I can do netconf though. 
+- will consider merging this branch tomorrow and doing netconf instead next, pivoting to restconf later
 
 # 05/23/26
 - Plan was to configure OSPF areas 0-2 all on one go
