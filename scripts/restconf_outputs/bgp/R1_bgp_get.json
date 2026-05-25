@@ -1,0 +1,48 @@
+{
+  "Cisco-IOS-XE-native:router": {
+    "Cisco-IOS-XE-ospf:ospf": [
+      {
+        "id": 1,
+        "vrf": "MGMT",
+        "router-id": "10.8.2.1",
+        "network": [
+          {
+            "ip": "0.0.0.0",
+            "mask": "255.255.255.255",
+            "area": 0
+          }
+        ]
+      },
+      {
+        "id": 900,
+        "area": [
+          {
+            "id": 1,
+            "stub": {}
+          }
+        ],
+        "passive-interface": {
+          "interface": "Loopback900"
+        },
+        "router-id": "10.0.26.1",
+        "network": [
+          {
+            "ip": "10.0.24.0",
+            "mask": "0.0.0.255",
+            "area": 0
+          },
+          {
+            "ip": "10.0.26.0",
+            "mask": "0.0.0.255",
+            "area": 0
+          },
+          {
+            "ip": "10.0.28.0",
+            "mask": "0.0.0.255",
+            "area": 1
+          }
+        ]
+      }
+    ]
+  }
+}

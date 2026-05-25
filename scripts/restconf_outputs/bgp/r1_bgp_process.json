@@ -1,0 +1,12 @@
+{
+  "Cisco-IOS-XE-native:router": {
+    "Cisco-IOS-XE-bgp:bgp": [
+      {
+        "id": 65512,
+        "bgp": {
+          "log-neighbor-changes": true
+        }
+      }
+    ]
+  }
+}

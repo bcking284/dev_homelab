@@ -1,0 +1,21 @@
+---
+bgp_interfaces: 
+  - name: GigabitEthernet2
+    ip_address: 10.0.3.1
+    subnet_mask: 255.255.255.252
+    vrf: default 
+
+bgp_neighbors:
+  - name: R1
+    ip address: 10.0.3.2
+    remote-as: 65512
+    description: ebgp_to_R1
+    is_ebgp: true
+
+bgp_networks:
+  - name: Lo1
+    address_fam: ipv4
+    network: 10.0.2.254
+    mask: 255.255.255.255
+
+  
