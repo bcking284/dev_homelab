@@ -1,0 +1,30 @@
+{
+  "Cisco-IOS-XE-native:router": {
+    "Cisco-IOS-XE-bgp:bgp": [
+      {
+        "id": 65512,
+        "bgp": {
+          "log-neighbor-changes": true
+        },
+        "neighbor": [
+          {
+            "id": "10.0.3.1",
+            "remote-as": 65513,
+            "description": "ebgp_to_inet_rtr"
+          }
+        ],
+        "address-family": {
+          "no-vrf": {
+            "ipv4": [
+              {
+                "af-name": "unicast",
+                "ipv4-unicast": {
+                }
+              }
+            ]
+          }
+        }
+      }
+    ]
+  }
+}

@@ -32,7 +32,8 @@ Log:
 - searched through some github repos for RESTCONF API reference for IOS XE
 - searched through cisco devnet website
 - with the interfaces json complete, some python scripts made, current running configs pulled to backups/pre_change, making my first commit on this branch
-- 
+- came back, configured some very basic BGP on my inet router so that I could pull the config with restconf into json to see the exact format its expecting
+- pulled config, next I'm going to delete this configuration, configure a jinja template using this json file as a base template, and fill out all my host vars in my bgp_routers group
 
 
 # 05/24/26
