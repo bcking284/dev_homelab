@@ -11,7 +11,82 @@ This project documents my journey building a network automation and CI/CD-style 
 The environment currently includes Cisco routers, switches, and ASA firewalls managed through Ansible playbooks and version-controlled through GitHub. Future goals include automated configuration deployments, configuration drift detection, compliance validation, and integrating more advanced automation tooling and pipelines.
 
 # 05/30/26
-- 
+- Stewed a little over the week about why I had to send three or more PATCHes to fully configure my router
+- I was looking for a clean "here's the URI path for each of these and their JSON attributes" workflow, but nothing like that existed
+- Learned that those URI paths were based off that YANG data model, and that I could discern where my API call should be based on containers, lists, and leafs
+- I spent the morning doing some research and correlation between the YANG data model for ios-xe native, bgp, and interfaces to the URI path I would
+- Found a repo located here https://github.com/YangModels/yang/blob/main/vendor/cisco/xe/16101/Cisco-IOS-XE-native.yang that I cloned into a separate directory on my computer
+- Used pyang to build a tree out of this to help me more clearly visualize what I could expect my path to look like for these API calls.
+- Dropped that pyang text file into my docs folder, checking for extensions to make it even easier to read in vscode
+- I couldn't find any extensions for those trees, but I found a lot for YANG. Decided it might be best if I just get comfortable with the syntax
+- I will generate more trees and merge them together in the future inside the docs/yang folder if I find it to be helpful
+- Spent A LOT of time just combing through the Cisco-IOS-XE-ospf.yang, using curl to query each uri to see what works and what doesn't.
+- learned about YANG syntax like @mount, groupings, augment, "uses", modules, and in greater depth about containers and leafs and how they influence the URI path, how I could read these to find out where I needed to send my API call.
+- Not a lot to commit today besides some documentation I'm going to refer to later.
+- I can now read YANG data models confidently
+
+- Now, for my json payloads, instead of this:
+
+root@kvm:~# curl -k -H "Accept: application/yang-data+json" "https://10.8.1.100/restconf/data/Cisco-IOS-XE-native:native/router/Cisco-IOS-XE-bgp:bgp"
+{
+  "Cisco-IOS-XE-bgp:bgp": [
+    {
+      "id": 123,
+      "bgp": {
+        "log-neighbor-changes": true
+      },
+      "address-family": {
+        "no-vrf": {
+          "ipv4": [
+            {
+              "af-name": "unicast",
+              "ipv4-unicast": {
+                "neighbor": [
+                  {
+                    "id": "1.1.1.1",
+                    "activate": [null],
+                    "route-map": [
+                      {
+                        "inout": "in",
+                        "route-map-name": "FILTER-IN"
+                      }
+                    ]
+                  }
+                ],
+                "network": {
+                  "with-mask": [
+                    {
+                      "number": "1.2.3.0",
+                      "mask": "255.255.255.0"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
+
+
+I can do this:
+root@kvm:~# curl -k -u admin:admin -H "Accept: application/yang-data+json" "https://10.8.1.100/restconf/data/Cisco-IOS-XE-native:native/router/Cisco-IOS-XE-bgp:bgp=123/address-family/no-vrf/ipv4=unicast/ipv4-unicast/neighbor
+=1.1.1.1"
+{
+  "Cisco-IOS-XE-bgp:neighbor": {
+    "id": "1.1.1.1",
+    "activate": [null],
+    "route-map": [
+      {
+        "inout": "in",
+        "route-map-name": "FILTER-IN"
+      }
+    ]
+  }
+}
+
 
 # 05/24/26
 - decided to stick with RESTCONF. I will proceed with the goal of this branch which is to configure those BGP routers via RESTCONF, write some python for some GETs, then PUT when I'm comfortable.

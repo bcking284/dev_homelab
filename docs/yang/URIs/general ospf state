@@ -1,0 +1,1 @@
+curl -k -H "Accept: application/yang-data+json" "https://10.8.1.100/restconf/data/Cisco-IOS-XE-ospf-oper:ospf-oper-data"
