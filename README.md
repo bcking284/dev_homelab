@@ -10,21 +10,23 @@ This project documents my journey building a network automation and CI/CD-style 
 
 The environment currently includes Cisco routers, switches, and ASA firewalls managed through Ansible playbooks and version-controlled through GitHub. Future goals include automated configuration deployments, configuration drift detection, compliance validation, and integrating more advanced automation tooling and pipelines.
 
+# 05/30/26
+- 
+
 # 05/24/26
-- Beginning of day:
 - decided to stick with RESTCONF. I will proceed with the goal of this branch which is to configure those BGP routers via RESTCONF, write some python for some GETs, then PUT when I'm comfortable.
 - I'll start with one router, pure python, then move on to doing the same thing with Ansible and jinja
 - Basic BGP config, nothing fancy yet
 
-- Bonus/Pipeline:
+Pipeline:
 - I'd like to move to a csv IPAM soon, using a python script to update the hosts.ini file
   - This would let me run a python script that could update that file and possibly also get me a diff
 - implement some route maps
 - add in some new links and play around with path selection
 - configure the ASA for BGP as well
 
-Log:
-- ![enabled restconf on IOS XE routers](image.png)
+Work Log:
+- enabled restconf on IOS XE routers
 - Wrote python script to grab restconf interface configs and drop them into a new directory in the scripts file
 - removed validation folder (for now) and removed some old script placeholders
 - I created a new directory for restconf outputs, first pulled the interfaces json, then did the full native
