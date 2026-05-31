@@ -1,0 +1,6 @@
+#file transfer to autobox
+scp -r .\scripts .\inventories .\playbooks .\templates .\ansible.cfg root@192.168.50.23:~/ANSIBLE/dev_homelab/
+scp -r root@192.168.50.23:/root/ANSIBLE/dev_homelab/backups/* "C:\Users\bckin\OneDrive\Documents\scripts\dev_homelab\backups\"; scp -r root@192.168.50.23:/root/ANSIBLE/dev_homelab/scripts/restconf_outputs/* "C:\Users\bckin\OneDrive\Documents\scripts\dev_homelab\scripts\restconf_outputs\"
+
+# Curl API GET example
+curl -k -u admin:admin -H "Accept: application/yang-data+json" "https://10.8.1.100/restconf/data/Cisco-IOS-XE-native:native/router/Cisco-IOS-XE-bgp:bgp=123/address-family/no-vrf/ipv4=unicast/ipv4-unicast"

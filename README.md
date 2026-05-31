@@ -1,14 +1,45 @@
-# Building a CI/CD Pipeline with EVE-NG Homelab:
+# Building Enterprise Infrastructure with IaC, EVE-NG Homelab:
 
 This project documents my journey building a network automation and CI/CD-style workflow using EVE-NG, Linux, Ansible, Python, Git, and GitHub. The lab is focused on automating configuration management, backing up multi-vendor device configurations, and developing repeatable infrastructure workflows similar to those used in modern enterprise environments.
 
-# Intended State:
+# Current State:
 
 <img width="1635" height="1132" alt="image" src="https://github.com/user-attachments/assets/7020bde3-13bd-4d77-8cff-bd1e5514c495" />
 
-# Work Notes:
+# Future State Pipeline:
+- Include automated configuration deployments, configuration drift detection, compliance validation, and integrating more advanced automation tooling and pipelines.
+-   - pyATS, learning more about this and using it for my tests
+- deploy an open source NMS
+- deploy Netbox for programmatic inventory management and IPAM
+- Implement a RADIUS server, active directory, and some flavor of NAC solution
+- Containerize servers and deploy terraform for provisioning
+- Experiment with some different vendors, starting with a Palo Alto firewall, look into vendor neutral OpenConfig YANG
+- if possible
+- Redesign with datacenter hosting, Enterprise block, shared services block, and bring in some small offices
+- Add secure remote work support
+- Set up service provider side, configure some flavor of MPLS
+- DMVPN hub-spoke topology with branch offices
 
-The environment currently includes Cisco routers, switches, and ASA firewalls managed through Ansible playbooks and version-controlled through GitHub. Future goals include automated configuration deployments, configuration drift detection, compliance validation, and integrating more advanced automation tooling and pipelines.
+# Work Notes:
+The environment currently includes Cisco routers, switches, and ASA firewalls managed through Ansible playbooks and version-controlled through GitHub. 
+
+# 05/31/26
+Intro:
+- Spent an hour in the morning writing plan for what is remaining from my original goal of this projects
+- From a technical standpoint, I just need to write some REST and get to the point where I can configure all this BGP in one push
+- Finally once that's done, from a workflow/procedural standpoint, I need to build my actual CI/CD workflow
+- After all I've learned about CI/CD, I am thinking I'll need to get creative, since my lab is the same as my prod environment
+- I could build a smaller lab and have my runner on that for tests. I will see how I feel when I get to that point.
+- I've already started looking ahead and did some brainstorming. My vision for some of the next steps of this project:
+
+
+WorkLog:
+- struggled with some REST runtime mapping errors, resources not found, python, json, yang model references and syntax
+- other issues included "device not accepted command", something like that
+  - configuration database being locked due to the second part of my script executing too fast
+  - unknown element in activate command
+- Got a full(ish) BGP configuration patch using RESTCONF on R1
+- Will be abstracting next and filling in values that aren't spam
 
 # 05/30/26
 - Stewed a little over the week about why I had to send three or more PATCHes to fully configure my router
@@ -28,6 +59,7 @@ The environment currently includes Cisco routers, switches, and ASA firewalls ma
 - Now, for my json payloads, instead of this:
 
 root@kvm:~# curl -k -H "Accept: application/yang-data+json" "https://10.8.1.100/restconf/data/Cisco-IOS-XE-native:native/router/Cisco-IOS-XE-bgp:bgp"
+66
 {
   "Cisco-IOS-XE-bgp:bgp": [
     {
@@ -72,7 +104,7 @@ root@kvm:~# curl -k -H "Accept: application/yang-data+json" "https://10.8.1.100/
 
 
 I can do this:
-root@kvm:~# curl -k -u admin:admin -H "Accept: application/yang-data+json" "https://10.8.1.100/restconf/data/Cisco-IOS-XE-native:native/router/Cisco-IOS-XE-bgp:bgp=123/address-family/no-vrf/ipv4=unicast/ipv4-unicast/neighbor
+root@kvm:~# curl -k -H "Accept: application/yang-data+json" "https://10.8.1.100/restconf/data/Cisco-IOS-XE-native:native/router/Cisco-IOS-XE-bgp:bgp=123/address-family/no-vrf/ipv4=unicast/ipv4-unicast/neighbor
 =1.1.1.1"
 {
   "Cisco-IOS-XE-bgp:neighbor": {
