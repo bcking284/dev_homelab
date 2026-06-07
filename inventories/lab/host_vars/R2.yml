@@ -1,57 +1,84 @@
 ---
 router_id: 10.0.26.2
 
-ospf_areas:
-  - area_id: 0
-    type: backbone
+restconf:
+  host: 10.8.2.2
+  username: admin
+  password: admin
 
-  - area_id: 2
-    type: nssa
+bgp:
+  asn: 65512
+  # networks:
+  #   - number: 10.0.24.0
+  #     mask: 255.255.255.0
+  #   - number: 10.0.28.0
+  #     mask: 255.255.255.252
+  #   - number: 10.0.3.2
+  #     mask: 255.255.255.0
+  #   - number: 10.0.26.1
+  #     mask: 255.255.255.255
+  # neighbors:
+  #   - name: R4
+  #     peer_ip: 10.0.26.3
+  #     asn: 65512
+  #     multihop: true
+  #   - name: inet_rtr
+  #     peer_ip: 10.0.3.1
+  #     asn: 65513
 
-abr: true
-asbr: false
 
-ospf_interfaces:
-  - name: GigabitEthernet1.900
-    description: Link to Broadcast
-    ip_address: 10.0.24.2
-    subnet_mask: 255.255.255.0
-    ospf_enabled: true
-    passive: false
-    stub: false
-    ospf_area: 0
-    istagged: true
-    vlan_tag: 900
+ospf:
+  abr: true
+  asbr: false
 
-  - name: GigabitEthernet4.900
-    description: Link to R3
-    ip_address: 10.0.25.1
-    subnet_mask: 255.255.255.252
-    ospf_enabled: true
-    passive: false
-    stub: false
-    ospf_area: 0
-    istagged: true
-    vlan_tag: 900
+  ospf_areas:
+    - area_id: 0
+      type: backbone
 
-  - name: GigabitEthernet3.900
-    description: Link to R4 NSSA
-    ip_address: 10.0.30.6
-    subnet_mask: 255.255.255.252
-    ospf_enabled: true
-    passive: false
-    stub: true
-    stubtype: nssa
-    ospf_area: 2
-    istagged: true
-    vlan_tag: 900
+    - area_id: 2
+      type: nssa
 
-  - name: Loopback900
-    description: R2 Router ID
-    ip_address: 10.0.26.2
-    subnet_mask: 255.255.255.255
-    ospf_enabled: true
-    passive: true
-    stub: false
-    ospf_area: 0
+  ospf_interfaces:
+    - name: GigabitEthernet1.900
+      description: Link to Broadcast
+      ip_address: 10.0.24.2
+      subnet_mask: 255.255.255.0
+      ospf_enabled: true
+      passive: false
+      stub: false
+      ospf_area: 0
+      istagged: true
+      vlan_tag: 900
+
+    - name: GigabitEthernet4.900
+      description: Link to R3
+      ip_address: 10.0.25.1
+      subnet_mask: 255.255.255.252
+      ospf_enabled: true
+      passive: false
+      stub: false
+      ospf_area: 0
+      istagged: true
+      vlan_tag: 900
+
+    - name: GigabitEthernet3.900
+      description: Link to R4 NSSA
+      ip_address: 10.0.30.6
+      subnet_mask: 255.255.255.252
+      ospf_enabled: true
+      passive: false
+      stub: true
+      stubtype: nssa
+      ospf_area: 2
+      istagged: true
+      vlan_tag: 900
+
+    - name: Loopback900
+      description: R2 Router ID
+      ip_address: 10.0.26.2
+      subnet_mask: 255.255.255.255
+      ospf_enabled: true
+      passive: true
+      stub: false
+      ospf_area: 0
 

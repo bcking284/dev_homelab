@@ -1,0 +1,46 @@
+---
+- name: Configure BGP idempotently
+  hosts: ios
+  gather_facts: false
+
+  tasks:
+
+    - name: Configure BGP process
+      cisco.ios.ios_config:
+        lines:
+          - router bgp {{ bgp.asn }}
+        match: line
+
+    - name: Configure BGP neighbors
+      cisco.ios.ios_config:
+        parents:
+          - router bgp {{ bgp.asn }}
+        lines:
+          - neighbor {{ item.peer_ip }} remote-as {{ item.remote_as }}
+        match: line
+      loop: "{{ bgp.neighbors }}"
+
+    - name: Activate BGP neighbors under IPv4 address-family
+      cisco.ios.ios_config:
+        parents:
+          - router bgp {{ bgp.asn }}
+          - address-family ipv4
+        lines:
+          - neighbor {{ item.peer_ip }} activate
+        match: line
+      loop: "{{ bgp.neighbors }}"
+      when: item.activate_ipv4 | default(false)
+
+    - name: Configure BGP networks under IPv4 address-family
+      cisco.ios.ios_config:
+        parents:
+          - router bgp {{ bgp.asn }}
+          - address-family ipv4
+        lines:
+          - network {{ item.number }} mask {{ item.mask }}
+        match: line
+      loop: "{{ bgp.networks }}"
+
+    - name: Save config if changed
+      cisco.ios.ios_config:
+        save_when: modified

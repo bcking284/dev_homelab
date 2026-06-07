@@ -1,46 +1,77 @@
 ---
 router_id: 10.0.26.1
 
-ospf_areas:
-  - area_id: 0
-    type: backbone
+restconf:
+  host: 10.8.2.1
+  username: admin
+  password: admin
 
-  - area_id: 1
-    type: stub
-    no_summary: true
+bgp:
+  asn: 65512 
+  networks:
+    - number: 10.0.24.0
+      mask: 255.255.255.0
+  
+    - number: 10.0.28.0
+      mask: 255.255.255.252
+  
+    - number: 10.0.3.2
+      mask: 255.255.255.0
+  
+    - number: 10.0.26.1
+      mask: 255.255.255.255
+  
+  neighbors:
+    - name: R4
+      peer_ip: 10.0.26.3
+      remote_as: 65512
+      multihop: true
+  
+    - name: inet_rtr
+      peer_ip: 10.0.3.1
+      remote_as: 65513
 
-abr: true
-asbr: true
+ospf:
+  abr: true
+  asbr: true
 
-ospf_interfaces:
-  - name: GigabitEthernet1.900
-    description: Link to Broadcast
-    ip_address: 10.0.24.1
-    subnet_mask: 255.255.255.0
-    ospf_enabled: true
-    passive: false
-    stub: false
-    ospf_area: 0
-    istagged: true
-    vlan_tag: 900
+  ospf_areas:
+    - area_id: 0
+      type: backbone
 
-  - name: GigabitEthernet2.900
-    description: Link to R5
-    ip_address: 10.0.28.2
-    subnet_mask: 255.255.255.252
-    ospf_enabled: true
-    passive: false
-    stub: true
-    stubtype: stub
-    ospf_area: 1
-    istagged: true
-    vlan_tag: 900
+    - area_id: 1
+      type: stub
+      no_summary: true
 
-  - name: Loopback900
-    description: R1 Router ID
-    ip_address: 10.0.26.1
-    subnet_mask: 255.255.255.255
-    ospf_enabled: true
-    passive: true
-    stub: false
-    ospf_area: 0
+  ospf_interfaces:
+    - name: GigabitEthernet1.900
+      description: Link to Broadcast
+      ip_address: 10.0.24.1
+      subnet_mask: 255.255.255.0
+      ospf_enabled: true
+      passive: false
+      stub: false
+      ospf_area: 0
+      istagged: true
+      vlan_tag: 900
+
+    - name: GigabitEthernet2.900
+      description: Link to R5
+      ip_address: 10.0.28.2
+      subnet_mask: 255.255.255.252
+      ospf_enabled: true
+      passive: false
+      stub: true
+      stubtype: stub
+      ospf_area: 1
+      istagged: true
+      vlan_tag: 900
+
+    - name: Loopback900
+      description: R1 Router ID
+      ip_address: 10.0.26.1
+      subnet_mask: 255.255.255.255
+      ospf_enabled: true
+      passive: true
+      stub: false
+      ospf_area: 0

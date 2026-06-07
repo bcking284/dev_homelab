@@ -1,0 +1,10 @@
+---
+- name: Roll back IOS config from backup
+  hosts: ios
+  gather_facts: false
+
+  tasks:
+    - name: Replace running config with saved backup
+      cisco.ios.ios_config:
+        src: "../../backups/pre_change/{{ inventory_hostname }}_pre_change.cfg"
+        replace: config
