@@ -23,6 +23,29 @@ This project documents my journey building a network automation and CI/CD-style 
 # Work Notes:
 The environment currently includes Cisco routers, switches, and ASA firewalls managed through Ansible playbooks and version-controlled through GitHub. 
 
+# 06/06-07/26
+- Focusing on integrating jinja templates with python before moving on to Ansible abstraction
+- Created/Edited restconf_jinja_bgp.py first to send a single request, then to hold the yml 
+- reorganized yaml files and structure to make more sense, by protocol
+- did a deep dive into some of these python packages jinja2 and requests. help(jinja2) / help(request)
+- spent some time study this documentation to understand the full capabilities beyond what I was using them for
+- general python / jinja / yang / yaml structure and study
+- began testing out the python script with bgp_base.j2 and bgp_addrfam_ipv4, troubleshooting along the way
+- returning in the afternoon, ran into something interesting, ietf-yang-patch:patch payload format
+- enables you to send a patch to native:native and then drill down into multiple "edits" within the payload
+  - this solves my issue of having to send multiple patches, another aha moment.
+- first, checked capabilities of device, see if it supports yang-patch
+  - using https://R1/restconf/data/ietf-restconf-monitoring:restconf-state/capabilities
+  - found urn:ietf:params:restconf:capability:yang-patch:1.0
+- studying yang-patch to discern format and combined two jinja templates into one with "yang-patch-bgp.j2"
+- trying a hard coded yang-patch test first in python, running into format errors again, troubleshooting
+- looks like when bgp is fully not configured it has the same problem as the other method. I believe there is no workaround in this case to needing to send more than one payload.
+- yang-patch worked great for editing, since indemnopentcy is built into it, but not so well for creation all in one go.
+- realized I could probably just use if statements in my jinja template and generate configuration piece by piece
+- Gave up on that for now and decided to just do this with ansible CLI for a quick win and call it a day
+- added configure_bgp.yml to playbooks/routing/bgp dir
+- 
+
 # 05/31/26
 Intro:
 - Spent an hour in the morning writing plan for what is remaining from my original goal of this projects

@@ -3,4 +3,30 @@ scp -r .\scripts .\inventories .\playbooks .\templates .\ansible.cfg root@192.16
 scp -r root@192.168.50.23:/root/ANSIBLE/dev_homelab/backups/* "C:\Users\bckin\OneDrive\Documents\scripts\dev_homelab\backups\"; scp -r root@192.168.50.23:/root/ANSIBLE/dev_homelab/scripts/restconf_outputs/* "C:\Users\bckin\OneDrive\Documents\scripts\dev_homelab\scripts\restconf_outputs\"
 
 # Curl API GET example
-curl -k -u admin:admin -H "Accept: application/yang-data+json" "https://10.8.1.100/restconf/data/Cisco-IOS-XE-native:native/router/Cisco-IOS-XE-bgp:bgp=123/address-family/no-vrf/ipv4=unicast/ipv4-unicast"
+curl -k -u admin:password -H "Accept: application/yang-data+json" "https://10.8.1.100/restconf/data/Cisco-IOS-XE-native:native/router/Cisco-IOS-XE-bgp:bgp=123/address-family/no-vrf/ipv4=unicast/ipv4-unicast"
+
+#check device capabilities
+curl -k \
+  -u admin:password \
+  -X GET \
+  "https://R1/restconf/data/ietf-restconf-monitoring:restconf-state/capabilities" \
+  -H "Accept: application/yang-data+json"
+
+#YANG-Patch shell
+{
+  "ietf-yang-patch:yang-patch": {
+    "patch-id": "some-name",
+    "edit": [
+      {
+        "edit-id": "edit-1",
+        "operation": "merge",
+        "target": "/path/to/config/node",
+        "value": {
+          "some:data": "goes here"
+        }
+      }
+    ]
+  }
+}
+
+https://datatracker.ietf.org/doc/html/rfc8072
