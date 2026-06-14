@@ -1,6 +1,6 @@
 ---
 - name: Remove BGP config
-  hosts: ios
+  hosts: ios_bgp_routers
   gather_facts: false
 
   tasks:

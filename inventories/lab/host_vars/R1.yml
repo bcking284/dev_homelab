@@ -7,7 +7,34 @@ restconf:
   password: admin
 
 bgp:
-  asn: 65512 
+  asn: 65512
+  update_source: Loopback900
+
+  redistribute:
+    ospf:
+      enabled: true
+      process_id: 900
+      route_map: OSPF_TO_BGP
+
+  prefix_lists:
+    - name: OSPF_TO_BGP_PREFIXES
+      entries:
+        - seq: 10
+          action: permit
+          prefix: 10.0.16.0/20
+          le: 32
+
+  route_maps:
+    - name: BLOCK_OSPF_TO_IBGP
+      entries:
+        - seq 
+
+    - name: OSPF_TO_BGP
+      entries:
+        - seq: 10
+          action: permit
+          match_prefix_list: OSPF_TO_BGP_PREFIXES
+
   networks:
     - number: 10.0.24.0
       mask: 255.255.255.0
@@ -26,10 +53,12 @@ bgp:
       peer_ip: 10.0.26.3
       remote_as: 65512
       multihop: true
+      outbound_route_map: BLOCK_OSPF_TO_IBGP
   
     - name: inet_rtr
       peer_ip: 10.0.3.1
       remote_as: 65513
+      outbound_route_map: SEND_OSPF_TO_EBGP
 
 ospf:
   abr: true
