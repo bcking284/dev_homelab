@@ -1,0 +1,5 @@
+
+# secrets
+.env
+*.vault
+vault_pass*
