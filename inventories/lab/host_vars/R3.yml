@@ -3,8 +3,6 @@ router_id: 10.0.26.3
 
 restconf:
   host: 10.8.2.3
-  username: admin
-  password: admin
 
 bgp:
   asn: 65512
@@ -16,7 +14,7 @@ ospf:
   ospf_areas:
     - area_id: 0
       type: backbone
-
+    
     - area_id: 2
       type: nssa
       no_summary: true
@@ -54,7 +52,7 @@ ospf:
       ospf_area: 0
       istagged: true
       vlan_tag: 900
-
+      
     - name: Loopback900
       description: R3 Router ID
       ip_address: 10.0.26.3

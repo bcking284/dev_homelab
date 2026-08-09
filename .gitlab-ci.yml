@@ -1,0 +1,28 @@
+stages:
+  - build
+  - prevalidation
+
+lint-yaml:
+  stage: build
+  tags: [homelab]
+  image: python:3.12-slim
+  script:
+    - pip install --quiet --root-user-action=ignore yamllint
+    - yamllint -d relaxed inventories/ playbooks/
+
+validate-vars:
+  stage: build
+  tags: [homelab]
+  image: python:3.12-slim
+  script:
+    - pip install --quiet --root-user-action=ignore pyyaml
+    - python scripts/validate_vars.py
+
+reach-devices:
+  stage: prevalidation
+  tags: [homelab]
+  image: python:3.12-slim
+  script:
+    - pip install --quiet --root-user-action=ignore ansible-core
+    - ansible-galaxy collection install cisco.ios
+    - ansible -i inventories/lab/hosts.ini ios -m cisco.ios.ios_facts -a "gather_subset=min"

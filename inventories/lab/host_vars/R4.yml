@@ -3,8 +3,6 @@ router_id: 10.0.26.4
 
 restconf:
   host: 10.8.2.4
-  username: admin
-  password: admin
 
 bgp:
   asn: 65512
@@ -34,14 +32,14 @@ bgp:
   networks:
     - number: 10.0.30.4
       mask: 255.255.255.252
-
+  
     - number: 10.0.30.0
       mask: 255.255.255.252
-
-    - number: 10.0.34.65
+  
+    - number: 10.0.34.64
       mask: 255.255.255.252
 
-
+  
   neighbors:
     - name: R1
       peer_ip: 10.0.26.1

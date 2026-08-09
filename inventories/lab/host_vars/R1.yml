@@ -3,8 +3,6 @@ router_id: 10.0.26.1
 
 restconf:
   host: 10.8.2.1
-  username: admin
-  password: admin
 
 bgp:
   asn: 65512
@@ -27,34 +25,40 @@ bgp:
   route_maps:
     - name: BLOCK_OSPF_TO_IBGP
       entries:
-        - seq
+        - seq: 10
+          action: deny
+
+    - name: SEND_OSPF_TO_EBGP
+      entries:
+        - seq: 10
+          action: permit
+          match_prefix_list: OSPF_TO_BGP_PREFIXES
 
     - name: OSPF_TO_BGP
       entries:
         - seq: 10
           action: permit
           match_prefix_list: OSPF_TO_BGP_PREFIXES
-
   networks:
     - number: 10.0.24.0
       mask: 255.255.255.0
-
+  
     - number: 10.0.28.0
       mask: 255.255.255.252
-
-    - number: 10.0.3.2
+  
+    - number: 10.0.3.0
       mask: 255.255.255.0
-
+  
     - number: 10.0.26.1
       mask: 255.255.255.255
-
+  
   neighbors:
     - name: R4
       peer_ip: 10.0.26.3
       remote_as: 65512
       multihop: true
       outbound_route_map: BLOCK_OSPF_TO_IBGP
-
+  
     - name: inet_rtr
       peer_ip: 10.0.3.1
       remote_as: 65513
