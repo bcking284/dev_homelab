@@ -27,7 +27,7 @@ bgp:
   route_maps:
     - name: BLOCK_OSPF_TO_IBGP
       entries:
-        - seq 
+        - seq
 
     - name: OSPF_TO_BGP
       entries:
@@ -38,23 +38,23 @@ bgp:
   networks:
     - number: 10.0.24.0
       mask: 255.255.255.0
-  
+
     - number: 10.0.28.0
       mask: 255.255.255.252
-  
+
     - number: 10.0.3.2
       mask: 255.255.255.0
-  
+
     - number: 10.0.26.1
       mask: 255.255.255.255
-  
+
   neighbors:
     - name: R4
       peer_ip: 10.0.26.3
       remote_as: 65512
       multihop: true
       outbound_route_map: BLOCK_OSPF_TO_IBGP
-  
+
     - name: inet_rtr
       peer_ip: 10.0.3.1
       remote_as: 65513
