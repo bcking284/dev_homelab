@@ -1,0 +1,4 @@
+
+# vendor reference material - leave bytes alone
+docs/yang/** -text
+backups/** text eol=lf
