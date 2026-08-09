@@ -3,8 +3,6 @@ router_id: 10.0.26.3
 
 restconf:
   host: 10.8.2.3
-  username: admin
-  password: admin
 
 bgp:
   asn: 65512
