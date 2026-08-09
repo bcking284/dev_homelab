@@ -1,0 +1,14 @@
+stages:
+  - build
+
+default:
+  tags: [homelab]
+  image: python:3.12-slim
+
+hello:
+  stage: build
+  script:
+    - echo "Runner is alive"
+    - python --version
+    - pwd
+    - ls -la
