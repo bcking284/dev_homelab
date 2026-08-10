@@ -23,6 +23,76 @@ This project documents my journey building a network automation and CI/CD-style 
 # Work Notes:
 The environment currently includes Cisco routers, switches, and ASA firewalls managed through Ansible playbooks and version-controlled through GitHub. 
 
+# 08/08-08/10 (Getting Serious)
+- OSPF troubleshooting (lab)
+  - Brushing up on my OSPF
+  - Root cause found: area ID mismatch on R1–R5 link. R5 had network 10.0.28.0 0.0.0.255 area 0, R1 had area 1. Hello packets silently discarded, no adjacency, R5's loopback never entered the LSDB
+  - Fixed by moving R5's interfaces to area 1 and applying area 1 stub
+  - Confirmed the fix via Type 3 summary LSAs for 10.0.28.0/30 and 10.0.28.129/32 appearing in area 0
+  - Clarified: area X stub required on both routers (E-bit in hello); no-summary on ABR only
+  - Latent bugs identified in ospf_config.j2 — not yet fixed:
+  - Hardcoded 0.0.0.255 wildcard for every interface regardless of subnet mask
+  - area X stub never rendered despite ospf_areas existing in the data model. This is why stub config had to be typed by hand
+
+- Infrastructure deployed
+  - Docker CE 28.1.1 + compose v2 on AUTO_box
+  - GitLab account + project (bcking2841/dev_homelab), repo mirrored from GitHub
+  - GitLab Runner 19.2.1 as a container, docker executor, python:3.12-slim, --docker-network-mode host, tagged homelab — Online and picking up jobs
+  - SSH keys on both machines for both remotes; all four remotes converted from HTTPS to SSH
+  - CI/CD variables in GitLab: NET_USERNAME, NET_PASSWORD, NET_ENABLE (masked/protected)
+  - .gitlab-ci.yml with three jobs across two stages: lint-yaml, validate-vars, reach-devices
+  - scripts/validate_vars.py — schema and referential integrity checks on host_vars
+  - .yamllint — tuned rule config
+  - .gitattributes — LF enforcement with vendor YANG excluded
+
+- Bugs the pipeline caught
+  - R1.yml — route-map BLOCK_OSPF_TO_IBGP had a bare - seq string instead of a mapping
+  - R1.yml — neighbor referenced SEND_OSPF_TO_EBGP, which was never defined
+  - R1.yml — network 10.0.3.2 / 255.255.255.0 had host bits set (should be .0)
+  - R4.yml — network 10.0.34.65 / 255.255.255.252 had host bits set (should be .64)
+  - More to come surely
+
+- Troubleshooting log
+  - Git:
+    - 641 files showing as modified — diagnosed as line endings via equal insertion/deletion counts in git diff --stat
+    - Working tree stayed CRLF after --renormalize; resolved with git rm --cached -r . && git reset --hard
+    - Diverged history — six merge commits on GitHub from web-UI PRs vs. four local commits
+    - git branch -d refusing deletion because the remote-tracking ref was already gone; needed -D after verifying with log A..B
+    - Home PC stuck on a deleted branch, couldn't pull
+    - Six-file merge conflict (line endings vs. real edits); resolved with checkout --theirs then re-normalize
+    - Stash conflict on all.yml
+    - Whitespace cleanup undone by a merge from the un-synced home PC
+  - Authentication:
+    - GitHub rejecting HTTPS password auth — remote was never converted to SSH
+    - Prompt consumed a queued second command, producing a mangled username
+    - Multiple SSH keys with non-default filenames not being offered; needed ~/.ssh/config with per-host IdentityFile
+    - PowerShell ~ not expanding for native executables (ssh-keygen -f) — needs $env:USERPROFILE
+  - Runner
+    - apt install gitlab-runner pulled version 11.2.0 from focal (2018) — doesn't understand glrt- tokens. Purged, removed its systemd service
+    - Ctrl+C during registration unregistered the runner and burned the token — registration tokens are single-use
+    - Long-polling / request_concurrency warning: cosmetic, ignored
+  - Pipeline
+    - First run failed with yaml invalid / 0 jobs — actually GitLab account phone verification, misleadingly labeled
+    - invalid config: not a mapping — .yamllint was created but never saved (empty file)
+    - ~80 lint findings on first run; tuned the ruleset rather than ignoring the gate
+
+- Habits established:
+  - Pull before working, on whichever machine
+  - One command at a time when a prompt is possible
+  - Run linters and validators locally before pushing — CI is the backstop, not the feedback loop
+  - Commit line-ending normalization separately, labeled as such
+  - Verify with git log A..B in both directions before deleting anything
+
+- Next up:
+  - Finish lint cleanup, get reach-devices green (first job to authenticate to the network)
+  - Add --check --diff prevalidation stage
+  - Add deploy with when: manual
+  - Add pyATS learn/diff post-validation
+  - Fix ospf_config.j2 wildcard mask and stub-area rendering
+  - Rotate device credentials with algorithm-type scrypt
+  - Consider a custom CI image with ansible + collections + pyATS baked in (also covers objective 2.5)
+
+
 # 06/06-07/26
 - Focusing on integrating jinja templates with python before moving on to Ansible abstraction
 - Created/Edited restconf_jinja_bgp.py first to send a single request, then to hold the yml 
