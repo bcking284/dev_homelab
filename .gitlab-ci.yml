@@ -26,6 +26,17 @@ reach-devices:
     ANSIBLE_HOST_KEY_CHECKING: "False"
   script:
     - pip install --quiet --root-user-action=ignore ansible-core
-    - pip install --quiet --root-user-action=ignore paramiko
     - ansible-galaxy collection install cisco.ios
+    - pip install --quiet --root-user-action=ignore paramiko
+    - mkdir -p ~/.ssh
+    - |
+      cat > ~/.ssh/config <<'EOF'
+      Host *
+          KexAlgorithms +diffie-hellman-group1-sha1,diffie-hellman-group14-sha1,diffie-hellman-group-exchange-sha1
+          HostKeyAlgorithms +ssh-rsa,ssh-dss
+          PubkeyAcceptedAlgorithms +ssh-rsa
+          Ciphers +aes128-cbc,aes192-cbc,aes256-cbc,3des-cbc
+          MACs +hmac-sha1
+      EOF
+    - chmod 600 ~/.ssh/config
     - ansible -i inventories/lab/hosts.ini ios -m cisco.ios.ios_facts -a "gather_subset=min"
