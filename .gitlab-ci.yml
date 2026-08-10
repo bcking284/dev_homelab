@@ -26,5 +26,6 @@ reach-devices:
     ANSIBLE_HOST_KEY_CHECKING: "False"
   script:
     - pip install --quiet --root-user-action=ignore ansible-core
+    - pip install --quiet --root-user-action=ignore paramiko
     - ansible-galaxy collection install cisco.ios
     - ansible -i inventories/lab/hosts.ini ios -m cisco.ios.ios_facts -a "gather_subset=min"
