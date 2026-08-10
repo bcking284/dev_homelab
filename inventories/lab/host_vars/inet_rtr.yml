@@ -58,4 +58,3 @@ bgp_networks:
     address_fam: ipv4
     network: 10.0.2.254
     mask: 255.255.255.255
-

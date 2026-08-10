@@ -7,9 +7,9 @@
   - name: Configure Stub Areas
     cisco.ios.ios_config:
       parents:
-        - "router ospf {{ prod_ospf_process_id }}"
+      - "router ospf {{ prod_ospf_process_id }}"
       lines:
-        - "area {{ area.area_id }} stub"
+      - "area {{ area.area_id }} stub"
       match: line
     loop: "{{ ospf_areas | default([]) }}"
     loop_control:
@@ -19,9 +19,9 @@
   - name: Configure NSSA areas
     cisco.ios.ios_config:
       parents:
-        - "router ospf {{ prod_ospf_process_id }}"
+      - "router ospf {{ prod_ospf_process_id }}"
       lines:
-        - "area {{ area.area_id }} nssa"
+      - "area {{ area.area_id }} nssa"
       match: line
     loop: "{{ ospf_areas | default([]) }}"
     loop_control:
