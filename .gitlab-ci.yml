@@ -28,6 +28,7 @@ reach-devices:
     - pip install --quiet --root-user-action=ignore ansible-core
     - ansible-galaxy collection install cisco.ios
     - pip install --quiet --root-user-action=ignore paramiko
+    - pip install --quiet --root-user-action=ignore ansible-core ansible-pylibssh
     - mkdir -p ~/.ssh
     - |
       cat > ~/.ssh/config <<'EOF'
