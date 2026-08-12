@@ -109,4 +109,3 @@ ospf:
       passive: true
       stub: false
       ospf_area: 0
-      

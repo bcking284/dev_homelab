@@ -27,7 +27,7 @@ ospf:
       ospf_area: 1
       istagged: true
       vlan_tag: 900
-      
+
     - name: Loopback900
       description: R1 Router ID
       ip_address: 10.0.28.129
@@ -36,4 +36,3 @@ ospf:
       passive: true
       stub: false
       ospf_area: 0
-      
