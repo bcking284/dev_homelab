@@ -1,3 +1,10 @@
+default:
+  tags: [homelab]
+  image: registry.gitlab.com/bcking2841/dev_homelab/netauto:latest
+
+variables:
+  ANSIBLE_CONFIG: "$CI_PROJECT_DIR/ansible.cfg"
+
 stages:
   - build
   - prevalidation
@@ -20,24 +27,29 @@ validate-vars:
 
 reach-devices:
   stage: prevalidation
-  tags: [homelab]
-  image: python:3.12-slim
-  variables:
-    ANSIBLE_HOST_KEY_CHECKING: "False"
   script:
-    - pip install --quiet --root-user-action=ignore ansible-core
-    - ansible-galaxy collection install cisco.ios
-    - pip install --quiet --root-user-action=ignore paramiko
-    - pip install --quiet --root-user-action=ignore ansible-core ansible-pylibssh
-    - mkdir -p ~/.ssh
-    - |
-      cat > ~/.ssh/config <<'EOF'
-      Host *
-          KexAlgorithms +diffie-hellman-group1-sha1,diffie-hellman-group14-sha1,diffie-hellman-group-exchange-sha1
-          HostKeyAlgorithms +ssh-rsa,ssh-dss
-          PubkeyAcceptedAlgorithms +ssh-rsa
-          Ciphers +aes128-cbc,aes192-cbc,aes256-cbc,3des-cbc
-          MACs +hmac-sha1
-      EOF
-    - chmod 600 ~/.ssh/config
     - ansible -i inventories/lab/hosts.ini ios -m cisco.ios.ios_facts -a "gather_subset=min"
+
+# reach-devices:
+#   stage: prevalidation
+#   tags: [homelab]
+#   image: python:3.12-slim
+#   variables:
+#     ANSIBLE_HOST_KEY_CHECKING: "False"
+#   script:
+#     - pip install --quiet --root-user-action=ignore ansible-core
+#     - ansible-galaxy collection install cisco.ios
+#     - pip install --quiet --root-user-action=ignore paramiko
+#     - pip install --quiet --root-user-action=ignore ansible-core ansible-pylibssh
+#     - mkdir -p ~/.ssh
+#     - |
+#       cat > ~/.ssh/config <<'EOF'
+#       Host *
+#           KexAlgorithms +diffie-hellman-group1-sha1,diffie-hellman-group14-sha1,diffie-hellman-group-exchange-sha1
+#           HostKeyAlgorithms +ssh-rsa,ssh-dss
+#           PubkeyAcceptedAlgorithms +ssh-rsa
+#           Ciphers +aes128-cbc,aes192-cbc,aes256-cbc,3des-cbc
+#           MACs +hmac-sha1
+#       EOF
+#     - chmod 600 ~/.ssh/config
+#     - ansible -i inventories/lab/hosts.ini ios -m cisco.ios.ios_facts -a "gather_subset=min"
