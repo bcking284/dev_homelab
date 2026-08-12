@@ -30,6 +30,30 @@ reach-devices:
   script:
     - ansible -i inventories/lab/hosts.ini ios -m cisco.ios.ios_facts -a "gather_subset=min"
 
+check-ospf:
+  stage: prevalidation
+  script:
+    - ansible-playbook -i inventories/lab/hosts.ini playbooks/routing/ospf/configure_ospf.yml --check --diff | tee check-ospf.txt
+  artifacts:
+    paths:
+      - check-ospf.txt
+    expire_in: 1 week
+    when: always
+
+# checkpoint:
+#   stage: prevalidation
+#   script:
+#     - ansible-playbook -i $INV playbooks/quickies/rollback_checkpoint.yml
+#   artifacts:
+#     paths: [backups/checkpoints/]
+#     expire_in: 30 days
+
+# rollback:
+#   stage: postvalidation
+#   when: on_failure
+#   script:
+#     - ansible-playbook -i $INV playbooks/quickies/rollback_replace.yml
+
 # reach-devices:
 #   stage: prevalidation
 #   tags: [homelab]
