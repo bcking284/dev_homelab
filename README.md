@@ -23,6 +23,39 @@ This project documents my journey building a network automation and CI/CD-style 
 # Work Notes:
 The environment currently includes Cisco routers, switches, and ASA firewalls managed through Ansible playbooks and version-controlled through GitHub. 
 
+# 08/11 – 08/13/26
+- Deployed
+  - Custom CI image (ci/Dockerfile) - python:3.12-slim base with ansible-core 2.17, ansible-pylibssh, yamllint, ansible-lint, and the cisco.ios / cisco.asa / ansible.netcommon collections baked in. Built and pushed to GitLab's container registry
+  - .env on AUTO_box - NET_USERNAME / NET_PASSWORD / NET_ENABLE, gitignored, loaded via source .env
+  - pyATS 24.9 installed on AUTO_box (user install)
+  - reach-devices job passing - the runner now authenticates to R1–R5, inet_rtr, and mgmt_sw and pulls facts. First job to touch the network
+
+- Fixed
+  - Container SSH failure - root cause was Ansible defaulting to Paramiko, which ignores ~/.ssh/config entirely. 
+  - Fixed with ansible_network_cli_ssh_type: libssh plus ansible_ssh_common_args in group_vars/all.yml. Config lives in the repo, so it applies identically on AUTO_box and in CI
+  - AUTO_box breaking mid-session - group_vars/all.yml had been switched to lookup('env', ...) but .env was never created, so ansible_password resolved empty and Ansible fell through to publickey auth. Creating and sourcing .env resolved it
+  - pyATS CLI wouldn't start - pkg_resources version conflict, pysmi-lextudio requiring requests>=2.26.0 against the system's 2.22.0. Fixed by upgrading requests and paramiko with pip3 install --user
+  - ospf_config.j2 rewritten - switched from network statements to per-interface ip ospf <pid> area <n>, which eliminates the wildcard-mask bug entirely. Added a loop over ospf_areas so area X stub no-summary finally renders from the data model instead of being typed by hand. Corrected the structural bug where interface commands were nested inside the router ospf block
+  - Lint cleared locally
+
+- Learned / decided
+  - IOSv 16.09.07 only supports diffie-hellman-group14-sha1 - no SHA-256 KEX available. Confirmed with ? at the CLI. Raising the devices wasn't an option, so the fix had to be client-side
+  - Ubuntu 20.04 + Python 3.8 is a dead end for modern tooling - pyATS resolved to 24.9 (two years stale) because that's the newest release supporting 3.8, and even then it collided with apt-installed packages. Strong argument for containerizing the toolchain rather than fighting the host
+  - --check --diff makes no changes - connects, computes the delta, writes nothing. Reliable for ios_config; unreliable across multi-task plays where later tasks depend on earlier ones having run
+  - Line-by-line config replay can only add, never remove - which is why rollback_configs.yml never worked. configure replace is the correct mechanism; IOS computes both additions and removals itself
+  - configure replace ... revert trigger timer N is a dead-man switch - auto-reverts unless you issue configure confirm. The right pattern for any change that could cut your own management path
+  - Distro packages for fast-moving DevOps tools are years stale (gitlab-runner 11.2.0 from focal was the earlier example; pyATS 24.9 is this one)
+
+- Next up
+  - Verify the pipeline is actually using the registered image (jobs should drop to seconds with no pip install lines)
+  - Test the rewritten ospf_config.j2 render - watch for prod_ospf_process_id and the ospf_areas nesting scope
+  - --check --diff prevalidation stage - first look at drift between YAML and devices
+  - Replace rollback_configs.yml with the configure replace checkpoint/rollback pair, and test it deliberately on R5
+  - deploy stage with when: manual
+  - pyATS testbed file + parse against R1 by hand, then snapshot/diff post-validation
+  - rollback wired to when: on_failure
+  - Still deferred: device credential rotation with algorithm-type scrypt, and moving creds out of the six RESTCONF Python scripts
+
 # 08/08-08/10 (Getting Serious)
 - OSPF troubleshooting (lab)
   - Brushing up on my OSPF
@@ -30,56 +63,56 @@ The environment currently includes Cisco routers, switches, and ASA firewalls ma
   - Fixed by moving R5's interfaces to area 1 and applying area 1 stub
   - Confirmed the fix via Type 3 summary LSAs for 10.0.28.0/30 and 10.0.28.129/32 appearing in area 0
   - Clarified: area X stub required on both routers (E-bit in hello); no-summary on ABR only
-  - Latent bugs identified in ospf_config.j2 — not yet fixed:
+  - Latent bugs identified in ospf_config.j2 - not yet fixed:
   - Hardcoded 0.0.0.255 wildcard for every interface regardless of subnet mask
   - area X stub never rendered despite ospf_areas existing in the data model. This is why stub config had to be typed by hand
 
 - Infrastructure deployed
   - Docker CE 28.1.1 + compose v2 on AUTO_box
   - GitLab account + project (bcking2841/dev_homelab), repo mirrored from GitHub
-  - GitLab Runner 19.2.1 as a container, docker executor, python:3.12-slim, --docker-network-mode host, tagged homelab — Online and picking up jobs
+  - GitLab Runner 19.2.1 as a container, docker executor, python:3.12-slim, --docker-network-mode host, tagged homelab - Online and picking up jobs
   - SSH keys on both machines for both remotes; all four remotes converted from HTTPS to SSH
   - CI/CD variables in GitLab: NET_USERNAME, NET_PASSWORD, NET_ENABLE (masked/protected)
   - .gitlab-ci.yml with three jobs across two stages: lint-yaml, validate-vars, reach-devices
-  - scripts/validate_vars.py — schema and referential integrity checks on host_vars
-  - .yamllint — tuned rule config
-  - .gitattributes — LF enforcement with vendor YANG excluded
+  - scripts/validate_vars.py - schema and referential integrity checks on host_vars
+  - .yamllint - tuned rule config
+  - .gitattributes - LF enforcement with vendor YANG excluded
 
 - Bugs the pipeline caught
-  - R1.yml — route-map BLOCK_OSPF_TO_IBGP had a bare - seq string instead of a mapping
-  - R1.yml — neighbor referenced SEND_OSPF_TO_EBGP, which was never defined
-  - R1.yml — network 10.0.3.2 / 255.255.255.0 had host bits set (should be .0)
-  - R4.yml — network 10.0.34.65 / 255.255.255.252 had host bits set (should be .64)
+  - R1.yml - route-map BLOCK_OSPF_TO_IBGP had a bare - seq string instead of a mapping
+  - R1.yml - neighbor referenced SEND_OSPF_TO_EBGP, which was never defined
+  - R1.yml - network 10.0.3.2 / 255.255.255.0 had host bits set (should be .0)
+  - R4.yml - network 10.0.34.65 / 255.255.255.252 had host bits set (should be .64)
   - More to come surely
 
 - Troubleshooting log
   - Git:
-    - 641 files showing as modified — diagnosed as line endings via equal insertion/deletion counts in git diff --stat
+    - 641 files showing as modified - diagnosed as line endings via equal insertion/deletion counts in git diff --stat
     - Working tree stayed CRLF after --renormalize; resolved with git rm --cached -r . && git reset --hard
-    - Diverged history — six merge commits on GitHub from web-UI PRs vs. four local commits
+    - Diverged history - six merge commits on GitHub from web-UI PRs vs. four local commits
     - git branch -d refusing deletion because the remote-tracking ref was already gone; needed -D after verifying with log A..B
     - Home PC stuck on a deleted branch, couldn't pull
     - Six-file merge conflict (line endings vs. real edits); resolved with checkout --theirs then re-normalize
     - Stash conflict on all.yml
     - Whitespace cleanup undone by a merge from the un-synced home PC
   - Authentication:
-    - GitHub rejecting HTTPS password auth — remote was never converted to SSH
+    - GitHub rejecting HTTPS password auth - remote was never converted to SSH
     - Prompt consumed a queued second command, producing a mangled username
     - Multiple SSH keys with non-default filenames not being offered; needed ~/.ssh/config with per-host IdentityFile
-    - PowerShell ~ not expanding for native executables (ssh-keygen -f) — needs $env:USERPROFILE
+    - PowerShell ~ not expanding for native executables (ssh-keygen -f) - needs $env:USERPROFILE
   - Runner
-    - apt install gitlab-runner pulled version 11.2.0 from focal (2018) — doesn't understand glrt- tokens. Purged, removed its systemd service
-    - Ctrl+C during registration unregistered the runner and burned the token — registration tokens are single-use
+    - apt install gitlab-runner pulled version 11.2.0 from focal (2018) - doesn't understand glrt- tokens. Purged, removed its systemd service
+    - Ctrl+C during registration unregistered the runner and burned the token - registration tokens are single-use
     - Long-polling / request_concurrency warning: cosmetic, ignored
   - Pipeline
-    - First run failed with yaml invalid / 0 jobs — actually GitLab account phone verification, misleadingly labeled
-    - invalid config: not a mapping — .yamllint was created but never saved (empty file)
+    - First run failed with yaml invalid / 0 jobs - actually GitLab account phone verification, misleadingly labeled
+    - invalid config: not a mapping - .yamllint was created but never saved (empty file)
     - ~80 lint findings on first run; tuned the ruleset rather than ignoring the gate
 
 - Habits established:
   - Pull before working, on whichever machine
   - One command at a time when a prompt is possible
-  - Run linters and validators locally before pushing — CI is the backstop, not the feedback loop
+  - Run linters and validators locally before pushing - CI is the backstop, not the feedback loop
   - Commit line-ending normalization separately, labeled as such
   - Verify with git log A..B in both directions before deleting anything
 
