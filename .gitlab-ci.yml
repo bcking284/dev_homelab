@@ -1,6 +1,6 @@
 default:
   tags: [homelab]
-  image: registry.gitlab.com/bcking2841/dev_homelab/netauto:latest
+  image: netauto:local
 
 variables:
   ANSIBLE_CONFIG: "$CI_PROJECT_DIR/ansible.cfg"
