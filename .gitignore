@@ -3,3 +3,4 @@
 .env
 *.vault
 vault_pass*
+*.save

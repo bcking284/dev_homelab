@@ -87,6 +87,7 @@ ospf:
       ospf_area: 0
       istagged: true
       vlan_tag: 900
+      process_id: 900
 
     - name: GigabitEthernet2.900
       description: Link to R5
