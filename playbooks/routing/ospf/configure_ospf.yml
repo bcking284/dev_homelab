@@ -1,31 +1,15 @@
 ---
-- name: Configure IOS OSPF
+- name: Configure OSPF via resource modules
   hosts: ios_ospf_routers
   gather_facts: false
 
   tasks:
-    - name: Configure OSPF network statements
-      cisco.ios.ios_config:
-        parents:
-          - "router ospf {{ prod_ospf_process_id }}"
-        lines:
-          - "router-id {{ router_id }}"
-          - "network {{ item.ip_address }} 0.0.0.255 area {{ item.ospf_area | default(ospf_area) }}"
-          - "log-adjacency-changes"
-        match: line
-      loop: "{{ ospf_interfaces }}"
-      when: item.ospf_enabled | default(false)
+    - name: OSPF process, areas, passive interfaces
+      cisco.ios.ios_ospfv2:
+        config: "{{ ospf_v2 }}"
+        state: replaced
 
-    - name: Configure passive interfaces
-      cisco.ios.ios_config:
-        parents:
-          - "router ospf {{ prod_ospf_process_id }}"
-        lines:
-          - "passive-interface {{ item.name }}"
-        match: line
-      loop: "{{ ospf_interfaces }}"
-      when: item.passive | default(false)
-
-    - name: Save running config if modified
-      cisco.ios.ios_config:
-        save_when: modified
+    - name: OSPF interface enablement
+      cisco.ios.ios_ospf_interfaces:
+        config: "{{ ospf_ifaces }}"
+        state: replaced
