@@ -23,6 +23,55 @@ This project documents my journey building a network automation and CI/CD-style 
 # Work Notes:
 The environment currently includes Cisco routers, switches, and ASA firewalls managed through Ansible playbooks and version-controlled through GitHub. 
 
+# 08/13 – 08/19/26
+
+- Deployed
+  - Interactive container workflow - `docker run --rm -it -v "$PWD:/work" -w /work -e NET_USERNAME -e NET_PASSWORD -e NET_ENABLE netauto:local bash` drops into a shell inside the image with the repo mounted live. Wrapped as a `nash()` function in ~/.bashrc so it cds, sources .env, and launches in one word
+  - Local-image pipeline (Option A) - abandoned the GitLab container registry for a single-runner lab. Image tagged `netauto:local`, runner `pull_policy` changed to `if-not-present` in ~/ci/config/config.toml. No push, no pull, no network
+  - Legacy SSH crypto baked into the image - `/etc/ssh/ssh_config` in ci/Dockerfile with KexAlgorithms/HostKeyAlgorithms/PubkeyAcceptedAlgorithms/Ciphers/MACs additions. Confirmed libssh honors it. Crypto compatibility is now an image concern, credentials stay a repo concern
+  - ci/Dockerfile committed to git - had been built on AUTO_box but never tracked
+  - Resource module conversion started - configure_ospf.yml rewritten to use cisco.ios.ios_ospfv2 and cisco.ios.ios_ospf_interfaces. Template and render step eliminated. R1's host_vars restructured by hand into the module argspec shape
+  - Debug tasks printing `.commands` after each resource module task - permanent visibility into the exact CLI being generated, since --diff doesn't work for these modules
+
+- Fixed
+  - `manifest unknown` on every job - image was built locally but never pushed to the registry, and pull_policy was `always`. Resolved by switching to the local-image approach rather than fixing the push
+  - Debian 12 dropped SHA-1 KEX from its defaults - the newer base image refused to negotiate with IOS 16.09.07, which only offers diffie-hellman-group14-sha1 and group-exchange-sha1. `ansible_ssh_common_args` had no effect because pylibssh doesn't parse it; the fix had to be in /etc/ssh/ssh_config
+  - Duplicate dict key in R1.yml line 101 - two `name:` keys at the same level, YAML silently kept the last and discarded the first. Caused by a missing `-` collapsing two list items into one dict
+  - `config is of type list, unable to convert to dict` - ios_ospfv2 wants `{processes: [...]}`, the data was a bare list. ios_ospf_interfaces genuinely takes a bare list. Two modules, two shapes
+  - Malformed ospf_cfg structure - process 900 was split across two list items, and process_id / router_id / passive_interfaces were nested inside the last network entry instead of being siblings at process level
+  - Unquoted area IDs - `area_id: 1` parses as int, argspec says `type: str`. Confirmed with ansible-doc
+  - `stdout_callback = yaml` - callback isn't in ansible-core 2.17 and isn't in ansible.posix either. Abandoned after two rebuilds in favor of a gather playbook using `to_nice_yaml`
+  - `--env-file .env` rejected - Docker wants bare KEY=value and chokes on the `export` keyword. Use `-e VAR` passthrough with `source .env` first
+  - Repeated merge conflicts on ansible.cfg and host_vars - editing the same files on both machines within minutes. Resolved with `checkout --theirs` and a rule: edit on home PC, pull on AUTO_box, don't edit on AUTO_box
+
+- Found, not yet fixed
+  - **ios_ospfv2 does not write stub area config.** The gathered parser reads `area 1 stub` back as `{stub: {set: true}}`, and the argspec documents `stub` with `set` / `no_summary` / `no_ext_capability` suboptions - but no generated command ever appears. Read-side coverage without write-side coverage
+  - Consequence: the module reports `changed` on every run and emits a bare `router ospf 900`, because it sees a permanent diff it can never close. Not idempotent
+  - Workaround identified: keep the resource module for the bulk, add a small `ios_config` task for the stub area, and remove `areas` from ospf_cfg so the module stops trying
+  - R1's process 900 currently has router-id, passive-interface, and all three network statements but no `area 1 stub`. R1–R5 adjacency likely down until that's applied by hand on both ends
+  - check-ospf was a false pass earlier in the week - every task skipped, only the save task reported. A gate that can't fail isn't a gate
+
+- Learned
+  - `type: dict` means no dash, `type: list` + `elements: dict` means dashes. That single rule from `ansible-doc` resolves almost every YAML shape question
+  - JSON `[` → YAML `-` items; JSON `{` → indented keys with no dash; bare value → `key: value`
+  - Column position is the only thing telling YAML which parent a key belongs to. Put scalars before nested blocks so misindentation is visible
+  - Quote single-octet values (`area: "0"`) - bare `0` becomes an integer and modules silently skip blocks rather than erroring
+  - `to_nice_yaml` sorts keys alphabetically, which is why generated output puts `network` before `process_id` and reads confusingly
+  - Resource modules use SSH and CLI parsing, not RESTCONF. The JSON is just how ansible-cli displays return values
+  - Images are inert filesystem snapshots; containers are processes created from them. `docker build` starts nothing
+  - Docker layer caching means only the changed instruction and everything below it rebuilds - put slow, stable steps first
+
+- Next up
+  1. Apply `area 1 stub` by hand on R1 and R5 to restore the adjacency
+  2. Add the `ios_config` stub-area task and remove `areas` from ospf_cfg; confirm the playbook goes idempotent
+  3. Convert R2–R5 host_vars to the resource module shape
+  4. Fix the check-ospf false pass
+  5. Add `key-duplicates: enable` to .yamllint and an area-ID-is-string check to validate_vars.py
+  6. Deploy stage with `when: manual`
+  7. pyATS testbed + snapshot/diff post-validation
+  8. Rollback wired to `when: on_failure` using the configure replace playbooks
+  9. Still deferred: credential rotation with `algorithm-type scrypt`, creds out of the six RESTCONF scripts
+
 # 08/11 – 08/13/26
 - Deployed
   - Custom CI image (ci/Dockerfile) - python:3.12-slim base with ansible-core 2.17, ansible-pylibssh, yamllint, ansible-lint, and the cisco.ios / cisco.asa / ansible.netcommon collections baked in. Built and pushed to GitLab's container registry

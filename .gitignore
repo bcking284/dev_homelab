@@ -4,3 +4,6 @@
 *.vault
 vault_pass*
 *.save
+
+#etc
+sync.ps1

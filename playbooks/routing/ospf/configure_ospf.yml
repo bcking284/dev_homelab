@@ -6,10 +6,15 @@
   tasks:
     - name: OSPF process, areas, passive interfaces
       cisco.ios.ios_ospfv2:
-        config: "{{ ospf_v2 }}"
+        config: "{{ ospf_cfg }}"
         state: replaced
+      register: ospf_result
 
-    - name: OSPF interface enablement
-      cisco.ios.ios_ospf_interfaces:
-        config: "{{ ospf_ifaces }}"
-        state: replaced
+    - name: Show generated commands
+      ansible.builtin.debug:
+        var: ospf_result.commands
+
+    # - name: OSPF interface enablement
+    #   cisco.ios.ios_ospf_interfaces:
+    #     config: "{{ ospf_ifaces }}"
+    #     state: replaced
