@@ -1,10 +1,3 @@
----
-restconf:
-  host: 10.8.2.5
-
-bgp:
-  asn: 65512
-
 ospf_cfg:
   processes:
   - network:
@@ -29,16 +22,12 @@ ospf_cfg:
         set_interface: true
     process_id: 900
     router_id: 10.0.28.129
-
 ospf_ifaces:
 - name: Loopback10
 - name: Loopback900
 - name: GigabitEthernet1
 - address_family:
   - afi: ipv4
-    process:
-      id: 900
-      area_id: 1
     network:
       point_to_point: true
   name: GigabitEthernet1.10
@@ -46,4 +35,3 @@ ospf_ifaces:
 - name: GigabitEthernet2
 - name: GigabitEthernet3
 - name: GigabitEthernet4
-

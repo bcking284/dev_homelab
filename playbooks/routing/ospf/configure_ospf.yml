@@ -20,10 +20,21 @@
         state: replaced
       register: ospf_result
 
-    - name: Stub areas
+    - name: Area types (stub / NSSA)
       cisco.ios.ios_config:
         lines:
-          - "area {{ item.area_id }} stub{{ ' no-summary' if item.stub.no_summary | default(false) else '' }}"
-        parents: "router ospf 900"
-      loop: "{{ (ospf_cfg.processes | selectattr('process_id','equalto',900) | first).areas | default([]) }}"
-      when: item.stub is defined
+          - >-
+            area {{ item.area_id }}
+            {%- if item.stub is defined %} stub
+            {%- if item.stub.no_summary | default(false) %} no-summary{% endif %}
+            {%- elif item.nssa is defined %} nssa
+            {%- if item.nssa.no_summary | default(false) %} no-summary{% endif %}
+            {%- if item.nssa.default_information_originate is defined %} default-information-originate{% endif %}
+            {%- endif %}
+        parents: "router ospf {{ prod_ospf_process_id }}"
+      loop: >-
+        {{ ospf_cfg.processes
+           | selectattr('process_id', 'equalto', prod_ospf_process_id)
+           | map(attribute='areas', default=[])
+           | flatten }}
+      when: item.stub is defined or item.nssa is defined
