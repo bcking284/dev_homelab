@@ -4,17 +4,26 @@
   gather_facts: false
 
   tasks:
-    - name: OSPF process, areas, passive interfaces
+    - name: OSPF process, networks, passive interfaces
       cisco.ios.ios_ospfv2:
         config: "{{ ospf_cfg }}"
         state: replaced
       register: ospf_result
+      changed_when: >-
+        ospf_result.commands | default([])
+        | reject('match', '^router ospf \\d+( vrf \\S+)?$')
+        | list | length > 0
 
-    - name: Show generated commands
-      ansible.builtin.debug:
-        var: ospf_result.commands
+    - name: OSPF interface level configuration
+      cisco.ios.ios_ospf_interfaces:
+        config: "{{ ospf_ifaces }}"
+        state: replaced
+      register: ospf_result
 
-    # - name: OSPF interface enablement
-    #   cisco.ios.ios_ospf_interfaces:
-    #     config: "{{ ospf_ifaces }}"
-    #     state: replaced
+    - name: Stub areas
+      cisco.ios.ios_config:
+        lines:
+          - "area {{ item.area_id }} stub{{ ' no-summary' if item.stub.no_summary | default(false) else '' }}"
+        parents: "router ospf 900"
+      loop: "{{ (ospf_cfg.processes | selectattr('process_id','equalto',900) | first).areas | default([]) }}"
+      when: item.stub is defined

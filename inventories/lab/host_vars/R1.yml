@@ -65,26 +65,27 @@ bgp:
       outbound_route_map: SEND_OSPF_TO_EBGP
 
 ospf_ifaces:
-  - name: Loopback10
   - name: Loopback900
-  - name: GigabitEthernet1
     address_family:
       - afi: ipv4
-        network:
-          broadcast: true
+        process:
+          id: 900
+          area_id: 0
 
-  - name: GigabitEthernet1.10
   - name: GigabitEthernet1.900
+    address_family:
+      - afi: ipv4
+        process:
+          id: 900
+          area_id: 0
   - name: GigabitEthernet2
   - name: GigabitEthernet2.10
+  - name: GigabitEthernet2.900
     address_family:
       - afi: ipv4
-        network:
-          point_to_point: true
         process:
-          area_id: 0
           id: 900
-  - name: GigabitEthernet2.900
+          area_id: 0
   - name: GigabitEthernet3
   - address_family:
       - afi: ipv4
@@ -93,7 +94,7 @@ ospf_ifaces:
     name: GigabitEthernet3.11
   - name: GigabitEthernet4
 
-ospf_cfg:
+ospf_mgmt:
   processes:
     - process_id: 1
       router_id: "10.8.2.1"
@@ -103,71 +104,18 @@ ospf_cfg:
           area: "0"
           wildcard_bits: "255.255.255.255"
 
+ospf_cfg:
+  processes:
     - process_id: 900
       router_id: "10.0.26.1"
       areas:
-        - area_id: "1"
+        - area_id: 1
           stub:
             set: true
-      network:
-        - address: "10.0.24.0"
-          area: "0"
-          wildcard_bits: "0.0.0.255"
-        - address: 10.0.26.0
-          area: "0"
-          wildcard_bits: "0.0.0.255"
-        - address: 10.0.28.0
-          area: "1"
-          wildcard_bits: "0.0.0.255"
+            no_summary: true
       passive_interfaces:
         interface:
           name:
             - "Loopback900"
           set_interface: true
 
-
-# ospf:
-#   abr: true
-#   asbr: true
-
-#   ospf_areas:
-#     - area_id: 0
-#       type: backbone
-
-#     - area_id: 1
-#       type: stub
-#       no_summary: true
-
-#   ospf_interfaces:
-#     - name: GigabitEthernet1.900
-#       description: Link to Broadcast
-#       ip_address: 10.0.24.1
-#       subnet_mask: 255.255.255.0
-#       ospf_enabled: true
-#       passive: false
-#       stub: false
-#       ospf_area: 0
-#       istagged: true
-#       vlan_tag: 900
-#       process_id: 900
-
-#     - name: GigabitEthernet2.900
-#       description: Link to R5
-#       ip_address: 10.0.28.2
-#       subnet_mask: 255.255.255.252
-#       ospf_enabled: true
-#       passive: false
-#       stub: true
-#       stubtype: stub
-#       ospf_area: 1
-#       istagged: true
-#       vlan_tag: 900
-
-#     - name: Loopback900
-#       description: R1 Router ID
-#       ip_address: 10.0.26.1
-#       subnet_mask: 255.255.255.255
-#       ospf_enabled: true
-#       passive: true
-#       stub: false
-#       ospf_area: 0
