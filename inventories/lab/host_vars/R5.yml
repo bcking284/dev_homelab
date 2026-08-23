@@ -46,4 +46,3 @@ ospf_ifaces:
 - name: GigabitEthernet2
 - name: GigabitEthernet3
 - name: GigabitEthernet4
-

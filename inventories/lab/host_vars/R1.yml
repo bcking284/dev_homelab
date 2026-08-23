@@ -118,4 +118,3 @@ ospf_cfg:
           name:
             - "Loopback900"
           set_interface: true
-
