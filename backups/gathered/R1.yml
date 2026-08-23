@@ -23,41 +23,37 @@ ospf_cfg:
     router_id: 10.0.26.1
 
 ospf_ifaces:
-- name: Loopback10
-- address_family:
-  - afi: ipv4
-    process:
-      area_id: '0'
-      id: 900
-  name: Loopback900
-- name: GigabitEthernet1
-- address_family:
-  - afi: ipv4
-    network:
-      broadcast: true
-  name: GigabitEthernet1.10
-- address_family:
-  - afi: ipv4
-    process:
-      area_id: '0'
-      id: 900
-  name: GigabitEthernet1.900
-- name: GigabitEthernet2
-- address_family:
-  - afi: ipv4
-    network:
-      point_to_point: true
-  name: GigabitEthernet2.10
-- address_family:
-  - afi: ipv4
-    process:
-      area_id: '0'
-      id: 900
-  name: GigabitEthernet2.900
-- name: GigabitEthernet3
-- address_family:
-  - afi: ipv4
-    network:
-      point_to_point: true
-  name: GigabitEthernet3.11
-- name: GigabitEthernet4
+  - name: Loopback10
+  - name: Loopback900
+    address_family:
+    - afi: ipv4
+      process:
+        area_id: '0'
+        id: 900
+  - name: GigabitEthernet1
+  - address_family:
+    - afi: ipv4
+      network:
+        broadcast: true
+  - name: GigabitEthernet1.10
+  - name: GigabitEthernet1.900
+    address_family:
+    - afi: ipv4
+      process:
+        area_id: '0'
+        id: 900
+  - name: GigabitEthernet2
+  - name: GigabitEthernet2.10
+  - name: GigabitEthernet2.900
+    address_family:
+    - afi: ipv4
+      process:
+        area_id: '1'
+        id: 900
+  - name: GigabitEthernet3
+  - address_family:
+    - afi: ipv4
+      network:
+        point_to_point: true
+  - name: GigabitEthernet3.11
+  - name: GigabitEthernet4

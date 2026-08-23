@@ -91,7 +91,7 @@ ospf_ifaces:
       - afi: ipv4
         network:
           point_to_point: true
-    name: GigabitEthernet3.11
+  - name: GigabitEthernet3.11
   - name: GigabitEthernet4
 
 ospf_mgmt:

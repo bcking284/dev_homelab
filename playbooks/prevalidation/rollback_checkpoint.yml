@@ -1,12 +1,15 @@
 ---
 - name: Create on-box configuration checkpoints
-  hosts: ios
+  hosts: ios_routers
   gather_facts: false
 
-  vars:
-    checkpoint_name: "ckpt-{{ lookup('pipe', 'date +%Y%m%d-%H%M%S') }}"
-
   tasks:
+    - name: Pin the checkpoint name once
+      ansible.builtin.set_fact:
+        checkpoint_name: "ckpt-{{ lookup('pipe', 'date +%Y%m%d-%H%M%S') }}"
+      run_once: true
+      delegate_to: localhost
+
     - name: Ensure archive is configured
       cisco.ios.ios_config:
         lines:
@@ -39,4 +42,4 @@
         commands:
           - "dir flash:{{ checkpoint_name }}.cfg"
       register: verify
-      failed_when: "'No such file' in verify.stdout[0]"
+      failed_when: "'No such file' in verify.stdout[0] or '%Error' in verify.stdout[0]"

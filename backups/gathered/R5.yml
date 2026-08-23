@@ -11,10 +11,6 @@ ospf_cfg:
     - area_id: '1'
       stub:
         set: true
-    network:
-    - address: 10.0.28.0
-      area: '1'
-      wildcard_bits: 0.0.0.255
     passive_interfaces:
       interface:
         name:
@@ -32,6 +28,11 @@ ospf_ifaces:
       point_to_point: true
   name: GigabitEthernet1.10
 - name: GigabitEthernet1.900
+  address_family:
+    - afi: ipv4
+      process:
+        id: 900
+        area_id: 1
 - name: GigabitEthernet2
 - name: GigabitEthernet3
 - name: GigabitEthernet4

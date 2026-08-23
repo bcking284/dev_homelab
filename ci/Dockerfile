@@ -16,7 +16,7 @@ RUN pip install --no-cache-dir \
 
 RUN printf 'Host *\n\
     KexAlgorithms +diffie-hellman-group14-sha1,diffie-hellman-group-exchange-sha1,diffie-hellman-group1-sha1\n\
-    HostKeyAlgorithms +ssh-rsa,ssh-dss\n\
+    HostKeyAlgorithms +ssh-rsa\n\
     PubkeyAcceptedAlgorithms +ssh-rsa\n\
     Ciphers +aes128-cbc,aes192-cbc,aes256-cbc,3des-cbc\n\
     MACs +hmac-sha1\n' >> /etc/ssh/ssh_config
