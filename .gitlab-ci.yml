@@ -35,7 +35,7 @@ reach-devices:
 checkpoint:
   stage: prevalidation
   script:
-    - ansible-playbook -i $INV playbooks/quickies/rollback_checkpoint.yml
+    - ansible-playbook -i $INV playbooks/prevalidation/rollback_checkpoint.yml
   artifacts:
     paths: [backups/checkpoints/]
     expire_in: 30 days
