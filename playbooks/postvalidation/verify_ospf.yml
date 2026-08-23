@@ -1,0 +1,85 @@
+---
+- name: Verify OSPF state after deployment
+  hosts: ios_ospf_routers
+  gather_facts: false
+
+  tasks:
+    # --- 1. adjacencies ---
+    - name: Collect OSPF neighbors
+      cisco.ios.ios_command:
+        commands:
+          - show ip ospf neighbor
+      register: nbr
+      retries: 6
+      delay: 10
+      until: "'FULL' in nbr.stdout[0]"
+
+    - name: Every device has at least one FULL adjacency
+      ansible.builtin.assert:
+        that:
+          - "'FULL' in nbr.stdout[0]"
+        fail_msg: "{{ inventory_hostname }}: no FULL OSPF adjacencies"
+        success_msg: "{{ inventory_hostname }}: adjacencies up"
+
+    - name: No neighbor stuck in a transitional state
+      ansible.builtin.assert:
+        that:
+          - "'EXSTART' not in nbr.stdout[0]"
+          - "'EXCHANGE' not in nbr.stdout[0]"
+          - "'INIT' not in nbr.stdout[0]"
+          - "'LOADING' not in nbr.stdout[0]"
+        fail_msg: "{{ inventory_hostname }}: neighbor stuck mid-negotiation\n{{ nbr.stdout[0] }}"
+
+    # --- 2. no drift ---
+    - name: Re-check process config against intent
+      cisco.ios.ios_ospfv2:
+        config: "{{ ospf_cfg }}"
+        state: merged
+      check_mode: true
+      register: drift_v2
+
+    - name: Re-check interface config against intent
+      cisco.ios.ios_ospf_interfaces:
+        config: "{{ ospf_ifaces }}"
+        state: merged
+      check_mode: true
+      register: drift_if
+      when: ospf_ifaces is defined
+
+    - name: Config must match intent
+      ansible.builtin.assert:
+        that:
+          - (drift_v2.commands | default([]) | reject('match', '^router ospf \d+( vrf \S+)?$') | list | length) == 0
+          - (drift_if.commands | default([]) | reject('match', '^interface \S+$') | list | length) == 0
+        fail_msg: >-
+          {{ inventory_hostname }} still differs from intent.
+          process: {{ drift_v2.commands | default([]) }}
+          interfaces: {{ drift_if.commands | default([]) }}
+        success_msg: "{{ inventory_hostname }}: config matches intent"
+
+    # --- 3. routes present ---
+    - name: Collect OSPF routes
+      cisco.ios.ios_command:
+        commands:
+          - show ip route ospf
+      register: routes
+
+    - name: Device must have learned OSPF routes
+      ansible.builtin.assert:
+        that:
+          - routes.stdout[0] | regex_search('^O', multiline=True)
+        fail_msg: "{{ inventory_hostname }}: no OSPF routes in RIB\n{{ routes.stdout[0] }}"
+
+    # --- 4. critical prefixes reachable everywhere ---
+    - name: Critical prefixes must be present
+      ansible.builtin.assert:
+        that:
+          - item in routes.stdout[0]
+        fail_msg: "{{ inventory_hostname }}: missing critical prefix {{ item }}"
+      loop: "{{ critical_prefixes | default([]) }}"
+      when: inventory_hostname not in (critical_prefix_exempt | default([]))
+
+    # --- 5. summary ---
+    - name: Report
+      ansible.builtin.debug:
+        msg: "{{ inventory_hostname }} OSPF verification passed"
