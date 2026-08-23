@@ -19,7 +19,6 @@
       cisco.ios.ios_l3_interfaces:
         state: gathered
       register: ip_ifaces
-      
 
     - name: Write readable YAML
       ansible.builtin.shell:

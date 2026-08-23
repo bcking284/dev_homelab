@@ -7,3 +7,7 @@ vault_pass*
 
 #etc
 sync.ps1
+
+#pyats
+pyats/snapshots/
+*.txt

@@ -12,8 +12,9 @@ RUN pip install --no-cache-dir \
         ansible-lint \
         pyyaml \
         jinja2 \
-        requests \
-        pyats[full]
+        requests 
+
+RUN pip install --no-cache-dir "pyats[full]"
 
 RUN printf 'Host *\n\
     KexAlgorithms +diffie-hellman-group14-sha1,diffie-hellman-group-exchange-sha1,diffie-hellman-group1-sha1\n\

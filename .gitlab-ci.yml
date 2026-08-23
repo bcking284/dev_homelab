@@ -5,6 +5,9 @@ default:
 variables:
   ANSIBLE_CONFIG: "$CI_PROJECT_DIR/ansible.cfg"
   INV: "inventories/lab/hosts.ini"
+  TESTBED: "pyats/testbeds/lab.yml"
+  LEARN: "ospf bgp interface routing"
+  PLAYBOOK: "playbooks/routing/ospf/configure_ospf.yml"
 
 stages:
   - build
@@ -12,6 +15,7 @@ stages:
   - deploy
   - postvalidation
 
+# ---------- build ----------
 lint-yaml:
   stage: build
   script:
@@ -22,6 +26,7 @@ validate-vars:
   script:
     - python scripts/validate_vars.py
 
+# ---------- prevalidation ----------
 reach-devices:
   stage: prevalidation
   script:
@@ -35,30 +40,53 @@ checkpoint:
     paths: [backups/checkpoints/]
     expire_in: 30 days
 
-check-ospf:
+snapshot-pre:
   stage: prevalidation
   script:
-    - ansible-playbook -i $INV playbooks/routing/ospf/configure_ospf.yml --check | tee check-ospf.txt
+    - pyats learn $LEARN --testbed-file $TESTBED --output pyats/snapshots/pre
   artifacts:
-    paths: [check-ospf.txt]
+    paths: [pyats/snapshots/pre]
+    expire_in: 1 week
+
+check-config:
+  stage: prevalidation
+  script:
+    - ansible-playbook -i $INV $PLAYBOOK --check | tee check-config.txt
+  artifacts:
+    paths: [check-config.txt]
     expire_in: 1 week
     when: always
 
-deploy-ospf:
+# ---------- deploy ----------
+deploy:
   stage: deploy
   when: manual
   environment:
     name: lab
   script:
-    - ansible-playbook -i $INV playbooks/routing/ospf/configure_ospf.yml
+    - ansible-playbook -i $INV $PLAYBOOK
 
-verify-ospf:
+# ---------- postvalidation ----------
+smoke-test:
   stage: postvalidation
+  needs: [deploy]
   script:
-    - ansible-playbook -i $INV playbooks/postvalidation/verify_ospf.yml
+    - ansible -i $INV all -m cisco.ios.ios_command -a "commands='show clock'"
+
+snapshot-post:
+  stage: postvalidation
+  needs: [deploy]
+  script:
+    - pyats learn $LEARN --testbed-file $TESTBED --output pyats/snapshots/post
+    - pyats diff pyats/snapshots/pre pyats/snapshots/post
+  allow_failure: true
+  artifacts:
+    paths: [pyats/snapshots/, "diff_*"]
+    when: always
 
 rollback:
   stage: postvalidation
-  when: on_failure
+  when: manual
+  needs: [deploy]
   script:
     - ansible-playbook -i $INV playbooks/quickies/rollback_replace.yml
