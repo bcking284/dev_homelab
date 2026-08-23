@@ -1,6 +1,6 @@
 ---
 - name: Restore configuration from checkpoint
-  hosts: ios
+  hosts: ios_routers
   gather_facts: false
 
   vars:

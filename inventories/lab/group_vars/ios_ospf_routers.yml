@@ -1,3 +1,13 @@
 #ospf globals
 prod_ospf_process_id: 900
 mgmt_vrf_ospf_process_id: 1
+
+critical_prefixes:
+  - 10.0.28.129
+  - 10.0.26.1
+  - 10.0.26.2
+  - 10.0.26.3
+  - 10.0.26.4
+  - 10.8.4.253
+
+critical_prefix_exempt: []

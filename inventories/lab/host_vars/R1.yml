@@ -78,6 +78,8 @@ ospf_ifaces:
         process:
           id: 900
           area_id: 0
+        network:
+          broadcast: true
   - name: GigabitEthernet2
   - name: GigabitEthernet2.10
   - name: GigabitEthernet2.900
@@ -85,9 +87,9 @@ ospf_ifaces:
       - afi: ipv4
         process:
           id: 900
-          area_id: 0
+          area_id: 1
   - name: GigabitEthernet3
-  - address_family:
+    address_family:
       - afi: ipv4
         network:
           point_to_point: true

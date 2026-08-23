@@ -70,13 +70,22 @@ ospf_cfg:
 ospf_ifaces:
   - name: Loopback10
   - name: Loopback900
+    address_family:
+      - afi: ipv4
+        process:
+          id: 900
+          area_id: 0
+        network:
+          point_to_point: true
   - name: GigabitEthernet1
+  - name: GigabitEthernet1.900
     address_family:
       - afi: ipv4
         process:
           id: 900
           area_id: 2
-  - name: GigabitEthernet1.900
+        network:
+          point_to_point: true
   - name: GigabitEthernet2
   - name: GigabitEthernet2.900
     address_family:

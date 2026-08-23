@@ -13,10 +13,17 @@
     - name: Gather ospf_interfaces
       cisco.ios.ios_ospf_interfaces:
         state: gathered
-      register: ifaces
+      register: ospf_ifaces
 
-    - name: Write per-host YAML
-      ansible.builtin.copy:
-        content: "{{ {'ospf_cfg': v2.gathered, 'ospf_ifaces': ifaces.gathered} | to_nice_yaml(indent=2) }}"
-        dest: "{{ playbook_dir }}/../../backups/gathered/{{ inventory_hostname }}.yml"
+    - name: Gather interface configs
+      cisco.ios.ios_l3_interfaces:
+        state: gathered
+      register: ip_ifaces
+      
+
+    - name: Write readable YAML
+      ansible.builtin.shell:
+        cmd: python3 /work/scripts/prettify.py "/work/backups/gathered/{{ inventory_hostname }}.yml"
+        stdin: "{{ {'l3_ifaces': ip_ifaces.gathered, 'ospf_cfg': v2.gathered, 'ospf_ifaces': ospf_ifaces.gathered} | to_json }}"
       delegate_to: localhost
+      changed_when: true
