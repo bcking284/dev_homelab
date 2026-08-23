@@ -4,41 +4,28 @@ default:
 
 variables:
   ANSIBLE_CONFIG: "$CI_PROJECT_DIR/ansible.cfg"
+  INV: "inventories/lab/hosts.ini"
 
 stages:
   - build
   - prevalidation
+  - deploy
+  - postvalidation
 
 lint-yaml:
   stage: build
-  tags: [homelab]
-  image: python:3.12-slim
   script:
-    - pip install --quiet --root-user-action=ignore yamllint
     - yamllint inventories/ playbooks/
 
 validate-vars:
   stage: build
-  tags: [homelab]
-  image: python:3.12-slim
   script:
-    - pip install --quiet --root-user-action=ignore pyyaml
     - python scripts/validate_vars.py
 
 reach-devices:
   stage: prevalidation
   script:
-    - ansible -i inventories/lab/hosts.ini ios -m cisco.ios.ios_facts -a "gather_subset=min"
-
-check-ospf:
-  stage: prevalidation
-  script:
-    - ansible-playbook -i inventories/lab/hosts.ini playbooks/routing/ospf/configure_ospf.yml --check --diff | tee check-ospf.txt
-  artifacts:
-    paths:
-      - check-ospf.txt
-    expire_in: 1 week
-    when: always
+    - ansible -i $INV ios -m cisco.ios.ios_facts -a "gather_subset=min"
 
 checkpoint:
   stage: prevalidation
@@ -47,6 +34,28 @@ checkpoint:
   artifacts:
     paths: [backups/checkpoints/]
     expire_in: 30 days
+
+check-ospf:
+  stage: prevalidation
+  script:
+    - ansible-playbook -i $INV playbooks/routing/ospf/configure_ospf.yml --check | tee check-ospf.txt
+  artifacts:
+    paths: [check-ospf.txt]
+    expire_in: 1 week
+    when: always
+
+deploy-ospf:
+  stage: deploy
+  when: manual
+  environment:
+    name: lab
+  script:
+    - ansible-playbook -i $INV playbooks/routing/ospf/configure_ospf.yml
+
+verify-ospf:
+  stage: postvalidation
+  script:
+    - ansible-playbook -i $INV playbooks/postvalidation/verify_ospf.yml
 
 rollback:
   stage: postvalidation
