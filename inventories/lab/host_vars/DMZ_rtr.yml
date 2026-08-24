@@ -5,6 +5,34 @@ restconf:
 bgp:
   asn: 65514
 
+l3_ifaces:
+  - name: GigabitEthernet1
+  - name: GigabitEthernet1.13
+    ipv4:
+      - address: 10.8.3.26/30
+  - name: GigabitEthernet1.900
+  - name: GigabitEthernet2
+  - name: GigabitEthernet2.12
+    ipv4:
+      - address: 10.8.3.22/30
+  - name: GigabitEthernet3
+  - name: GigabitEthernet3.11
+    ipv4:
+      - address: 10.8.3.18/30
+  - name: GigabitEthernet3.900
+  - name: GigabitEthernet4
+  - name: GigabitEthernet4.10
+    ipv4:
+      - address: 10.8.1.102/24
+  - name: GigabitEthernet4.11
+  - name: GigabitEthernet4.900
+  - name: Loopback10
+    ipv4:
+      - address: 10.8.2.253/32
+  - name: Loopback900
+    ipv4:
+      - address: 10.8.4.253/32
+
 ospf_cfg:
   processes:
     - network:

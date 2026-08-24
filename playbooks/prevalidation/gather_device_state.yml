@@ -15,10 +15,15 @@
         state: gathered
       register: ospf_ifaces
 
-    - name: Gather interface configs
+    - name: Gather L3 interface configs
       cisco.ios.ios_l3_interfaces:
         state: gathered
       register: ip_ifaces
+
+    - name: Gather L2 interface configs
+      cisco.ios.ios_l2_interfaces:
+        state: gathered
+      register: ip_l2_ifaces
 
     - name: Write readable YAML
       ansible.builtin.shell:

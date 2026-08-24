@@ -6,8 +6,8 @@ variables:
   ANSIBLE_CONFIG: "$CI_PROJECT_DIR/ansible.cfg"
   INV: "inventories/lab/hosts.ini"
   TESTBED: "pyats/testbeds/lab.yml"
-  LEARN: "ospf bgp interface routing"
-  PLAYBOOK: "playbooks/routing/ospf/configure_ospf.yml"
+  LEARN: "ospf interface routing"
+  PLAYBOOK: "playbooks/routing/prevalidation/gather_device_state.yml"
 
 stages:
   - build

@@ -1,0 +1,11 @@
+---
+- name: Configure L3 Interfaces
+  hosts: ios_ospf_routers
+  gather_facts: false
+
+  tasks:
+    - name: Interface IP Addressing
+      cisco.ios.ios_l3_interfaces:
+        config: "{{ l3_ifaces }}"
+        state: replaced
+      register: ospf_result
