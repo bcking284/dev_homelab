@@ -7,7 +7,7 @@ variables:
   INV: "inventories/lab/hosts.ini"
   TESTBED: "pyats/testbeds/lab.yml"
   LEARN: "ospf interface routing"
-  PLAYBOOK: "playbooks/prevalidation/gather_device_state.yml"
+  PLAYBOOK: "playbooks/routing/ospf/configure_ospf.yml"
 
 stages:
   - build
