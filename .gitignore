@@ -9,5 +9,4 @@ vault_pass*
 sync.ps1
 
 #pyats
-pyats/snapshots/
 *.txt
