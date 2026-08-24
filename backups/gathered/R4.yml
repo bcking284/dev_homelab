@@ -52,10 +52,8 @@ ospf_ifaces:
   - name: Loopback900
     address_family:
       - afi: ipv4
-        network:
-          point_to_point: true
         process:
-          area_id: '0'
+          area_id: '2'
           id: 900
   - name: GigabitEthernet1
   - name: GigabitEthernet1.10
@@ -83,7 +81,7 @@ ospf_ifaces:
         network:
           point_to_point: true
         process:
-          area_id: '0'
+          area_id: '2'
           id: 900
   - name: GigabitEthernet3
   - name: GigabitEthernet3.13

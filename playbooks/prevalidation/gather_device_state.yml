@@ -27,7 +27,7 @@
 
     - name: Write readable YAML
       ansible.builtin.shell:
-        cmd: python3 /work/scripts/prettify.py "/work/backups/gathered/{{ inventory_hostname }}.yml"
+        cmd: python /work/scripts/prettify.py "/work/backups/gathered/{{ inventory_hostname }}.yml"
         stdin: "{{ {'l3_ifaces': ip_ifaces.gathered, 'ospf_cfg': v2.gathered, 'ospf_ifaces': ospf_ifaces.gathered} | to_json }}"
       delegate_to: localhost
       changed_when: true
