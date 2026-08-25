@@ -56,8 +56,6 @@ ospf_ifaces:
 - name: GigabitEthernet1
   address_family:
   - afi: ipv4
-    network:
-      broadcast: true
 - name: GigabitEthernet1.10
 - name: GigabitEthernet1.900
   address_family:
@@ -68,10 +66,10 @@ ospf_ifaces:
 - name: GigabitEthernet2
   address_family:
   - afi: ipv4
-    network:
-      point_to_point: true
 - name: GigabitEthernet2.12
 - name: GigabitEthernet3
+  address_family:
+  - afi: ipv4
 - name: GigabitEthernet3.10
 - name: GigabitEthernet3.900
   address_family:
