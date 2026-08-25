@@ -75,7 +75,7 @@ smoke-test:
 
 snapshot-post:
   stage: postvalidation
-  needs: [deploy]
+  needs: [deploy, snapshot-pre]
   script:
     - pyats learn $LEARN --testbed-file $TESTBED --output pyats/snapshots/post
     - pyats diff pyats/snapshots/pre pyats/snapshots/post
