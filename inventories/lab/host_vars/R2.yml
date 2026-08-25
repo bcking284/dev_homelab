@@ -72,10 +72,6 @@ ospf_ifaces:
       point_to_point: true
 - name: GigabitEthernet2.12
 - name: GigabitEthernet3
-  address_family:
-  - afi: ipv4
-    network:
-      point_to_point: true
 - name: GigabitEthernet3.10
 - name: GigabitEthernet3.900
   address_family:
