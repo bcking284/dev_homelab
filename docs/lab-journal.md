@@ -1,27 +1,60 @@
-# Building Enterprise Infrastructure with IaC, EVE-NG Homelab:
-
-This project documents my journey building a network automation and CI/CD-style workflow using EVE-NG, Linux, Ansible, Python, Git, and GitHub. The lab is focused on automating configuration management, backing up multi-vendor device configurations, and developing repeatable infrastructure workflows similar to those used in modern enterprise environments.
-
-# Current State:
-
-<img width="1635" height="1132" alt="image" src="https://github.com/user-attachments/assets/7020bde3-13bd-4d77-8cff-bd1e5514c495" />
-
-# Future State Pipeline:
-- Include automated configuration deployments, configuration drift detection, compliance validation, and integrating more advanced automation tooling and pipelines.
--   - pyATS, learning more about this and using it for my tests
-- deploy an open source NMS
-- deploy Netbox for programmatic inventory management and IPAM
-- Implement a RADIUS server, active directory, and some flavor of NAC solution
-- Containerize servers and deploy terraform for provisioning
-- Experiment with some different vendors, starting with a Palo Alto firewall, look into vendor neutral OpenConfig YANG
-- if possible
-- Redesign with datacenter hosting, Enterprise block, shared services block, and bring in some small offices
-- Add secure remote work support
-- Set up service provider side, configure some flavor of MPLS
-- DMVPN hub-spoke topology with branch offices
-
 # Work Notes:
 The environment currently includes Cisco routers, switches, and ASA firewalls managed through Ansible playbooks and version-controlled through GitHub. 
+
+# 08/25/26
+- Documentation
+    - updated README, cleaned up, moved some stuff around
+    - documentation can be boring but its worth it
+
+# 08/19 – 08/24/26
+
+- Deployed
+  - **Full four-stage pipeline working end to end** - build, prevalidation, deploy (manual gate), postvalidation. 10 jobs, green. This is the milestone the whole lab was building toward
+  - `configure replace` checkpoint/rollback pair - `rollback_checkpoint.yml` saves a named config to flash on every device and records the filename as an artifact; `rollback_replace.yml` restores it with `revert trigger timer` as a dead-man switch
+  - pyATS in the CI image, testbed at `pyats/testbeds/lab.yml`, snapshot/diff wired as prevalidation and postvalidation stages
+  - `smoke-test` job - every device answers `show clock`. The only hard gate in postvalidation. Feature-agnostic, never needs updating
+  - `prettify.py` - custom YAML dumper that indents list items under their parent and promotes identifier keys (`name`, `process_id`, `area_id`) to the front. `to_nice_yaml` sorts alphabetically and produces genuinely misleading output
+  - Resource module conversion finished across R1-R5, inet_rtr, and DMZ_rtr. Templates gone. Interface-level `ip ospf <pid> area <n>` instead of network statements
+  - DMZ_rtr fully configured from scratch - first device the playbooks built rather than adjusted
+  - Interactive container function `nash()` - cd, source .env, drop into a shell in the image with the repo mounted live
+  - New README written as a showcase document; this journal moved to `docs/lab-journal.md`
+
+- Fixed
+  - **`needs:` silently scopes artifact downloads.** `snapshot-post` had `needs: [deploy]`, which meant it only pulled artifacts from `deploy` - not from every prior stage the way a job without `needs:` does. `snapshots/pre/` never arrived, and `pyats diff` reported every file as "Only in post" against an empty directory. Fixed with `needs: [deploy, snapshot-pre]`
+  - `ios_ospfv2` perpetual `changed` - the module emits a bare `router ospf 900` as a container, finds no child commands, and emits the orphan anyway. Its own `before` and `after` are byte-identical. Suppressed with a `changed_when` that rejects lines matching `^router ospf \d+( vrf \S+)?$`
+  - Stub areas confirmed as a write-side gap, not a data problem. Argspec documents `stub` with `set` / `no_summary` / `no_ext_capability`; data validated correct via `ansible -m debug`; no command ever generated. Worked around with an `ios_config` loop over the area definitions
+  - NSSA areas were silently skipping - the area-types task had `when: item.stub is defined`, so R2/R3/R4's `nssa` entries never matched. Task reported `skipped`, recap showed `failed=0`, nothing was configured. **A skipped task is silent, not safe**
+  - `lookup('pipe')` in a `vars:` block re-evaluates on every reference. `checkpoint_name` ran `date` three times and produced three different filenames - the copy created one, the record wrote another, the verify looked for a third. Fixed with `set_fact` + `run_once`
+  - `router-id` landing in global config mode on DMZ_rtr - the module generated a child command without its parent, because `router ospf 1 vrf MGMT` didn't exist yet. Root cause was a VRF name mismatch: device had `MGMT_vrf`, data said `MGMT`. Added an `ios_config` bootstrap task that creates the processes first
+  - `ssh-dss` in the image's `/etc/ssh/ssh_config` broke the `ssh` binary entirely - "Bad key types, terminating." libssh tolerated it, OpenSSH didn't, which is why Ansible worked and manual SSH didn't. Removed the dead algorithm
+  - `backups/checkpoints/` didn't exist in the CI clone - git doesn't track empty directories. Fixed with a `file: state=directory` task rather than relying on `.gitkeep`
+  - `/work` hardcoded in a playbook path - that's the local `docker run` mount point, not the CI checkout, which is `/builds/<user>/<repo>`. Use relative paths or `$CI_PROJECT_DIR`
+  - Missing `-` collapsing two list items into one dict, repeatedly. `name` and `address_family` are keys of the same interface entry, not separate entries
+
+- Learned
+  - **The dash belongs to the list item, not to any key.** It's written before whichever key comes first, which is why `to_nice_yaml` output shows `- name:` sometimes and `- ipv4:` other times. Alphabetical ordering, nothing more
+  - `type: dict` → no dash. `type: list` + `elements: dict` → dashes. From `ansible-doc`, and it resolves almost every shape question
+  - `vars:` holds expressions, `set_fact` holds values. Anything non-deterministic - `lookup('pipe')`, `now()`, `random` - must go through `set_fact` or it re-evaluates at every reference
+  - `ok` vs `skipped` vs `changed`: `ok` means Ansible checked and the state was already correct. `skipped` means it never looked. Only `ok` is evidence
+  - `pyats diff` exits non-zero on *any* difference, which is why it can't be a hard gate after a deploy - differences are the point. `allow_failure: true` makes it a warning and the artifact becomes evidence for a human
+  - Resource modules cover roughly 85% of a feature. Three `ios_config` workarounds so far: stub/NSSA areas, process creation, and `encapsulation dot1Q` (which no module covers at all). Planning for that is normal, not a failure
+  - Ordering matters on a fresh device: encapsulation → addressing → descriptions → OSPF interface settings → OSPF process → area types. On existing devices most of it is a no-op
+  - Anything fixed on AUTO_box's filesystem is invisible to CI. It goes in the Dockerfile or the repo, or it doesn't survive
+
+- Design decisions documented
+  - Manual deploy gate - control, reviewable command output, and prevalidation doubles as a compliance check
+  - `configure replace` over line-by-line replay - replay can only add, never remove
+  - pyATS diff warns rather than fails - operational state changes are sometimes intended, and reading the diff requires network engineering judgment a script can't encode
+  - Containerized toolchain - independent version requirements per use case, shared host resources
+
+- Next up
+  1. Screenshots into the README, publish it
+  2. Drop the `image:` override on lint-yaml and validate-vars - `netauto:local` already has both packages
+  3. NetBox as source of truth
+  4. Nornir for gather and drift detection at scale
+  5. BGP fully configured, including via RESTCONF with a session class
+  6. Topology redesign - switching redundancy, relocate DMZ_rtr out of its own ASN
+  7. More RAM, which unblocks CML as a digital twin
 
 # 08/13 – 08/19/26
 
