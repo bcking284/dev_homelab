@@ -48,7 +48,7 @@ Everything runs a second OSPF process (`900`) for production routing and process
 ## What the pipeline does
 
 <!-- TODO: pipeline-graph.png — the four-stage view with the manual deploy button -->
-![Pipeline](docs/images/pipeline.png)
+![Pipeline](docs/images/pipeline-graph.png)
 
 Four stages. Nothing writes to a device until a human clicks a button.
 
