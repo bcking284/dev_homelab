@@ -89,4 +89,4 @@ rollback:
   when: manual
   needs: [deploy]
   script:
-    - ansible-playbook -i $INV playbooks/quickies/rollback_replace.yml
+    - ansible-playbook -i $INV playbooks/rollback/rollback_replace.yml
