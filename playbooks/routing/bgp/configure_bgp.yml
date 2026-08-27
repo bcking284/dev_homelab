@@ -4,63 +4,84 @@
   gather_facts: false
 
   tasks:
-    - name: Subinterface encapsulation (no module coverage)
+
+    - name: Configure BGP process
       cisco.ios.ios_config:
         lines:
-          - "encapsulation dot1Q {{ item.encapsulation.vlan_id }}"
-        parents: "interface {{ item.name }}"
-      loop: "{{ l2_ifaces | default([])
-                | selectattr('encapsulation', 'defined')
-                | rejectattr('name', 'search', '^Loopback') | list }}"
-      loop_control:
-        label: "{{ item.name }}"
-      register: encap_result
+          - router bgp {{ bgp.asn }}
+        match: line
 
-    - name: Interface addressing
-      cisco.ios.ios_l3_interfaces:
-        config: "{{ l3_ifaces }}"
-        state: merged
-      register: l3_result
+    - name: Configure BGP neighbors
+      cisco.ios.ios_config:
+        parents:
+          - router bgp {{ bgp.asn }}
+        lines:
+          - neighbor {{ item.peer_ip }} remote-as {{ item.remote_as }}
+        match: line
+      loop: "{{ bgp.neighbors }}"
 
-    - name: Interface enablement and descriptions
-      cisco.ios.ios_interfaces:
-        config: "{{ interfaces }}"
-        state: replaced
-      register: intf_result
+    - name: Configure BGP ebgp multihop
+      cisco.ios.ios_config:
+        parents:
+          - router bgp {{ bgp.asn }}
+        lines:
+          - neighbor {{ item.id }} ebgp-multihop 10
+          - neighbor {{ item.id }} update-source {{ item.update_source }}
+        match: line
+      loop: "{{ bgp.neighbors }}"
+      when: bgp.multihop | default(false)
 
-    - name: Show interface commands
-      ansible.builtin.debug:
-        msg:
-          encap: "{{ encap_result.results | default([])
-                     | selectattr('updates', 'defined')
-                     | map(attribute='updates') | flatten }}"
-          l3: "{{ l3_result.commands | default([]) }}"
-          interfaces: "{{ intf_result.commands | default([]) }}"
+    - name: Activate BGP neighbors under IPv4 address-family
+      cisco.ios.ios_config:
+        parents:
+          - router bgp {{ bgp.asn }}
+          - address-family ipv4
+        lines:
+          - neighbor {{ item.peer_ip }} activate
+        match: line
+      loop: "{{ bgp.neighbors }}"
+      when: item.activate_ipv4 | default(false)
 
-    - name: Prefix lists
-      cisco.ios.ios_prefix_lists:
-        config: "{{ prefix_lists }}"
-        state: replaced
-      register: pl_result
+    - name: Configure BGP networks under IPv4 address-family
+      cisco.ios.ios_config:
+        parents:
+          - router bgp {{ bgp.asn }}
+          - address-family ipv4
+        lines:
+          - network {{ item.number }} mask {{ item.mask }}
+        match: line
+      loop: "{{ bgp.networks }}"
 
-    - name: Route maps
-      cisco.ios.ios_route_maps:
-        config: "{{ route_maps }}"
-        state: replaced
-      register: rm_result
+    - name: Configure BGP redistribution prefix-lists
+      cisco.ios.ios_config:
+        lines:
+          - >-
+            ip prefix-list {{ item.0.name }} seq {{ item.1.seq }}
+            {{ item.1.action }} {{ item.1.prefix }}
+            {% if item.1.ge is defined %} ge {{ item.1.ge }}{% endif %}
+            {% if item.1.le is defined %} le {{ item.1.le }}{% endif %}
+        match: line
+      loop: "{{ bgp.prefix_lists | default([]) | subelements('entries') }}"
 
-    - name: BGP global
-      cisco.ios.ios_bgp_global:
-        config: "{{ bgp_global }}"
-        state: replaced
-      register: bgp_g_result
+    - name: Configure BGP redistribution route-maps
+      cisco.ios.ios_config:
+        parents:
+          - route-map {{ item.0.name }} {{ item.1.action }} {{ item.1.seq }}
+        lines:
+          - match ip address prefix-list {{ item.1.match_prefix_list }}
+        match: line
+      loop: "{{ bgp.route_maps | default([]) | subelements('entries') }}"
 
-    - name: BGP address family
-      cisco.ios.ios_bgp_address_family:
-        config: "{{ bgp_af }}"
-        state: replaced
-      register: bgp_af_result
+    - name: Redistribute OSPF into BGP
+      cisco.ios.ios_config:
+        parents:
+          - router bgp {{ bgp.asn }}
+          - address-family ipv4
+        lines:
+          - redistribute ospf {{ bgp.redistribute.ospf.process_id }} route-map {{ bgp.redistribute.ospf.route_map }}
+        match: line
+      when: bgp.redistribute.ospf.enabled | default(false)
 
-    - name: Show BGP commands
-      ansible.builtin.debug:
-        msg: "{{ (bgp_g_result.commands | default([])) + (bgp_af_result.commands | default([])) }}"
+    - name: Save config if changed
+      cisco.ios.ios_config:
+        save_when: modified

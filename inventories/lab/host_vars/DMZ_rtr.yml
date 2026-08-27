@@ -2,97 +2,36 @@
 restconf:
   host: 10.8.2.2
 
-#BGP Configuration
-bgp_af:
-  as_number: '65514'
-  address_family:
-    - afi: ipv4
-      safi: unicast
-      neighbors:
-        - neighbor_address: 10.30.30.1
-          activate: true
-          route_maps:
-            - name: ASN_65512
-              in: true
-      networks:
-        - address: 10.8.4.253
-          mask: 255.255.255.255
+bgp:
+  asn: 65514
 
-bgp_global:
-  as_number: '65514'
-  bgp:
-    default:
-      ipv4_unicast: true
-      route_target:
-        filter: true
-    log_neighbor_changes: true
-  neighbors:
-    - neighbor_address: 10.30.30.1
-      remote_as: '65512'
-
-#Route Policy Configuration
-prefix_lists:
-  - afi: ipv4
-    prefix_lists:
-      - name: ASN_65512
-        entries:
-          - sequence: 10
-            action: permit
-            prefix: 10.0.16.0/20
-      - name: ASN_65513
-        entries:
-          - sequence: 10
-            action: permit
-            prefix: 9.9.9.9/32
-
-route_maps:
-  - route_map: ASN_65512
-    entries:
-      - sequence: 10
-        action: permit
-        match:
-          ip:
-            address:
-              prefix_lists:
-                - ASN_65512
-        set:
-          local_preference: 110
-  - route_map: ASN_65513
-    entries:
-      - sequence: 10
-        action: permit
-        match:
-          ip:
-            address:
-              prefix_lists:
-                - ASN_65513
-
-#VRF Configuration
-vrf_af:
-  - name: MGMT
-    address_families:
-      - afi: ipv4
-        safi: unicast
-vrf_global:
-  vrfs:
-    - name: MGMT
-vrf_ifaces:
-  - name: Loopback10
-    vrf_name: MGMT
-  - name: Loopback900
+l3_ifaces:
   - name: GigabitEthernet1
-  - name: GigabitEthernet1.10
-    vrf_name: MGMT
+  - name: GigabitEthernet1.13
+    ipv4:
+      - address: 10.8.3.26/30
   - name: GigabitEthernet1.900
   - name: GigabitEthernet2
-  - name: GigabitEthernet2.10
-    vrf_name: MGMT
-  - name: GigabitEthernet2.900
+  - name: GigabitEthernet2.12
+    ipv4:
+      - address: 10.8.3.22/30
   - name: GigabitEthernet3
   - name: GigabitEthernet3.11
-    vrf_name: MGMT
+    ipv4:
+      - address: 10.8.3.18/30
+  - name: GigabitEthernet3.900
   - name: GigabitEthernet4
-
+  - name: GigabitEthernet4.10
+    ipv4:
+      - address: 10.8.1.102/24
+  - name: GigabitEthernet4.11
+  - name: GigabitEthernet4.900
+  - name: Loopback10
+    ipv4:
+      - address: 10.8.2.253/32
+  - name: Loopback900
+    ipv4:
+      - address: 10.8.4.253/32
 
 ospf_cfg:
   processes:
@@ -158,93 +97,3 @@ ospf_mgmt:
         - address: "0.0.0.0"
           area: "0"
           wildcard_bits: "255.255.255.255"
-
-#Interface Configuration
-interfaces:
-  - name: GigabitEthernet1
-    enabled: true
-  - name: GigabitEthernet1.13
-    enabled: true
-  - name: GigabitEthernet1.900
-    enabled: true
-  - name: GigabitEthernet2
-    enabled: true
-  - name: GigabitEthernet2.12
-    enabled: true
-  - name: GigabitEthernet3
-    enabled: true
-  - name: GigabitEthernet3.11
-    enabled: true
-  - name: GigabitEthernet3.900
-    enabled: true
-  - name: GigabitEthernet4
-    enabled: true
-  - name: GigabitEthernet4.10
-    enabled: true
-  - name: GigabitEthernet4.11
-    enabled: true
-  - name: GigabitEthernet4.900
-    enabled: true
-  - name: Loopback10
-    enabled: true
-  - name: Loopback900
-    enabled: true
-l2_ifaces:
-  - name: Loopback10
-  - name: Loopback900
-  - name: GigabitEthernet1
-  - name: GigabitEthernet1.13
-    encapsulation:
-      type: dot1Q
-      vlan_id: 13
-  - name: GigabitEthernet1.900
-  - name: GigabitEthernet2
-  - name: GigabitEthernet2.12
-    encapsulation:
-      type: dot1Q
-      vlan_id: 12
-  - name: GigabitEthernet3
-  - name: GigabitEthernet3.11
-    encapsulation:
-      type: dot1Q
-      vlan_id: 11
-  - name: GigabitEthernet3.900
-    encapsulation:
-      type: dot1Q
-      vlan_id: 900
-  - name: GigabitEthernet4
-  - name: GigabitEthernet4.10
-    encapsulation:
-      type: dot1Q
-      vlan_id: 10
-  - name: GigabitEthernet4.11
-  - name: GigabitEthernet4.900
-l3_ifaces:
-  - name: GigabitEthernet1
-  - name: GigabitEthernet1.13
-    ipv4:
-      - address: 10.8.3.26/30
-  - name: GigabitEthernet1.900
-  - name: GigabitEthernet2
-  - name: GigabitEthernet2.12
-    ipv4:
-      - address: 10.8.3.22/30
-  - name: GigabitEthernet3
-  - name: GigabitEthernet3.11
-    ipv4:
-      - address: 10.8.3.18/30
-  - name: GigabitEthernet3.900
-    ipv4:
-      - address: 10.30.30.2/30
-  - name: GigabitEthernet4
-  - name: GigabitEthernet4.10
-    ipv4:
-      - address: 10.8.1.102/24
-  - name: GigabitEthernet4.11
-  - name: GigabitEthernet4.900
-  - name: Loopback10
-    ipv4:
-      - address: 10.8.2.253/32
-  - name: Loopback900
-    ipv4:
-      - address: 10.8.4.253/32

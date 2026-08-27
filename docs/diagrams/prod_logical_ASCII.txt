@@ -2,8 +2,8 @@ VRF DEFAULT / PROD - INTENDED LOGICAL TOPOLOGY
 10.0.0.0/16
 ================================================================================
 
-  10.0.16.0/20    ASN 65513 - External / Internet / Automation
-  10.0.0.0/20   ASN 65512 - Core / Internal OSPF Domain
+  10.0.0.0/20    ASN 65513 - External / Internet / Automation
+  10.0.16.0/20   ASN 65512 - Core / Internal OSPF Domain
   10.0.32.0/20   ASN 65514 - Firewall / Edge / Remote
 
 

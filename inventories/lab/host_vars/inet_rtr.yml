@@ -1,133 +1,60 @@
 ---
+bgp:
+  asn: 65513
+  update_source: Loopback900
+
+  redistribute:
+    ospf:
+      enabled: false
+      process_id: 900
+      route_map: OSPF_TO_BGP
+
+  prefix_lists:
+    - name: OSPF_TO_BGP_PREFIXES
+      entries:
+        - seq: 10
+          action: permit
+          prefix: 10.0.16.0/20
+          le: 32
+
+  route_maps:
+    - name: OSPF_TO_BGP
+      entries:
+        - seq: 10
+          action: permit
+          match_prefix_list: OSPF_TO_BGP_PREFIXES
+
+  networks:
+    - number: 10.0.3.0
+      mask: 255.255.255.252
+    - number: 9.9.9.9
+      mask: 255.255.255.255
+
+  neighbors:
+    - name: R1
+      peer_ip: 10.0.3.2
+      remote_as: 65512
+
 restconf:
   - host: 10.8.2.254
   - username: admin
   - password: admin
 
-#BGP Configuration Modules
-bgp_af:
-  as_number: '65513'
-  address_family:
-    - afi: ipv4
-      safi: unicast
-      neighbors:
-        - neighbor_address: 10.20.20.1
-          activate: true
-          route_maps:
-            - name: ASN_65512
-              out: true
-      networks:
-        - address: 9.9.9.9
-          mask: 255.255.255.255
-
-bgp_global:
-  as_number: '65513'
-  bgp:
-    default:
-      ipv4_unicast: true
-      route_target:
-        filter: true
-    log_neighbor_changes: true
-  neighbors:
-    - neighbor_address: 10.20.20.1
-      remote_as: '65512'
-
-#Route-policy Configuration
-prefix_lists:
-  - afi: ipv4
-    prefix_lists:
-      - name: ASN_65512
-        entries:
-          - sequence: 10
-            action: permit
-            prefix: 10.0.16.0/20
-
-route_maps:
-  - route_map: ASN_65512
-    entries:
-      - sequence: 10
-        action: permit
-        match:
-          ip:
-            address:
-              prefix_lists:
-                - ASN_65512
-
-#VRF Configuration
-vrf_af:
-  - name: MGMT
-    address_families:
-      - afi: ipv4
-        safi: unicast
-vrf_global:
-  vrfs:
-    - name: MGMT
-vrf_ifaces:
-  - name: Loopback10
-    vrf_name: MGMT
-  - name: Loopback900
-  - name: GigabitEthernet1
-    vrf_name: MGMT
+bgp_interfaces:
   - name: GigabitEthernet2
-  - name: GigabitEthernet3
-  - name: GigabitEthernet3.10
-    vrf_name: MGMT
-  - name: GigabitEthernet4
+    ip_address: 10.0.3.1
+    subnet_mask: 255.255.255.252
+    vrf: default
 
-#Interfaces Configuration
-interfaces:
-  - name: GigabitEthernet1
-    enabled: true
-  - name: GigabitEthernet2
-    enabled: true
-  - name: GigabitEthernet2.900
-    enabled: true
-  - name: GigabitEthernet3
-    enabled: true
-  - name: GigabitEthernet3.10
-    enabled: true
-  - name: GigabitEthernet4
-    enabled: false
-  - name: Loopback10
-    enabled: true
-  - name: Loopback900
-    enabled: true
-l2_ifaces:
-  - name: Loopback10
-  - name: Loopback900
-  - name: GigabitEthernet1
-  - name: GigabitEthernet2
-  - name: GigabitEthernet2.900
-    encapsulation:
-      type: dot1Q
-      vlan_id: 900
-  - name: GigabitEthernet3
-  - name: GigabitEthernet3.10
-    encapsulation:
-      type: dot1Q
-      vlan_id: 10
-  - name: GigabitEthernet4
+bgp_neighbors:
+  - name: R1
+    ip address: 10.0.3.2
+    remote-as: 65512
+    description: ebgp_to_R1
+    is_ebgp: true
 
-l3_ifaces:
-  - name: GigabitEthernet1
-    ipv4:
-      - address: 192.168.50.23/24
-        secondary: true
-      - address: 192.168.50.22/24
-  - name: GigabitEthernet2
-    ipv4:
-      - address: 10.0.3.1/30
-  - name: GigabitEthernet2.900
-    ipv4:
-      - address: 10.20.20.2/30
-  - name: GigabitEthernet3
-  - name: GigabitEthernet3.10
-    ipv4:
-      - address: 10.8.1.254/24
-  - name: GigabitEthernet4
-  - name: Loopback10
-    ipv4:
-      - address: 10.8.2.254/32
-  - name: Loopback900
-    ipv4:
-      - address: 9.9.9.9/32
+bgp_networks:
+  - name: Lo1
+    address_fam: ipv4
+    network: 10.0.2.254
+    mask: 255.255.255.255
