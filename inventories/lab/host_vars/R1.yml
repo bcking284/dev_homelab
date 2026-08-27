@@ -26,7 +26,6 @@ bgp_af:
       safi: unicast
   as_number: '65512'
 
-
 bgp_global:
   as_number: '65512'
   bgp:
