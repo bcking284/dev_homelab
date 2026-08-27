@@ -285,7 +285,7 @@ l3_ifaces:
       - address: 10.0.3.2/24
   - name: GigabitEthernet4.900
     ipv4:
-      - address: 10.20.20.1/32
+      - address: 10.20.20.1/30
   - name: Loopback10
     ipv4:
       - address: 10.8.2.1/32
