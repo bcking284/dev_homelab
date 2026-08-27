@@ -1,0 +1,82 @@
+interfaces:
+  - name: GigabitEthernet1
+    enabled: true
+  - name: GigabitEthernet1.10
+    enabled: true
+  - name: GigabitEthernet1.900
+    description: Link to Broadcast
+    enabled: true
+  - name: GigabitEthernet2
+    enabled: true
+  - name: GigabitEthernet2.10
+    enabled: true
+  - name: GigabitEthernet2.900
+    description: Link to R5
+    enabled: true
+  - name: GigabitEthernet3
+    enabled: true
+  - name: GigabitEthernet3.11
+    enabled: true
+  - name: GigabitEthernet4
+    description: BGP transit to inet rtr ASN65513
+    enabled: true
+  - name: Loopback10
+    enabled: true
+  - name: Loopback900
+    description: R1 Router ID
+    enabled: true
+l2_ifaces:
+  - name: Loopback10
+  - name: Loopback900
+  - name: GigabitEthernet1
+  - name: GigabitEthernet1.10
+    encapsulation:
+      type: dot1Q
+      vlan_id: 10
+  - name: GigabitEthernet1.900
+    encapsulation:
+      type: dot1Q
+      vlan_id: 900
+  - name: GigabitEthernet2
+  - name: GigabitEthernet2.10
+    encapsulation:
+      type: dot1Q
+      vlan_id: 10
+  - name: GigabitEthernet2.900
+    encapsulation:
+      type: dot1Q
+      vlan_id: 900
+  - name: GigabitEthernet3
+  - name: GigabitEthernet3.11
+    encapsulation:
+      type: dot1Q
+      vlan_id: 11
+  - name: GigabitEthernet4
+l3_ifaces:
+  - name: GigabitEthernet1
+  - name: GigabitEthernet1.10
+    ipv4:
+      - address: 10.8.1.100/24
+  - name: GigabitEthernet1.900
+    ipv4:
+      - address: 10.0.24.1/24
+  - name: GigabitEthernet2
+  - name: GigabitEthernet2.10
+    ipv4:
+      - address: 10.8.3.1/30
+  - name: GigabitEthernet2.900
+    ipv4:
+      - address: 10.0.28.2/30
+  - name: GigabitEthernet3
+  - name: GigabitEthernet3.11
+    ipv4:
+      - address: 10.8.3.17/30
+  - name: GigabitEthernet4
+    ipv4:
+      - address: 10.0.3.2/24
+  - name: Loopback10
+    ipv4:
+      - address: 10.8.2.1/32
+  - name: Loopback900
+    ipv4:
+      - address: 10.0.26.1/32

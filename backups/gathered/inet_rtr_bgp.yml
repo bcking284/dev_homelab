@@ -1,0 +1,24 @@
+bgp_af:
+  address_family:
+    - afi: ipv4
+      neighbors:
+        - activate: true
+          neighbor_address: 10.0.3.2
+      networks:
+        - address: 9.9.9.9
+          mask: 255.255.255.255
+        - address: 10.0.3.0
+          mask: 255.255.255.252
+      safi: unicast
+  as_number: '65513'
+bgp_global:
+  as_number: '65513'
+  bgp:
+    default:
+      ipv4_unicast: true
+      route_target:
+        filter: true
+    log_neighbor_changes: true
+  neighbors:
+    - neighbor_address: 10.0.3.2
+      remote_as: '65512'

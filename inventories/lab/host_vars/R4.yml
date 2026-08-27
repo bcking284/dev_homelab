@@ -4,48 +4,38 @@ router_id: 10.0.26.4
 restconf:
   host: 10.8.2.4
 
-bgp:
-  asn: 65512
-  update_source: Loopback900
+#BGP Configuration Modules
+bgp_af:
+  address_family:
+    - afi: ipv4
+      neighbors:
+        - activate: true
+          neighbor_address: 10.0.26.1
+      networks:
+        - address: 10.0.30.0
+          mask: 255.255.255.252
+        - address: 10.0.30.4
+          mask: 255.255.255.252
+      redistribute:
+        - ospf:
+            process_id: 900
+            route_map: OSPF_TO_BGP
+      safi: unicast
+  as_number: '65512'
 
-  redistribute:
-    ospf:
-      enabled: false
-      process_id: 900
-      route_map: OSPF_TO_BGP
-
-  prefix_lists:
-    - name: OSPF_TO_BGP_PREFIXES
-      entries:
-        - seq: 10
-          action: permit
-          prefix: 10.0.16.0/20
-          le: 32
-
-  route_maps:
-    - name: OSPF_TO_BGP
-      entries:
-        - seq: 10
-          action: permit
-          match_prefix_list: OSPF_TO_BGP_PREFIXES
-
-  networks:
-    - number: 10.0.30.4
-      mask: 255.255.255.252
-
-    - number: 10.0.30.0
-      mask: 255.255.255.252
-
-    - number: 10.0.34.64
-      mask: 255.255.255.252
-
-
+bgp_global:
+  as_number: '65512'
+  bgp:
+    default:
+      ipv4_unicast: true
+      route_target:
+        filter: true
+    log_neighbor_changes: true
   neighbors:
-    - name: R1
-      peer_ip: 10.0.26.1
-      remote_as: 65512
-      multihop: true
+    - neighbor_address: 10.0.26.1
+      remote_as: '65512'
 
+#OSPF Configuration Modules
 ospf_cfg:
   processes:
     - network:
@@ -103,4 +93,92 @@ ospf_ifaces:
           area_id: 2
         network:
           point_to_point: true
+  - name: GigabitEthernet4
+
+#Route-policy Configuration
+prefix_lists:
+  - afi: ipv4
+    prefix_lists:
+      - name: ASN_65513
+        entries:
+          - sequence: 10
+            action: permit
+            prefix: 10.0.0.0/20
+      - name: OSPF_TO_BGP_PREFIXES
+        entries:
+          - sequence: 10
+            action: permit
+            prefix: 10.0.16.0/20
+            le: 32
+      - name: Test_prefix_1
+        entries:
+          - sequence: 20
+            action: permit
+            prefix: 10.20.16.0/20
+            le: 32
+route_maps:
+  - route_map: ASN_65513
+    entries:
+      - sequence: 10
+        action: permit
+        match:
+          ip:
+            address:
+              prefix_lists:
+                - ASN_65513
+        set:
+          local_preference: 110
+  - route_map: OSPF_TO_BGP
+    entries:
+      - sequence: 10
+        action: permit
+        match:
+          ip:
+            address:
+              prefix_lists:
+                - OSPF_TO_BGP_PREFIXES
+      - sequence: 20
+        action: permit
+        match:
+          ip:
+            address:
+              prefix_lists:
+                - Test_prefix_1
+  - route_map: WAN_out
+    entries:
+      - sequence: 10
+        action: permit
+        match:
+          ip:
+            address:
+              prefix_lists:
+                - OSPF_TO_BGP_PREFIXES
+      - sequence: 20
+        action: permit
+
+#VRF Configuration
+vrf_af:
+  - name: MGMT
+    address_families:
+      - afi: ipv4
+        safi: unicast
+vrf_global:
+  vrfs:
+    - name: MGMT
+vrf_ifaces:
+  - name: Loopback10
+    vrf_name: MGMT
+  - name: Loopback900
+  - name: GigabitEthernet1
+  - name: GigabitEthernet1.10
+    vrf_name: MGMT
+  - name: GigabitEthernet1.900
+  - name: GigabitEthernet2
+  - name: GigabitEthernet2.10
+    vrf_name: MGMT
+  - name: GigabitEthernet2.900
+  - name: GigabitEthernet3
+  - name: GigabitEthernet3.13
+    vrf_name: MGMT
+  - name: GigabitEthernet3.23
   - name: GigabitEthernet4

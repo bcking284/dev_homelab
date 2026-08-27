@@ -1,0 +1,24 @@
+---
+- name: Gather OSPF state
+  hosts: "{{ target | default('ios_ospf_routers') }}"
+  gather_facts: false
+  strategy: free
+
+  tasks:
+    - name: Gather ospfv2
+      cisco.ios.ios_ospfv2:
+        state: gathered
+      register: v2
+
+    - name: Gather ospf_interfaces
+      cisco.ios.ios_ospf_interfaces:
+        state: gathered
+      register: ospf_ifaces
+
+    - name: Write readable YAML
+      ansible.builtin.shell:
+        cmd: python3 "{{ playbook_dir }}/../../scripts/prettify.py" "{{ playbook_dir }}/../../backups/gathered/{{ inventory_hostname }}_ospf.yml"
+        stdin: "{{ {'ospf_cfg': v2.gathered,
+                    'ospf_ifaces': ospf_ifaces.gathered} | to_json }}"
+      delegate_to: localhost
+      changed_when: true

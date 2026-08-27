@@ -1,0 +1,83 @@
+prefix_lists:
+  - afi: ipv4
+    prefix_lists:
+      - name: ASN_65513
+        entries:
+          - sequence: 10
+            action: permit
+            prefix: 10.0.0.0/20
+      - name: OSPF_TO_BGP_PREFIXES
+        entries:
+          - sequence: 10
+            action: permit
+            prefix: 10.0.16.0/20
+            le: 32
+      - name: Test_prefix_1
+        entries:
+          - sequence: 20
+            action: permit
+            prefix: 10.20.16.0/20
+            le: 32
+route_maps:
+  - route_map: ASN_65513
+    entries:
+      - sequence: 10
+        action: permit
+        match:
+          ip:
+            address:
+              prefix_lists:
+                - ASN_65513
+        set:
+          local_preference: 110
+  - route_map: OSPF_TO_BGP
+    entries:
+      - sequence: 10
+        action: permit
+        match:
+          ip:
+            address:
+              prefix_lists:
+                - OSPF_TO_BGP_PREFIXES
+      - sequence: 20
+        action: permit
+        match:
+          ip:
+            address:
+              prefix_lists:
+                - Test_prefix_1
+  - route_map: WAN_out
+    entries:
+      - sequence: 10
+        action: permit
+        match:
+          ip:
+            address:
+              prefix_lists:
+                - OSPF_TO_BGP_PREFIXES
+      - sequence: 20
+        action: permit
+vrf_af:
+  - name: MGMT
+    address_families:
+      - afi: ipv4
+        safi: unicast
+vrf_global:
+  vrfs:
+    - name: MGMT
+vrf_ifaces:
+  - name: Loopback10
+    vrf_name: MGMT
+  - name: Loopback900
+  - name: GigabitEthernet1
+  - name: GigabitEthernet1.10
+    vrf_name: MGMT
+  - name: GigabitEthernet1.900
+  - name: GigabitEthernet2
+  - name: GigabitEthernet2.10
+    vrf_name: MGMT
+  - name: GigabitEthernet2.900
+  - name: GigabitEthernet3
+  - name: GigabitEthernet3.11
+    vrf_name: MGMT
+  - name: GigabitEthernet4

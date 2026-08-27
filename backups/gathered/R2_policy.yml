@@ -1,0 +1,29 @@
+prefix_lists: {}
+route_maps: {}
+vrf_af:
+  - name: MGMT
+    address_families:
+      - afi: ipv4
+        safi: unicast
+vrf_global:
+  vrfs:
+    - name: MGMT
+vrf_ifaces:
+  - name: Loopback10
+    vrf_name: MGMT
+  - name: Loopback900
+  - name: GigabitEthernet1
+  - name: GigabitEthernet1.10
+    vrf_name: MGMT
+  - name: GigabitEthernet1.900
+  - name: GigabitEthernet2
+  - name: GigabitEthernet2.12
+    vrf_name: MGMT
+  - name: GigabitEthernet3
+  - name: GigabitEthernet3.10
+    vrf_name: MGMT
+  - name: GigabitEthernet3.900
+  - name: GigabitEthernet4
+  - name: GigabitEthernet4.10
+    vrf_name: MGMT
+  - name: GigabitEthernet4.900

@@ -1,0 +1,98 @@
+interfaces:
+  - name: GigabitEthernet1
+    enabled: true
+  - name: GigabitEthernet1.10
+    enabled: true
+  - name: GigabitEthernet1.900
+    description: Link to Broadcast
+    enabled: true
+  - name: GigabitEthernet2
+    enabled: true
+  - name: GigabitEthernet2.12
+    enabled: true
+  - name: GigabitEthernet3
+    enabled: true
+  - name: GigabitEthernet3.10
+    enabled: true
+  - name: GigabitEthernet3.900
+    description: Link to R4 NSSA
+    enabled: true
+  - name: GigabitEthernet4
+    enabled: true
+  - name: GigabitEthernet4.10
+    enabled: true
+  - name: GigabitEthernet4.900
+    description: Link to R3
+    enabled: true
+  - name: Loopback10
+    enabled: true
+  - name: Loopback900
+    description: R2 Router ID
+    enabled: true
+l2_ifaces:
+  - name: Loopback10
+  - name: Loopback900
+  - name: GigabitEthernet1
+  - name: GigabitEthernet1.10
+    encapsulation:
+      type: dot1Q
+      vlan_id: 10
+  - name: GigabitEthernet1.900
+    encapsulation:
+      type: dot1Q
+      vlan_id: 900
+  - name: GigabitEthernet2
+  - name: GigabitEthernet2.12
+    encapsulation:
+      type: dot1Q
+      vlan_id: 12
+  - name: GigabitEthernet3
+  - name: GigabitEthernet3.10
+    encapsulation:
+      type: dot1Q
+      vlan_id: 10
+  - name: GigabitEthernet3.900
+    encapsulation:
+      type: dot1Q
+      vlan_id: 900
+  - name: GigabitEthernet4
+  - name: GigabitEthernet4.10
+    encapsulation:
+      type: dot1Q
+      vlan_id: 10
+  - name: GigabitEthernet4.900
+    encapsulation:
+      type: dot1Q
+      vlan_id: 900
+l3_ifaces:
+  - name: GigabitEthernet1
+  - name: GigabitEthernet1.10
+    ipv4:
+      - address: 10.8.1.103/24
+  - name: GigabitEthernet1.900
+    ipv4:
+      - address: 10.0.24.2/24
+  - name: GigabitEthernet2
+  - name: GigabitEthernet2.12
+    ipv4:
+      - address: 10.8.3.21/30
+  - name: GigabitEthernet3
+  - name: GigabitEthernet3.10
+    ipv4:
+      - address: 10.8.3.9/30
+  - name: GigabitEthernet3.900
+    ipv4:
+      - address: 10.0.30.6/30
+  - name: GigabitEthernet4
+  - name: GigabitEthernet4.10
+    ipv4:
+      - address: 10.8.3.5/30
+  - name: GigabitEthernet4.900
+    ipv4:
+      - address: 10.0.25.1/30
+  - name: Loopback10
+    ipv4:
+      - address: 10.8.2.2/32
+  - name: Loopback900
+    ipv4:
+      - address: 10.0.26.2/32

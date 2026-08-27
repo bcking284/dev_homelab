@@ -1,0 +1,46 @@
+interfaces:
+  - name: GigabitEthernet1
+    enabled: true
+  - name: GigabitEthernet2
+    enabled: true
+  - name: GigabitEthernet3
+    enabled: true
+  - name: GigabitEthernet3.10
+    enabled: true
+  - name: GigabitEthernet4
+    enabled: false
+  - name: Loopback10
+    enabled: true
+  - name: Loopback900
+    enabled: true
+l2_ifaces:
+  - name: Loopback10
+  - name: Loopback900
+  - name: GigabitEthernet1
+  - name: GigabitEthernet2
+  - name: GigabitEthernet3
+  - name: GigabitEthernet3.10
+    encapsulation:
+      type: dot1Q
+      vlan_id: 10
+  - name: GigabitEthernet4
+l3_ifaces:
+  - name: GigabitEthernet1
+    ipv4:
+      - address: 192.168.50.23/24
+        secondary: true
+      - address: 192.168.50.22/24
+  - name: GigabitEthernet2
+    ipv4:
+      - address: 10.0.3.1/30
+  - name: GigabitEthernet3
+  - name: GigabitEthernet3.10
+    ipv4:
+      - address: 10.8.1.254/24
+  - name: GigabitEthernet4
+  - name: Loopback10
+    ipv4:
+      - address: 10.8.2.254/32
+  - name: Loopback900
+    ipv4:
+      - address: 9.9.9.9/32

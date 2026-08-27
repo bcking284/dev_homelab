@@ -1,0 +1,44 @@
+prefix_lists:
+  - afi: ipv4
+    prefix_lists:
+      - name: OSPF_TO_BGP_PREFIXES
+        entries:
+          - sequence: 10
+            action: permit
+            prefix: 10.0.16.0/20
+            le: 32
+route_maps:
+  - route_map: OSPF_TO_BGP
+    entries:
+      - sequence: 10
+        action: permit
+        match:
+          ip:
+            address:
+              prefix_lists:
+                - OSPF_TO_BGP_PREFIXES
+vrf_af:
+  - name: MGMT
+    address_families:
+      - afi: ipv4
+        safi: unicast
+vrf_global:
+  vrfs:
+    - name: MGMT
+vrf_ifaces:
+  - name: Loopback10
+    vrf_name: MGMT
+  - name: Loopback900
+  - name: GigabitEthernet1
+  - name: GigabitEthernet1.10
+    vrf_name: MGMT
+  - name: GigabitEthernet1.900
+  - name: GigabitEthernet2
+  - name: GigabitEthernet2.10
+    vrf_name: MGMT
+  - name: GigabitEthernet2.900
+  - name: GigabitEthernet3
+  - name: GigabitEthernet3.13
+    vrf_name: MGMT
+  - name: GigabitEthernet3.23
+  - name: GigabitEthernet4

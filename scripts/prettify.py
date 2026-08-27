@@ -4,7 +4,12 @@ import json
 import sys
 import yaml
 
-KEY_ORDER = ["name", "process_id", "router_id", "vrf", "area_id", "afi"]
+KEY_ORDER = [
+    "name", "route_map", "sequence", "action",
+    "prefix", "prefix_list", "entries", "seq",
+    "as_number", "neighbor_address", "remote_as",
+    "process_id", "router_id", "vrf", "area_id", "afi", "safi",
+]
 
 
 class Dumper(yaml.SafeDumper):
