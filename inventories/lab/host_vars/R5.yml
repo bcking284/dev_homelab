@@ -56,43 +56,43 @@ l3_ifaces:
 
 ospf_cfg:
   processes:
-  - network:
-    - address: 0.0.0.0
-      area: '0'
-      wildcard_bits: 255.255.255.255
-    process_id: 1
-    router_id: 10.8.2.5
-    vrf: MGMT
-  - areas:
-    - area_id: '1'
-      stub:
-        set: true
-    passive_interfaces:
-      interface:
-        name:
-        - Loopback900
-        set_interface: true
-    process_id: 900
-    router_id: 10.0.28.129
+    - network:
+        - address: 0.0.0.0
+          area: '0'
+          wildcard_bits: 255.255.255.255
+      process_id: 1
+      router_id: 10.8.2.5
+      vrf: MGMT
+    - areas:
+        - area_id: '1'
+          stub:
+            set: true
+      passive_interfaces:
+        interface:
+          name:
+            - Loopback900
+          set_interface: true
+      process_id: 900
+      router_id: 10.0.28.129
 
 ospf_ifaces:
-- name: Loopback10
-- name: Loopback900
-  address_family:
-  - afi: ipv4
-    process:
-      id: 900
-      area_id: 1
-- name: GigabitEthernet1
-- name: GigabitEthernet1.10
-- name: GigabitEthernet1.900
-  address_family:
-  - afi: ipv4
-    process:
-      id: 900
-      area_id: 1
-    network:
-      point_to_point: true
-- name: GigabitEthernet2
-- name: GigabitEthernet3
-- name: GigabitEthernet4
+  - name: Loopback10
+  - name: Loopback900
+    address_family:
+      - afi: ipv4
+        process:
+          id: 900
+          area_id: 1
+  - name: GigabitEthernet1
+  - name: GigabitEthernet1.10
+  - name: GigabitEthernet1.900
+    address_family:
+      - afi: ipv4
+        process:
+          id: 900
+          area_id: 1
+        network:
+          point_to_point: true
+  - name: GigabitEthernet2
+  - name: GigabitEthernet3
+  - name: GigabitEthernet4
