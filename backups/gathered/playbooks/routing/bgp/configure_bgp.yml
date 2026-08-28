@@ -1,0 +1,87 @@
+---
+- name: Configure BGP routers idempotently
+  hosts: ios_bgp_routers
+  gather_facts: false
+
+  tasks:
+
+    - name: Configure BGP process
+      cisco.ios.ios_config:
+        lines:
+          - router bgp {{ bgp.asn }}
+        match: line
+
+    - name: Configure BGP neighbors
+      cisco.ios.ios_config:
+        parents:
+          - router bgp {{ bgp.asn }}
+        lines:
+          - neighbor {{ item.peer_ip }} remote-as {{ item.remote_as }}
+        match: line
+      loop: "{{ bgp.neighbors }}"
+
+    - name: Configure BGP ebgp multihop
+      cisco.ios.ios_config:
+        parents:
+          - router bgp {{ bgp.asn }}
+        lines:
+          - neighbor {{ item.id }} ebgp-multihop 10
+          - neighbor {{ item.id }} update-source {{ item.update_source }}
+        match: line
+      loop: "{{ bgp.neighbors }}"
+      when: bgp.multihop | default(false)
+
+    - name: Activate BGP neighbors under IPv4 address-family
+      cisco.ios.ios_config:
+        parents:
+          - router bgp {{ bgp.asn }}
+          - address-family ipv4
+        lines:
+          - neighbor {{ item.peer_ip }} activate
+        match: line
+      loop: "{{ bgp.neighbors }}"
+      when: item.activate_ipv4 | default(false)
+
+    - name: Configure BGP networks under IPv4 address-family
+      cisco.ios.ios_config:
+        parents:
+          - router bgp {{ bgp.asn }}
+          - address-family ipv4
+        lines:
+          - network {{ item.number }} mask {{ item.mask }}
+        match: line
+      loop: "{{ bgp.networks }}"
+
+    - name: Configure BGP redistribution prefix-lists
+      cisco.ios.ios_config:
+        lines:
+          - >-
+            ip prefix-list {{ item.0.name }} seq {{ item.1.seq }}
+            {{ item.1.action }} {{ item.1.prefix }}
+            {% if item.1.ge is defined %} ge {{ item.1.ge }}{% endif %}
+            {% if item.1.le is defined %} le {{ item.1.le }}{% endif %}
+        match: line
+      loop: "{{ bgp.prefix_lists | default([]) | subelements('entries') }}"
+
+    - name: Configure BGP redistribution route-maps
+      cisco.ios.ios_config:
+        parents:
+          - route-map {{ item.0.name }} {{ item.1.action }} {{ item.1.seq }}
+        lines:
+          - match ip address prefix-list {{ item.1.match_prefix_list }}
+        match: line
+      loop: "{{ bgp.route_maps | default([]) | subelements('entries') }}"
+
+    - name: Redistribute OSPF into BGP
+      cisco.ios.ios_config:
+        parents:
+          - router bgp {{ bgp.asn }}
+          - address-family ipv4
+        lines:
+          - redistribute ospf {{ bgp.redistribute.ospf.process_id }} route-map {{ bgp.redistribute.ospf.route_map }}
+        match: line
+      when: bgp.redistribute.ospf.enabled | default(false)
+
+    - name: Save config if changed
+      cisco.ios.ios_config:
+        save_when: modified

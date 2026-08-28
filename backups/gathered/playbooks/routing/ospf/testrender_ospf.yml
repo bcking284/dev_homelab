@@ -1,0 +1,21 @@
+---
+- hosts: R1
+  gather_facts: false
+  tasks:
+    - cisco.ios.ios_ospfv2:
+        config:
+          processes:
+            - process_id: 900
+              router_id: "10.0.26.1"
+              areas:
+                - area_id: "1"
+                  stub:
+                    set: true
+                    no_summary: true
+              network:
+                - address: "10.0.28.0"
+                  area: "1"
+                  wildcard_bits: "0.0.0.255"
+        state: rendered
+      register: r
+    - debug: var=r.rendered

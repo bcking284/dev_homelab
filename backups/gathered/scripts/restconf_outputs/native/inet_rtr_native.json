@@ -1,0 +1,389 @@
+{
+  "Cisco-IOS-XE-native:native": {
+    "version": "16.9",
+    "boot-start-marker": [
+      null
+    ],
+    "boot-end-marker": [
+      null
+    ],
+    "service": {
+      "timestamps": {
+        "debug": {
+          "datetime": {
+            "msec": {}
+          }
+        },
+        "log": {
+          "datetime": {
+            "msec": [
+              null
+            ]
+          }
+        }
+      }
+    },
+    "platform": {
+      "Cisco-IOS-XE-platform:console": {
+        "output": "serial"
+      },
+      "Cisco-IOS-XE-platform:punt-keepalive": {
+        "disable-kernel-core": true
+      }
+    },
+    "hostname": "inet_rtr",
+    "username": [
+      {
+        "name": "admin",
+        "privilege": 15,
+        "secret": {
+          "encryption": "5",
+          "secret": "$1$DZDo$195NGzd1IN/Jotrkff8VX1"
+        }
+      }
+    ],
+    "vrf": {
+      "definition": [
+        {
+          "name": "MGMT",
+          "address-family": {
+            "ipv4": {}
+          }
+        }
+      ]
+    },
+    "ip": {
+      "domain": {
+        "name": "lab.local"
+      },
+      "dhcp": {
+        "Cisco-IOS-XE-dhcp:excluded-address": {
+          "vrf-low-high-address-list": [
+            {
+              "vrf": "MGMT",
+              "low-address": "10.8.1.1",
+              "high-address": "10.8.1.21"
+            }
+          ]
+        },
+        "Cisco-IOS-XE-dhcp:pool": [
+          {
+            "id": "MGMT",
+            "vrf": "MGMT",
+            "default-router": {
+              "default-router-list": [
+                "10.8.1.254"
+              ]
+            },
+            "dns-server": {
+              "dns-server-list": [
+                "8.8.8.8"
+              ]
+            },
+            "network": {
+              "primary-network": {
+                "number": "10.8.1.0",
+                "mask": "255.255.255.0"
+              }
+            }
+          }
+        ]
+      },
+      "forward-protocol": {
+        "protocol": "nd"
+      },
+      "route": {
+        "vrf": [
+          {
+            "name": "MGMT",
+            "ip-route-interface-forwarding-list": [
+              {
+                "prefix": "0.0.0.0",
+                "mask": "0.0.0.0",
+                "fwd-list": [
+                  {
+                    "fwd": "192.168.50.1"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "ssh": {
+        "version": 2
+      },
+      "access-list": {
+        "Cisco-IOS-XE-acl:extended": [
+          {
+            "name": 101,
+            "access-list-seq-rule": [
+              {
+                "sequence": "10",
+                "ace-rule": {
+                  "action": "permit",
+                  "protocol": "ip",
+                  "host": "10.8.1.22",
+                  "dst-any": [
+                    null
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "Cisco-IOS-XE-http:http": {
+        "authentication": {
+          "local": [
+            null
+          ]
+        },
+        "server": false,
+        "secure-server": true
+      },
+      "Cisco-IOS-XE-nat:nat": {
+        "inside": {
+          "source": {
+            "static": {
+              "nat-static-transport-list-with-vrf": [
+                {
+                  "local-ip": "10.8.1.22",
+                  "global-ip": "192.168.50.23",
+                  "vrf": "MGMT"
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "interface": {
+      "GigabitEthernet": [
+        {
+          "name": "1",
+          "vrf": {
+            "forwarding": "MGMT"
+          },
+          "ip": {
+            "address": {
+              "secondary": [
+                {
+                  "address": "192.168.50.23",
+                  "mask": "255.255.255.0",
+                  "secondary": [
+                    null
+                  ]
+                }
+              ],
+              "primary": {
+                "address": "192.168.50.22",
+                "mask": "255.255.255.0"
+              }
+            },
+            "Cisco-IOS-XE-nat:nat": {
+              "outside": [
+                null
+              ]
+            }
+          },
+          "mop": {
+            "enabled": false,
+            "sysid": false
+          },
+          "Cisco-IOS-XE-ethernet:negotiation": {
+            "auto": true
+          }
+        },
+        {
+          "name": "2",
+          "shutdown": [
+            null
+          ],
+          "mop": {
+            "enabled": false,
+            "sysid": false
+          },
+          "Cisco-IOS-XE-ethernet:negotiation": {
+            "auto": true
+          }
+        },
+        {
+          "name": "3",
+          "ip": {
+            "Cisco-IOS-XE-ospf:ospf": {
+              "network": "broadcast"
+            }
+          },
+          "mop": {
+            "enabled": false,
+            "sysid": false
+          },
+          "Cisco-IOS-XE-ethernet:negotiation": {
+            "auto": true
+          }
+        },
+        {
+          "name": "3.10",
+          "encapsulation": {
+            "dot1Q": {
+              "vlan-id": 10
+            }
+          },
+          "vrf": {
+            "forwarding": "MGMT"
+          },
+          "ip": {
+            "address": {
+              "primary": {
+                "address": "10.8.1.254",
+                "mask": "255.255.255.0"
+              }
+            },
+            "Cisco-IOS-XE-nat:nat": {
+              "inside": [
+                null
+              ]
+            }
+          }
+        },
+        {
+          "name": "4",
+          "shutdown": [
+            null
+          ],
+          "mop": {
+            "enabled": false,
+            "sysid": false
+          },
+          "Cisco-IOS-XE-ethernet:negotiation": {
+            "auto": true
+          }
+        }
+      ],
+      "Loopback": [
+        {
+          "name": 10,
+          "vrf": {
+            "forwarding": "MGMT"
+          },
+          "ip": {
+            "address": {
+              "primary": {
+                "address": "10.8.2.254",
+                "mask": "255.255.255.255"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "control-plane": {},
+    "login": {
+      "on-success": {
+        "log": {}
+      }
+    },
+    "multilink": {
+      "Cisco-IOS-XE-ppp:bundle-name": "authenticated"
+    },
+    "redundancy": {},
+    "spanning-tree": {
+      "Cisco-IOS-XE-spanning-tree:extend": {
+        "system-id": [
+          null
+        ]
+      }
+    },
+    "subscriber": {
+      "templating": [
+        null
+      ]
+    },
+    "crypto": {
+      "Cisco-IOS-XE-crypto:pki": {
+        "trustpoint": [
+          {
+            "id": "TP-self-signed-4173636941",
+            "enrollment": {
+              "selfsigned": [
+                null
+              ]
+            },
+            "revocation-check": "none",
+            "rsakeypair": {
+              "key-label": "TP-self-signed-4173636941"
+            },
+            "subject-name": "cn=IOS-Self-Signed-Certificate-4173636941"
+          }
+        ],
+        "certificate": {
+          "chain": [
+            {
+              "name": "TP-self-signed-4173636941",
+              "certificate": [
+                {
+                  "serial": "01",
+                  "certtype": "self-signed"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "router": {
+      "Cisco-IOS-XE-ospf:ospf": [
+        {
+          "id": 1,
+          "vrf": "MGMT",
+          "router-id": "10.8.2.254",
+          "network": [
+            {
+              "ip": "0.0.0.0",
+              "mask": "255.255.255.255",
+              "area": 0
+            }
+          ]
+        }
+      ]
+    },
+    "license": {
+      "udi": {
+        "pid": "CSR1000V",
+        "sn": "9RZBMFTEPGF"
+      }
+    },
+    "line": {
+      "console": [
+        {
+          "first": "0",
+          "stopbits": "1"
+        }
+      ],
+      "vty": [
+        {
+          "first": 0,
+          "last": 4,
+          "login": {
+            "local": [
+              null
+            ]
+          },
+          "transport": {
+            "input": {
+              "input": [
+                "ssh"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "Cisco-IOS-XE-diagnostics:diagnostic": {
+      "bootup": {
+        "level": "minimal"
+      }
+    }
+  }
+}

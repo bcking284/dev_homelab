@@ -1,0 +1,17 @@
+{
+  "Cisco-IOS-XE-bgp:ipv4": {
+    "af-name": "unicast",
+    "ipv4-unicast": {
+      "network": {
+        "with-mask": [
+{% for network in bgp.networks %}
+          {
+            "number": "{{ network.number }}",
+            "mask": "{{ network.mask }}"
+          }{% if not loop.last %},{% endif %}
+{% endfor %}
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,33 @@
+router ospf {{ prod_ospf_process_id }}
+ router-id {{ router_id }}
+{% for area in ospf_areas | default([]) %}
+{% if area.type == 'stub' %}
+ area {{ area.area_id }} stub{% if area.no_summary | default(false) %} no-summary{% endif %}
+
+{% elif area.type == 'nssa' %}
+ area {{ area.area_id }} nssa{% if area.no_summary | default(false) %} no-summary{% endif %}
+
+{% endif %}
+{% endfor %}
+
+{% for intf in ospf_interfaces %}
+interface {{ intf.name }}
+{% if intf.istagged | default(false) %}
+ encapsulation dot1Q {{ intf.vlan_tag }}
+{% endif %}
+ description {{ intf.description }}
+ ip address {{ intf.ip_address }} {{ intf.subnet_mask }}
+{% if intf.ospf_enabled | default(false) %}
+ ip ospf {{ prod_ospf_process_id }} area {{ intf.ospf_area }}
+{% endif %}
+ no shutdown
+{% endfor %}
+!
+
+{% for intf in ospf_interfaces %}
+{% if intf.passive | default(false) %}
+ passive-interface {{ intf.name }}
+{% endif %}
+{% endfor %}
+!
+end

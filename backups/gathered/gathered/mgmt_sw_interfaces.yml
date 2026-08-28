@@ -1,0 +1,95 @@
+interfaces:
+  - name: Ethernet0/0
+    duplex: auto
+    enabled: true
+  - name: Ethernet0/1
+    duplex: auto
+    enabled: true
+  - name: Ethernet0/2
+    duplex: auto
+    enabled: true
+  - name: Ethernet0/3
+    duplex: auto
+    enabled: true
+  - name: Ethernet1/0
+    duplex: auto
+    enabled: true
+  - name: Ethernet1/1
+    duplex: auto
+    enabled: true
+  - name: Ethernet1/2
+    duplex: auto
+    enabled: true
+  - name: Ethernet1/3
+    duplex: auto
+    enabled: true
+  - name: Vlan10
+    enabled: true
+l2_ifaces:
+  - name: Ethernet0/0
+    mode: trunk
+    trunk:
+      allowed_vlans:
+        - '10'
+        - '900'
+      encapsulation: dot1q
+  - name: Ethernet0/1
+    mode: trunk
+    trunk:
+      allowed_vlans:
+        - '10'
+        - '900'
+      encapsulation: dot1q
+  - name: Ethernet0/2
+    mode: trunk
+    trunk:
+      allowed_vlans:
+        - '10'
+        - '900'
+      encapsulation: dot1q
+  - name: Ethernet0/3
+    access:
+      vlan: 10
+    mode: access
+  - name: Ethernet1/0
+    mode: trunk
+    trunk:
+      allowed_vlans:
+        - '10'
+        - '900'
+      encapsulation: dot1q
+  - name: Ethernet1/1
+    mode: trunk
+    trunk:
+      allowed_vlans:
+        - '10'
+        - '900'
+      encapsulation: dot1q
+  - name: Ethernet1/2
+    mode: trunk
+    trunk:
+      allowed_vlans:
+        - '10'
+        - '900'
+      encapsulation: dot1q
+  - name: Ethernet1/3
+    mode: trunk
+    trunk:
+      allowed_vlans:
+        - '10'
+        - '900'
+      encapsulation: dot1q
+  - name: Vlan10
+l3_ifaces:
+  - name: Ethernet0/0
+  - name: Ethernet0/1
+  - name: Ethernet0/2
+  - name: Ethernet0/3
+  - name: Ethernet1/0
+  - name: Ethernet1/1
+  - name: Ethernet1/2
+  - name: Ethernet1/3
+  - name: Vlan10
+    autostate: true
+    ipv4:
+      - address: 10.8.1.104/24

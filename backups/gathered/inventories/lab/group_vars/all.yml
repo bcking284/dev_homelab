@@ -1,0 +1,14 @@
+---
+ansible_user: "{{ lookup('env', 'NET_USERNAME') }}"
+ansible_password: "{{ lookup('env', 'NET_PASSWORD') }}"
+ansible_become_password: "{{ lookup('env', 'NET_ENABLE') }}"
+ansible_connection: network_cli
+ansible_become: true
+ansible_become_method: enable
+# ansible_network_cli_ssh_type: libssh
+ansible_ssh_common_args: >-
+  -o KexAlgorithms=+diffie-hellman-group14-sha1
+  -o HostKeyAlgorithms=+ssh-rsa
+  -o PubkeyAcceptedAlgorithms=+ssh-rsa
+  -o PubkeyAuthentication=no
+  -o StrictHostKeyChecking=no

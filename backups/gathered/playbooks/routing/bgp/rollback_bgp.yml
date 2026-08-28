@@ -1,0 +1,10 @@
+---
+- name: Remove BGP config
+  hosts: ios_bgp_routers
+  gather_facts: false
+
+  tasks:
+    - name: Remove BGP process
+      cisco.ios.ios_config:
+        lines:
+          - no router bgp {{ bgp.asn }}

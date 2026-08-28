@@ -4,8 +4,95 @@ router_id: 10.0.26.3
 restconf:
   host: 10.8.2.3
 
-bgp:
-  asn: 65512
+interfaces:
+  - name: GigabitEthernet1
+    enabled: true
+  - name: GigabitEthernet1.10
+    enabled: true
+  - name: GigabitEthernet1.900
+    description: Link to R5
+    enabled: true
+  - name: GigabitEthernet2
+    enabled: true
+  - name: GigabitEthernet2.10
+    enabled: true
+  - name: GigabitEthernet2.900
+    description: Link to R5
+    enabled: true
+  - name: GigabitEthernet3
+    enabled: true
+  - name: GigabitEthernet3.10
+    enabled: true
+  - name: GigabitEthernet3.900
+    description: Link to Broadcast
+    enabled: true
+  - name: GigabitEthernet4
+    enabled: false
+  - name: Loopback10
+    enabled: true
+  - name: Loopback900
+    description: R3 Router ID
+    enabled: true
+l2_ifaces:
+  - name: Loopback10
+  - name: Loopback900
+  - name: GigabitEthernet1
+  - name: GigabitEthernet1.10
+    encapsulation:
+      type: dot1Q
+      vlan_id: 10
+  - name: GigabitEthernet1.900
+    encapsulation:
+      type: dot1Q
+      vlan_id: 900
+  - name: GigabitEthernet2
+  - name: GigabitEthernet2.10
+    encapsulation:
+      type: dot1Q
+      vlan_id: 10
+  - name: GigabitEthernet2.900
+    encapsulation:
+      type: dot1Q
+      vlan_id: 900
+  - name: GigabitEthernet3
+  - name: GigabitEthernet3.10
+    encapsulation:
+      type: dot1Q
+      vlan_id: 10
+  - name: GigabitEthernet3.900
+    encapsulation:
+      type: dot1Q
+      vlan_id: 900
+  - name: GigabitEthernet4
+l3_ifaces:
+  - name: GigabitEthernet1
+  - name: GigabitEthernet1.10
+    ipv4:
+      - address: 10.8.3.6/30
+  - name: GigabitEthernet1.900
+    ipv4:
+      - address: 10.0.25.2/30
+  - name: GigabitEthernet2
+  - name: GigabitEthernet2.10
+    ipv4:
+      - address: 10.8.3.13/30
+  - name: GigabitEthernet2.900
+    ipv4:
+      - address: 10.0.30.2/30
+  - name: GigabitEthernet3
+  - name: GigabitEthernet3.10
+    ipv4:
+      - address: 10.8.1.114/24
+  - name: GigabitEthernet3.900
+    ipv4:
+      - address: 10.0.24.3/24
+  - name: GigabitEthernet4
+  - name: Loopback10
+    ipv4:
+      - address: 10.8.2.3/32
+  - name: Loopback900
+    ipv4:
+      - address: 10.0.26.3/32
 
 ospf_cfg:
   processes:

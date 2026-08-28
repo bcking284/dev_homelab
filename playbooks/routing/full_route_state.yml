@@ -1,0 +1,120 @@
+---
+- name: Configure OSPF and BGP via resource modules
+  hosts: ios_routers
+  gather_facts: false
+
+  tasks:
+    - name: Subinterface encapsulation (no module coverage)
+      cisco.ios.ios_config:
+        lines:
+          - "encapsulation dot1Q {{ item.encapsulation.vlan_id }}"
+        parents: "interface {{ item.name }}"
+      loop: "{{ l2_ifaces | default([])
+                | selectattr('encapsulation', 'defined')
+                | rejectattr('name', 'search', '^Loopback') | list }}"
+      loop_control:
+        label: "{{ item.name }}"
+      register: encap_result
+
+    - name: Interface addressing
+      cisco.ios.ios_l3_interfaces:
+        config: "{{ l3_ifaces }}"
+        state: merged
+      register: l3_result
+      when: l3_ifaces is defined
+
+    - name: Interface enablement and descriptions
+      cisco.ios.ios_interfaces:
+        config: "{{ interfaces }}"
+        state: replaced
+      register: intf_result
+      when: interfaces is defined
+
+    - name: Prefix lists
+      cisco.ios.ios_prefix_lists:
+        config: "{{ prefix_lists }}"
+        state: replaced
+      register: pl_result
+      when: prefix_lists is defined
+
+    - name: Route maps
+      cisco.ios.ios_route_maps:
+        config: "{{ route_maps }}"
+        state: replaced
+      register: rm_result
+      when: route_maps is defined
+
+    - name: OSPF process, networks, passive interfaces
+      cisco.ios.ios_ospfv2:
+        config: "{{ ospf_cfg }}"
+        state: replaced
+      register: ospf_result
+      when: ospf_cfg is defined
+      changed_when: >-
+        ospf_result.commands | default([])
+        | reject('match', '^router ospf \\d+( vrf \\S+)?$')
+        | list | length > 0
+
+    - name: OSPF interface level configuration
+      cisco.ios.ios_ospf_interfaces:
+        config: "{{ ospf_ifaces }}"
+        state: replaced
+      register: ospf_iface_result
+      when: ospf_ifaces is defined
+
+    - name: Area types (stub / NSSA)
+      cisco.ios.ios_config:
+        lines:
+          - >-
+            area {{ item.area_id }}
+            {%- if item.stub is defined %} stub
+            {%- if item.stub.no_summary | default(false) %} no-summary{% endif %}
+            {%- elif item.nssa is defined %} nssa
+            {%- if item.nssa.no_summary | default(false) %} no-summary{% endif %}
+            {%- if item.nssa.default_information_originate is defined %} default-information-originate{% endif %}
+            {%- endif %}
+        parents: "router ospf {{ prod_ospf_process_id }}"
+      loop: >-
+        {{ ospf_cfg.processes | default([])
+           | selectattr('process_id', 'equalto', prod_ospf_process_id | default(0))
+           | map(attribute='areas', default=[])
+           | flatten }}
+      register: area_result
+      when:
+        - ospf_cfg is defined
+        - prod_ospf_process_id is defined
+        - item.stub is defined or item.nssa is defined
+
+    - name: BGP global
+      cisco.ios.ios_bgp_global:
+        config: "{{ bgp_global }}"
+        state: replaced
+      register: bgp_g_result
+      when: bgp_global is defined
+
+    - name: BGP address family
+      cisco.ios.ios_bgp_address_family:
+        config: "{{ bgp_af }}"
+        state: replaced
+      register: bgp_af_result
+      when: bgp_af is defined
+
+    - name: Show all generated commands
+      ansible.builtin.debug:
+        msg: "{{ generated | dict2items | rejectattr('value', 'eq', []) | items2dict }}"
+      vars:
+        generated:
+          encap: "{{ encap_result.results | default([])
+                     | selectattr('updates', 'defined')
+                     | map(attribute='updates') | flatten }}"
+          l3_addressing: "{{ l3_result.commands | default([]) }}"
+          interfaces: "{{ intf_result.commands | default([]) }}"
+          prefix_lists: "{{ pl_result.commands | default([]) }}"
+          route_maps: "{{ rm_result.commands | default([]) }}"
+          ospf_process: "{{ ospf_result.commands | default([]) }}"
+          ospf_interfaces: "{{ ospf_iface_result.commands | default([]) }}"
+          area_types: "{{ area_result.results | default([])
+                          | selectattr('updates', 'defined')
+                          | map(attribute='updates') | flatten }}"
+          bgp_global: "{{ bgp_g_result.commands | default([]) }}"
+          bgp_af: "{{ bgp_af_result.commands | default([]) }}"

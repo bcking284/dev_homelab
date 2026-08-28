@@ -1,0 +1,17 @@
+---
+- name: Enable RESTCONF on IOS XE routers
+  hosts: ios_routers
+  gather_facts: false
+
+  tasks:
+    - name: Enable HTTPS and RESTCONF
+      cisco.ios.ios_config:
+        lines:
+          - ip http secure-server
+          - ip http authentication local
+          - restconf
+
+    - name: Save running config
+      cisco.ios.ios_command:
+        commands:
+          - write memory

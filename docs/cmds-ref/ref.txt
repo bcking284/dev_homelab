@@ -30,3 +30,17 @@ curl -k \
 }
 
 https://datatracker.ietf.org/doc/html/rfc8072
+
+#ROLLBACK
+
+ansible-playbook -i inventories/lab/hosts.ini \
+  playbooks/rollback/manual_rollback_replace.yml \
+  -e ckpt-20260825-200225.cfg
+
+A few devices at once:
+--limit R1,R5 -e ckpt_override=<check>
+
+Rolling back to greenfield state -- MGMT vrf only
+ansible-playbook -i inventories/lab/hosts.ini \
+  playbooks/rollback/manual_rollback_replace.yml \
+  -e ckpt_override=ckpt-20260828-125050.cfg

@@ -1,22 +1,46 @@
----
 - name: Restore configuration from checkpoint
   hosts: ios_routers
   gather_facts: false
 
   vars:
     revert_timer: 5
+    ckpt_override: ""          # pass with -e to pick a specific checkpoint
 
   tasks:
-    - name: Read this host's checkpoint name
+    - name: List checkpoints on device
+      cisco.ios.ios_command:
+        commands:
+          - "dir flash: | include ckpt-"
+      register: flash_list
+
+    - name: Show available checkpoints
+      ansible.builtin.debug:
+        var: flash_list.stdout_lines
+
+    - name: Determine checkpoint file
       ansible.builtin.set_fact:
-        ckpt_file: "{{ lookup('file', playbook_dir + '/../../backups/checkpoints/' + inventory_hostname + '.txt') | trim }}"
+        ckpt_file: >-
+          {{ ckpt_override if ckpt_override else
+             lookup('file', playbook_dir + '/../../backups/checkpoints/' + inventory_hostname + '.txt',
+                    errors='ignore') | default('', true) | trim }}
+
+    - name: Fail clearly if no checkpoint identified
+      ansible.builtin.fail:
+        msg: >-
+          No checkpoint for {{ inventory_hostname }}. Pass one with
+          -e ckpt_override=ckpt-YYYYMMDD-HHMMSS.cfg — see the list above.
+      when: ckpt_file | length == 0
 
     - name: Confirm the checkpoint exists on the device
       cisco.ios.ios_command:
         commands:
           - "dir flash:{{ ckpt_file }}"
       register: ckpt_check
-      failed_when: "'No such file' in ckpt_check.stdout[0]"
+      failed_when: "'No such file' in ckpt_check.stdout[0] or '%Error' in ckpt_check.stdout[0]"
+
+    - name: Show which checkpoint is being used
+      ansible.builtin.debug:
+        msg: "{{ inventory_hostname }} restoring from {{ ckpt_file }}"
 
     - name: Replace running config with checkpoint
       cisco.ios.ios_command:

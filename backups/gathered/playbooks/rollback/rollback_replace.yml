@@ -1,0 +1,49 @@
+---
+- name: Restore configuration from checkpoint
+  hosts: ios
+  gather_facts: false
+
+  vars:
+    revert_timer: 5
+
+  tasks:
+    - name: Read this host's checkpoint name
+      ansible.builtin.set_fact:
+        ckpt_file: "{{ lookup('file', playbook_dir + '/../../backups/checkpoints/' + inventory_hostname + '.txt') | trim }}"
+
+    - name: Confirm the checkpoint exists on the device
+      cisco.ios.ios_command:
+        commands:
+          - "dir flash:{{ ckpt_file }}"
+      register: ckpt_check
+      failed_when: "'No such file' in ckpt_check.stdout[0]"
+
+    - name: Replace running config with checkpoint
+      cisco.ios.ios_command:
+        commands:
+          - "configure replace flash:{{ ckpt_file }} force revert trigger timer {{ revert_timer }}"
+      register: replace_out
+      vars:
+        ansible_command_timeout: 120
+
+    - name: Show what was reverted
+      ansible.builtin.debug:
+        var: replace_out.stdout_lines
+
+    - name: Verify device is still reachable after replace
+      cisco.ios.ios_command:
+        commands:
+          - show version
+      register: post_check
+      retries: 3
+      delay: 10
+      until: post_check is succeeded
+
+    - name: Confirm the replace (cancels the auto-revert timer)
+      cisco.ios.ios_command:
+        commands:
+          - configure confirm
+
+    - name: Save
+      cisco.ios.ios_config:
+        save_when: always

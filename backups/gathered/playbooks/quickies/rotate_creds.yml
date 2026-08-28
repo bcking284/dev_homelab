@@ -1,0 +1,16 @@
+---
+- name: Rotate device credentials
+  hosts: ios
+  gather_facts: false
+  tasks:
+    - name: Set new local user
+      cisco.ios.ios_user:
+        name: "{{ lookup('env', 'NET_USERNAME') }}"
+        configured_password: "{{ lookup('env', 'NET_PASSWORD') }}"
+        privilege: 15
+        state: present
+
+    - name: Set enable secret
+      cisco.ios.ios_config:
+        lines:
+          - "enable secret {{ lookup('env', 'NET_ENABLE') }}"

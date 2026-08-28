@@ -1,0 +1,101 @@
+---
+router_id: 10.0.26.2
+
+restconf:
+  host: 10.8.2.2
+
+bgp:
+  asn: 65512
+  # networks:
+  #   - number: 10.0.24.0
+  #     mask: 255.255.255.0
+  #   - number: 10.0.28.0
+  #     mask: 255.255.255.252
+  #   - number: 10.0.3.2
+  #     mask: 255.255.255.0
+  #   - number: 10.0.26.1
+  #     mask: 255.255.255.255
+  # neighbors:
+  #   - name: R4
+  #     peer_ip: 10.0.26.3
+  #     asn: 65512
+  #     multihop: true
+  #   - name: inet_rtr
+  #     peer_ip: 10.0.3.1
+  #     asn: 65513
+
+
+ospf_cfg:
+  processes:
+  - network:
+    - address: 0.0.0.0
+      area: '0'
+      wildcard_bits: 255.255.255.255
+    process_id: 1
+    router_id: 10.8.2.2
+    vrf: MGMT
+  - areas:
+    - area_id: '2'
+      nssa:
+        set: true
+    network:
+    - address: 10.0.24.0
+      area: '0'
+      wildcard_bits: 0.0.0.255
+    - address: 10.0.25.0
+      area: '0'
+      wildcard_bits: 0.0.0.255
+    - address: 10.0.26.0
+      area: '0'
+      wildcard_bits: 0.0.0.255
+    - address: 10.0.30.0
+      area: '2'
+      wildcard_bits: 0.0.0.255
+    passive_interfaces:
+      interface:
+        name:
+        - Loopback900
+        set_interface: true
+    process_id: 900
+    router_id: 10.0.26.2
+    
+ospf_ifaces:
+- name: Loopback10
+- name: Loopback900
+- name: GigabitEthernet1
+- address_family:
+  - afi: ipv4
+    network:
+      broadcast: true
+  name: GigabitEthernet1.10
+- name: GigabitEthernet1.900
+- name: GigabitEthernet2
+- address_family:
+  - afi: ipv4
+    network:
+      point_to_point: true
+  name: GigabitEthernet2.12
+- name: GigabitEthernet3
+- address_family:
+  - afi: ipv4
+    network:
+      point_to_point: true
+  name: GigabitEthernet3.10
+- name: GigabitEthernet3.900
+- name: GigabitEthernet4
+- address_family:
+  - afi: ipv4
+    network:
+      point_to_point: true
+  name: GigabitEthernet4.10
+- name: GigabitEthernet4.900
+
+ospf_mgmt:
+  processes:
+    - process_id: 1
+      router_id: "10.8.2.1"
+      vrf: "MGMT"
+      network:
+        - address: "0.0.0.0"
+          area: "0"
+          wildcard_bits: "255.255.255.255"

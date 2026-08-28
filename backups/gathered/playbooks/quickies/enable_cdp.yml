@@ -1,0 +1,10 @@
+---
+- name: enable CDP and LLDP
+  hosts: ios
+  gather_facts: false
+  tasks:
+    - name: enable cdp and lldp
+      cisco.ios.ios_config:
+        lines:
+          - "cdp run"
+          - "lldp run"

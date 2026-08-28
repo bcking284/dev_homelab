@@ -1,0 +1,60 @@
+---
+bgp:
+  asn: 65513
+  update_source: Loopback900
+
+  redistribute:
+    ospf:
+      enabled: false
+      process_id: 900
+      route_map: OSPF_TO_BGP
+
+  prefix_lists:
+    - name: OSPF_TO_BGP_PREFIXES
+      entries:
+        - seq: 10
+          action: permit
+          prefix: 10.0.16.0/20
+          le: 32
+
+  route_maps:
+    - name: OSPF_TO_BGP
+      entries:
+        - seq: 10
+          action: permit
+          match_prefix_list: OSPF_TO_BGP_PREFIXES
+
+  networks:
+    - number: 10.0.3.0
+      mask: 255.255.255.252
+    - number: 9.9.9.9
+      mask: 255.255.255.255
+
+  neighbors:
+    - name: R1
+      peer_ip: 10.0.3.2
+      remote_as: 65512
+
+restconf:
+  - host: 10.8.2.254
+  - username: admin
+  - password: admin
+
+bgp_interfaces:
+  - name: GigabitEthernet2
+    ip_address: 10.0.3.1
+    subnet_mask: 255.255.255.252
+    vrf: default
+
+bgp_neighbors:
+  - name: R1
+    ip address: 10.0.3.2
+    remote-as: 65512
+    description: ebgp_to_R1
+    is_ebgp: true
+
+bgp_networks:
+  - name: Lo1
+    address_fam: ipv4
+    network: 10.0.2.254
+    mask: 255.255.255.255

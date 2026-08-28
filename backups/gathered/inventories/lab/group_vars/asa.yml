@@ -1,0 +1,6 @@
+---
+#base settings
+ansible_network_os: cisco.asa.asa
+
+#its a lab, relax
+ansible_become_password: admin
