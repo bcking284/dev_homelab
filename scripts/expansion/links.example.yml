@@ -1,0 +1,270 @@
+---
+# Devices. Pin 'loopback' for anything that already exists so it keeps
+# its address; leave it off and the generator allocates from the org range.
+devices:
+  kc-hq-cor01:
+    loopback: 10.8.2.1        # was R1
+  kc-hq-cor02:
+    loopback: 10.8.2.2        # was R2
+  kc-hq-cor03:
+    loopback: 10.8.2.3        # was R3
+  kc-hq-nsa01:
+    loopback: 10.8.2.4        # was R4
+  kc-hq-stb01:
+    loopback: 10.8.2.5        # was R5
+  kc-hq-edg01:
+    loopback: 10.8.2.253      # was DMZ_rtr
+  inet-rtr01:
+    loopback: 10.8.2.254
+  fc-hq-edg01:                # no pin: allocated from 10.8.2.50-99
+  fc-hq-edg02:
+  fc-hq-dst01:
+  fc-hq-acc01:
+  fc-hq-acc02:
+  ktr-p01:
+  ktr-p02:
+  ktr-p03:
+  ktr-p04:
+  ktr-p05:
+  ktr-p06:
+  znt-pe01:
+  hcn-p01:
+  hcn-p02:
+  mrd-pe01:
+  crv-pe01:
+  nmb-p01:
+  nmb-p02:
+  vtq-pe01:
+  dc-den-spn01:               # allocated from 10.8.2.150-199
+  dc-den-spn02:
+  dc-den-lef01:
+  dc-den-lef02:
+  dc-den-lef03:
+
+# Every physical adjacency, once. The generator creates the .10
+# subinterface on both ends and assigns a /31 from 10.8.4.0/22.
+links:
+  - a: dc-den-spn01
+    a_int: Ethernet0/1
+    b: dc-den-lef01
+    b_int: Ethernet0/0
+
+  - a: dc-den-spn01
+    a_int: Ethernet0/2
+    b: dc-den-lef02
+    b_int: Ethernet0/0
+
+  - a: dc-den-spn01
+    a_int: Ethernet0/2
+    b: dc-den-lef02
+    b_int: Ethernet0/0
+
+  - a: dc-den-spn01
+    a_int: Ethernet0/2
+    b: dc-den-lef02
+    b_int: Ethernet0/0
+
+  - a: kc-hq-edg01
+    a_int: GigabitEthernet1
+    b: znt-pe01
+    b_int: GigabitEthernet2
+
+  - a: znt-pe01
+    a_int: GigabitEthernet3
+    b: hcn-p02
+    b_int: GigabitEthernet2
+
+  - a: znt-pe01
+    a_int: GigabitEthernet3
+    b: ktr-p06
+    b_int: GigabitEthernet2
+
+  - a: hcn-p02
+    a_int: GigabitEthernet1
+    b: ktr-p06
+    b_int: GigabitEthernet2
+
+  - a: hcn-p02
+    a_int: GigabitEthernet3
+    b: ktr-p04
+    b_int: GigabitEthernet5
+
+  - a: hcn-p01
+    a_int: GigabitEthernet4
+    b: ktr-p06
+    b_int: GigabitEthernet5
+
+  - a: hcn-p01
+    a_int: GigabitEthernet1
+    b: ktr-p04
+    b_int: GigabitEthernet2
+
+  - a: hcn-p01
+    a_int: GigabitEthernet2
+    b: mrd-pe01
+    b_int: GigabitEthernet4
+
+  - a: mrd-pe01
+    a_int: GigabitEthernet1
+    b: ktr-p04
+    b_int: GigabitEthernet1
+
+  - a: mrd-pe01
+    a_int: GigabitEthernet1
+    b: ktr-p04
+    b_int: GigabitEthernet1
+
+  - a: mrd-pe01
+    a_int: GigabitEthernet2
+    b: fc-hq-edg01
+    b_int: GigabitEthernet1
+
+  - a: mrd-pe01
+    a_int: GigabitEthernet3
+    b: fc-hq-edg02
+    b_int: GigabitEthernet1
+
+  - a: mrd-pe01
+    a_int: GigabitEthernet2
+    b: fc-hq-edg01
+    b_int: GigabitEthernet1
+
+  - a: mrd-pe01
+    a_int: GigabitEthernet2
+    b: fc-hq-edg01
+    b_int: GigabitEthernet1
+
+  - a: ktr-p04
+    a_int: GigabitEthernet4
+    b: ktr-p02
+    b_int: GigabitEthernet1
+
+  - a: ktr-p04
+    a_int: GigabitEthernet3
+    b: ktr-p01
+    b_int: GigabitEthernet1
+
+  - a: ktr-p06
+    a_int: GigabitEthernet3
+    b: ktr-p02
+    b_int: GigabitEthernet2
+
+  - a: ktr-p06
+    a_int: GigabitEthernet4
+    b: ktr-p01
+    b_int: GigabitEthernet2
+
+  - a: ktr-p03
+    a_int: GigabitEthernet3
+    b: ktr-p02
+    b_int: GigabitEthernet3
+
+  - a: ktr-p03
+    a_int: GigabitEthernet1
+    b: ktr-p01
+    b_int: GigabitEthernet3
+
+  - a: ktr-p03
+    a_int: GigabitEthernet2
+    b: crv-pe01
+    b_int: GigabitEthernet1
+
+  - a: ktr-p03
+    a_int: GigabitEthernet5
+    b: nmb-p01
+    b_int: GigabitEthernet1
+
+  - a: ktr-p03
+    a_int: GigabitEthernet6
+    b: nmb-p02
+    b_int: GigabitEthernet2
+
+  - a: ktr-p05
+    a_int: GigabitEthernet1
+    b: ktr-p01
+    b_int: GigabitEthernet4
+
+  - a: ktr-p05
+    a_int: GigabitEthernet3
+    b: vtq-pe01
+    b_int: GigabitEthernet1
+
+  - a: ktr-p05
+    a_int: GigabitEthernet4
+    b: ktr-p02
+    b_int: GigabitEthernet4
+
+  - a: ktr-p05
+    a_int: GigabitEthernet5
+    b: nmb-p01
+    b_int: GigabitEthernet3
+
+  - a: ktr-p05
+    a_int: GigabitEthernet6
+    b: nmb-p02
+    b_int: GigabitEthernet3
+
+  - a: crv-pe01
+    a_int: GigabitEthernet2
+    b: nmb-p01
+    b_int: GigabitEthernet4
+
+  - a: crv-pe01
+    a_int: GigabitEthernet3
+    b: dc-den-spn01
+    b_int: Ethernet0/0
+
+  - a: crv-pe01
+    a_int: GigabitEthernet4
+    b: dc-den-spn02
+    b_int: Ethernet0/1
+
+  - a: vtq-pe01
+    a_int: GigabitEthernet2
+    b: nmb-p02
+    b_int: GigabitEthernet4
+
+  - a: vtq-pe01
+    a_int: GigabitEthernet4
+    b: dc-den-spn01
+    b_int: Ethernet0/1
+
+  - a: vtq-pe01
+    a_int: GigabitEthernet3
+    b: dc-den-spn02
+    b_int: Ethernet0/0
+
+  - a: dc-den-spn02
+    a_int: Ethernet0/2
+    b: dc-den-spn01
+    b_int: Ethernet0/2
+
+  - a: dc-den-spn02
+    a_int: Ethernet0/3
+    b: dc-den-lef01
+    b_int: Ethernet0/1
+
+  - a: dc-den-spn02
+    a_int: Ethernet1/0
+    b: dc-den-lef02
+    b_int: Ethernet0/1
+
+  - a: dc-den-spn02
+    a_int: Ethernet1/1
+    b: dc-den-lef03
+    b_int: Ethernet0/0
+
+  - a: dc-den-spn01
+    a_int: Ethernet0/3
+    b: dc-den-lef01
+    b_int: Ethernet0/0
+
+  - a: dc-den-spn01
+    a_int: Ethernet1/0
+    b: dc-den-lef02
+    b_int: Ethernet0/0
+
+  - a: dc-den-spn01
+    a_int: Ethernet1/1
+    b: dc-den-lef03
+    b_int: Ethernet0/1
