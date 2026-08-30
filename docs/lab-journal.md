@@ -6,6 +6,56 @@ The environment currently includes Cisco routers, switches, and ASA firewalls ma
     - updated README, cleaned up, moved some stuff around
     - documentation can be boring but its worth it
 
+
+# 08/24 – 09/01/26
+
+- Deployed
+  - **Full BGP push through the pipeline** with prefix lists, route maps, bgp_global, bgp_address_family via resource modules. Demonstrated live to two architects
+  - `full_route_state.yml` covering encapsulation → addressing → interfaces → policy → OSPF → BGP, in dependency order. Guarded with `when: <var> is defined` so `hosts: ios` runs against everything and each device gets only the tasks its data supports
+  - Combined command output as a single debug at the end showing every section, empty ones filtered out with `dict2items | rejectattr | items2dict`
+  - Consolidated rollback: one playbook handles both "undo the last deploy" (reads `backups/checkpoints/<host>.txt`) and "go back to any checkpoint" (`-e ckpt_override=ckpt-YYYYMMDD-HHMMSS.cfg`). Tested three ways: single device with a deliberate break, lab-wide default, lab-wide targeted
+  - Gather playbooks split by domain: `gather_ospf_state.yml`, `gather_interface_state.yml`, `gather_bgp_state.yml`, `gather_policy_state.yml` (VRF, prefix-lists, route-maps)
+  - `prettify.py` extended with a `KEY_ORDER` that promotes identifiers, and a custom Dumper that indents list items under their parent instead of aligning them with it
+  - **Hardware:** 4×16GB DDR4 to 62.7 GB, zero swap. i9-9900KF and Peerless Assassin ordered
+  - New README published; old worklog moved to `docs/lab-journal.md`
+
+- Fixed
+  - **`needs:` scopes artifact downloads, again.** `rollback` had `needs: [deploy]`, so the checkpoint artifact never downloaded and every device failed on a missing `.txt`. Fixed with `needs: [deploy, checkpoint]`. Second time this exact bug has appeared; first was `snapshot-post`
+  - `ios_config` idempotency on stub areas. R1's device had `area 1 stub no-summary`, the template rendered `area 1 stub`. String mismatch meant it pushed every run and never converged. Root cause was R1.yml missing `no_summary: true`, and the device was right, since no-summary is ABR-only and R1 is the ABR
+  - Route-map task calling `ios_prefix_lists`. Copy-paste; the data was correct for `ios_route_maps`
+  - `/32` on a point-to-point transit. IOS rejected `ip address 10.20.20.1 255.255.255.255` outright. Check mode can't catch this: it validates that the module can *compute* the command, never that the device will accept it
+  - BGP neighbor keys still using template-era names (`peer_ip`, `name`, `multihop`) instead of argspec (`neighbor_address`, `description`)
+  - `-e ckpt-2026...cfg` instead of `-e ckpt_override=ckpt-2026...cfg`. Bare string, so the override never took and the rollback silently restored the current config. `Total number of passes: 0` was the tell
+  - Missing play header on a pasted playbook → `'cisco.ios.ios_command' is not a valid attribute for a Play`
+  - Duplicate `neighbors` key at R1.yml:28. YAML kept the last, discarded the first
+
+- Learned
+  - `git revert <sha>` names the commit to **undo**. `git reset <sha>` names the commit to **return to**. Opposite semantics, identical-looking arguments. Ran both live and recovered with `git reflog` plus `reset --hard`. Commits are almost never lost; pointers move and the reflog remembers every position
+  - Reverting a commit that *added* files removes them from the working tree. Files disappearing is the success case, not a failure
+  - After pushing a revert then resetting locally, the remote still has the revert ("behind by 1"). Fix forward with a revert-of-the-revert rather than force-pushing shared history
+  - **Anycast synchronizes nothing.** Same IP in multiple places, routing picks the nearest. Health checking is a separate problem (withdraw the route by removing the loopback address), and state replication is a third problem that belongs entirely to the application
+  - Spine-leaf is a *network* architecture giving predictable two-hop paths and ECMP. It adds no compute
+  - RFC 5398 reserves 64496 to 64511 for documentation ASNs; RFC 2544 reserves 198.18.0.0/15 for benchmarking. Both unowned and unrouted, which is what makes them safe for a lab modeling public infrastructure
+  - Valley-free routing: advertise customer routes to everyone, peer and provider routes only to customers. Tier describes position in the economic graph, not a ladder. A Tier 3 can buy transit directly from a Tier 1
+  - /31 on point-to-point links (RFC 3021) is what real providers use and doubles usable space
+  - `powerstat` showed 25W package draw at idle with 70% idle CPU. The box wasn't CPU-bound, it was doing nothing. 182k context switches/sec while idle is the nested-virt overhead, and it's what more threads actually help with
+  - LGA1151 v1 (100/200-series) and v2 (300-series) are physically identical and electrically incompatible. Confirmed compatibility via `lscpu`: family 6, model 158, stepping 10, Coffee Lake Refresh, same silicon family as the 9900KF
+  - The board is an iBuyPower OEM variant (`80-MXBBG0-A1A01`), so no public BIOS updates exist. P1.00 from July 2019 predates the 9900KF launch by six months, so microcode should be present, but there's no recovery path, hence keeping the 9400F
+
+- Designed, not yet built
+  - Topology redesign: KingCorp and FlynnCorp as customers, six named SPs (Corvid, Vantiq, Meridian, Zenith as T1; Halcyon, Nimbus as T2; Ku Transit as T3), spine-leaf datacenter
+  - Addressing schema: `198.18.0.0/16` for SP infrastructure (/20 per provider), `198.19.0.0/16` for customer PI, RFC1918 internal with NAT at corp edges, `10.8.0.0/16` for VRF MGMT with existing loopbacks preserved
+  - Hostname scheme `<org>-<site>-<role><nn>`, parseable, sortable, and groupable so `hosts.ini` can largely generate itself
+  - `gen_bootstrap.py` reads a link map, assigns /31s from `10.8.4.0/22` and loopbacks from org ranges, emits per-device console-pasteable bootstrap config
+  - Terraform direction settled on the `CiscoDevNet/iosxe` provider against existing devices rather than CML, since it needs no license and gives a direct comparison against Ansible resource modules. Scope carefully, because Terraform state and Ansible will fight over any shared resource
+
+- Next up
+  1. NetBox as source of truth. Smallest install, closes objective 2.6, makes two-environment inventories tractable
+  2. Domain 4 / MCP. 20% of the exam, zero coverage, and nothing published before mid-2025 addresses it
+  3. Build the new topology per the addressing and naming schema
+  4. Terraform against a scratch node
+  5. Later: AD forest trust between the two corps as an acquisition scenario. DNS delegation, Kerberos port paths, and trust traffic traversing the SP is a nice coupling between the network and service layers
+  
 # 08/19 – 08/24/26
 
 - Deployed
