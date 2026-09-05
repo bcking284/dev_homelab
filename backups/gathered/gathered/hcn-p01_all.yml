@@ -1,0 +1,269 @@
+acl_interfaces: []
+bfd_interfaces:
+- name: Loopback10
+- name: GigabitEthernet1
+- name: GigabitEthernet1.10
+- name: GigabitEthernet2
+- name: GigabitEthernet2.10
+- name: GigabitEthernet3
+- name: GigabitEthernet3.10
+- name: GigabitEthernet4
+- name: GigabitEthernet4.10
+- name: GigabitEthernet5
+- name: GigabitEthernet6
+- name: GigabitEthernet6.10
+bfd_templates: []
+bgp_address_family: {}
+bgp_global: {}
+evpn_ethernet: null
+evpn_evi: []
+evpn_global: {}
+hostname:
+  hostname: hcn-p01
+hsrp_interfaces:
+- name: Loopback10
+- name: GigabitEthernet1
+- name: GigabitEthernet1.10
+- name: GigabitEthernet2
+- name: GigabitEthernet2.10
+- name: GigabitEthernet3
+- name: GigabitEthernet3.10
+- name: GigabitEthernet4
+- name: GigabitEthernet4.10
+- name: GigabitEthernet5
+- name: GigabitEthernet6
+- name: GigabitEthernet6.10
+interfaces:
+- enabled: true
+  name: GigabitEthernet1
+- description: MGMT to ktr-p04
+  enabled: true
+  name: GigabitEthernet1.10
+- enabled: true
+  name: GigabitEthernet2
+- description: MGMT to mrd-p01
+  enabled: true
+  name: GigabitEthernet2.10
+- enabled: true
+  name: GigabitEthernet3
+- description: MGMT to hcn-p02
+  enabled: true
+  name: GigabitEthernet3.10
+- enabled: true
+  name: GigabitEthernet4
+- description: MGMT to ktr-p06
+  enabled: true
+  name: GigabitEthernet4.10
+- enabled: false
+  name: GigabitEthernet5
+- enabled: true
+  name: GigabitEthernet6
+- description: MGMT to hcn-pe01
+  enabled: true
+  name: GigabitEthernet6.10
+- description: MGMT loopback
+  enabled: true
+  name: Loopback10
+l2_interfaces:
+- name: Loopback10
+- name: GigabitEthernet1
+- encapsulation:
+    type: dot1Q
+    vlan_id: 10
+  name: GigabitEthernet1.10
+- name: GigabitEthernet2
+- encapsulation:
+    type: dot1Q
+    vlan_id: 10
+  name: GigabitEthernet2.10
+- name: GigabitEthernet3
+- encapsulation:
+    type: dot1Q
+    vlan_id: 10
+  name: GigabitEthernet3.10
+- name: GigabitEthernet4
+- encapsulation:
+    type: dot1Q
+    vlan_id: 10
+  name: GigabitEthernet4.10
+- name: GigabitEthernet5
+- name: GigabitEthernet6
+- encapsulation:
+    type: dot1Q
+    vlan_id: 10
+  name: GigabitEthernet6.10
+l3_interfaces:
+- name: GigabitEthernet1
+- ipv4:
+  - address: 10.8.4.72/31
+  name: GigabitEthernet1.10
+- name: GigabitEthernet2
+- ipv4:
+  - address: 10.8.4.61/31
+  name: GigabitEthernet2.10
+- name: GigabitEthernet3
+- ipv4:
+  - address: 10.8.4.68/31
+  name: GigabitEthernet3.10
+- name: GigabitEthernet4
+- ipv4:
+  - address: 10.8.4.42/31
+  name: GigabitEthernet4.10
+- name: GigabitEthernet5
+- name: GigabitEthernet6
+- ipv4:
+  - address: 10.8.4.70/31
+  name: GigabitEthernet6.10
+- ipv4:
+  - address: 10.8.2.102/32
+  name: Loopback10
+lacp:
+  system:
+    priority: 32768
+lacp_interfaces:
+- name: loopback10
+- name: GigabitEthernet1
+- name: GigabitEthernet1.10
+- name: GigabitEthernet2
+- name: GigabitEthernet2.10
+- name: GigabitEthernet3
+- name: GigabitEthernet3.10
+- name: GigabitEthernet4
+- name: GigabitEthernet4.10
+- name: GigabitEthernet5
+- name: GigabitEthernet6
+- name: GigabitEthernet6.10
+lag_interfaces: []
+lldp_global:
+  enabled: true
+lldp_interfaces:
+- name: GigabitEthernet1
+  receive: true
+  transmit: true
+- name: GigabitEthernet1.10
+  receive: true
+  transmit: true
+- name: GigabitEthernet2
+  receive: true
+  transmit: true
+- name: GigabitEthernet2.10
+  receive: true
+  transmit: true
+- name: GigabitEthernet3
+  receive: true
+  transmit: true
+- name: GigabitEthernet3.10
+  receive: true
+  transmit: true
+- name: GigabitEthernet4
+  receive: true
+  transmit: true
+- name: GigabitEthernet4.10
+  receive: true
+  transmit: true
+- name: GigabitEthernet5
+  receive: true
+  transmit: true
+- name: GigabitEthernet6
+  receive: true
+  transmit: true
+- name: GigabitEthernet6.10
+  receive: true
+  transmit: true
+logging_global:
+  trap: informational
+ntp_global: {}
+ospf_interfaces:
+- name: Loopback10
+- name: GigabitEthernet1
+- address_family:
+  - afi: ipv4
+    network:
+      point_to_point: true
+  name: GigabitEthernet1.10
+- name: GigabitEthernet2
+- address_family:
+  - afi: ipv4
+    network:
+      point_to_point: true
+  name: GigabitEthernet2.10
+- name: GigabitEthernet3
+- address_family:
+  - afi: ipv4
+    network:
+      point_to_point: true
+  name: GigabitEthernet3.10
+- name: GigabitEthernet4
+- address_family:
+  - afi: ipv4
+    network:
+      point_to_point: true
+  name: GigabitEthernet4.10
+- name: GigabitEthernet5
+- name: GigabitEthernet6
+- address_family:
+  - afi: ipv4
+    network:
+      point_to_point: true
+  name: GigabitEthernet6.10
+ospfv2:
+  processes:
+  - network:
+    - address: 10.8.0.0
+      area: '0'
+      wildcard_bits: 0.0.255.255
+    passive_interfaces:
+      interface:
+        name:
+        - Loopback10
+        set_interface: true
+    process_id: 1
+    router_id: 10.8.2.102
+    vrf: MGMT
+prefix_lists: []
+service:
+  counters: 0
+  dhcp: true
+  pad: true
+  password_recovery: true
+  prompt: true
+  slave_log: true
+  timestamps:
+  - datetime_options:
+      msec: true
+    msg: debug
+    timestamp: datetime
+  - datetime_options:
+      msec: true
+    msg: log
+    timestamp: datetime
+snmp_server: {}
+static_routes: null
+vrf_address_family:
+- address_families:
+  - afi: ipv4
+    safi: unicast
+  name: MGMT
+vrf_global:
+  vrfs:
+  - name: MGMT
+vrf_interfaces:
+- name: Loopback10
+  vrf_name: MGMT
+- name: GigabitEthernet1
+- name: GigabitEthernet1.10
+  vrf_name: MGMT
+- name: GigabitEthernet2
+- name: GigabitEthernet2.10
+  vrf_name: MGMT
+- name: GigabitEthernet3
+- name: GigabitEthernet3.10
+  vrf_name: MGMT
+- name: GigabitEthernet4
+- name: GigabitEthernet4.10
+  vrf_name: MGMT
+- name: GigabitEthernet5
+- name: GigabitEthernet6
+- name: GigabitEthernet6.10
+  vrf_name: MGMT
+vxlan_vtep: {}

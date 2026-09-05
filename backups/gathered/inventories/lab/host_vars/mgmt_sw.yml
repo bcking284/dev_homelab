@@ -1,4 +1,0 @@
-restconf:
-  - host: 10.8.1.104
-  - username: admin
-  - password: admin

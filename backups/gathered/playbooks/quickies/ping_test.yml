@@ -1,7 +1,0 @@
----
-- name: Test Device Ping
-  hosts: ios
-  gather_facts: false
-  tasks:
-    - name: Pingtest
-      ansible.builtin.ping:
