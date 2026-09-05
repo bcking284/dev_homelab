@@ -66,28 +66,25 @@ vrf_ifaces:
   - name: Loopback10
     vrf_name: MGMT
   - name: Loopback900
-  - name: GigabitEthernet1
+  - name: GigabitEthernet0/1
     vrf_name: MGMT
-  - name: GigabitEthernet2
-  - name: GigabitEthernet3
-  - name: GigabitEthernet3.10
+  - name: GigabitEthernet0/2
+  - name: GigabitEthernet0/3
+  - name: GigabitEthernet0/3.10
     vrf_name: MGMT
-  - name: GigabitEthernet4
 
 #Interfaces Configuration
 interfaces:
-  - name: GigabitEthernet1
+  - name: GigabitEthernet0/1
     enabled: true
-  - name: GigabitEthernet2
+  - name: GigabitEthernet0/2
     enabled: true
-  - name: GigabitEthernet2.900
+  - name: GigabitEthernet0/2.900
     enabled: true
-  - name: GigabitEthernet3
+  - name: GigabitEthernet0/3
     enabled: true
-  - name: GigabitEthernet3.10
+  - name: GigabitEthernet0/3.10
     enabled: true
-  - name: GigabitEthernet4
-    enabled: false
   - name: Loopback10
     enabled: true
   - name: Loopback900
@@ -95,36 +92,34 @@ interfaces:
 l2_ifaces:
   - name: Loopback10
   - name: Loopback900
-  - name: GigabitEthernet1
-  - name: GigabitEthernet2
-  - name: GigabitEthernet2.900
+  - name: GigabitEthernet0/1
+  - name: GigabitEthernet0/2
+  - name: GigabitEthernet0/2.900
     encapsulation:
       type: dot1Q
       vlan_id: 900
-  - name: GigabitEthernet3
-  - name: GigabitEthernet3.10
+  - name: GigabitEthernet0/3
+  - name: GigabitEthernet0/3.10
     encapsulation:
       type: dot1Q
       vlan_id: 10
-  - name: GigabitEthernet4
 
 l3_ifaces:
-  - name: GigabitEthernet1
+  - name: GigabitEthernet0/1
     ipv4:
       - address: 192.168.50.23/24
         secondary: true
       - address: 192.168.50.22/24
-  - name: GigabitEthernet2
+  - name: GigabitEthernet0/2
     ipv4:
       - address: 10.0.3.1/30
-  - name: GigabitEthernet2.900
+  - name: GigabitEthernet0/2.900
     ipv4:
       - address: 10.20.20.2/30
-  - name: GigabitEthernet3
-  - name: GigabitEthernet3.10
+  - name: GigabitEthernet0/3
+  - name: GigabitEthernet0/3.10
     ipv4:
       - address: 10.8.1.254/24
-  - name: GigabitEthernet4
   - name: Loopback10
     ipv4:
       - address: 10.8.2.254/32
