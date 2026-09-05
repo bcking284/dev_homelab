@@ -1,0 +1,28 @@
+---
+- name: Verify inventory names and addresses match the devices
+  hosts: all
+  gather_facts: false
+
+  tasks:
+    - name: Get device identity
+      cisco.ios.ios_facts:
+        gather_subset: min
+      register: facts
+
+    - name: Hostname must match inventory name
+      ansible.builtin.assert:
+        that:
+          - ansible_net_hostname == inventory_hostname
+        fail_msg: >-
+          {{ inventory_hostname }} at {{ ansible_host }}
+          reports hostname '{{ ansible_net_hostname }}'
+        success_msg: "{{ inventory_hostname }} ok"
+      ignore_errors: true
+      register: name_check
+
+    - name: Summary
+      ansible.builtin.debug:
+        msg: >-
+          {{ inventory_hostname }} ({{ ansible_host }}) ->
+          {{ ansible_net_hostname }}
+          {{ 'MATCH' if ansible_net_hostname == inventory_hostname else '*** MISMATCH ***' }}

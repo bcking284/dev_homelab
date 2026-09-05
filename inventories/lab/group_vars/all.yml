@@ -12,3 +12,4 @@ ansible_ssh_common_args: >-
   -o PubkeyAcceptedAlgorithms=+ssh-rsa
   -o PubkeyAuthentication=no
   -o StrictHostKeyChecking=no
+ansible_network_os: cisco.ios.ios

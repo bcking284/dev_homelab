@@ -1,6 +1,6 @@
 ---
 - name: enable CDP and LLDP
-  hosts: ios
+  hosts: all
   gather_facts: false
   tasks:
     - name: enable cdp and lldp

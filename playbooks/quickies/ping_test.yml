@@ -1,6 +1,6 @@
 ---
 - name: Test Device Ping
-  hosts: ios
+  hosts: all
   gather_facts: false
   tasks:
     - name: Pingtest
