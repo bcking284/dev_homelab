@@ -1,0 +1,25 @@
+---
+- name: Gather all network resources
+  hosts: all
+  gather_facts: false
+  strategy: free
+
+  tasks:
+    - name: Ensure output dir
+      ansible.builtin.file:
+        path: "{{ playbook_dir }}/../../backups/gathered"
+        state: directory
+      delegate_to: localhost
+      run_once: true
+
+    - name: Gather everything
+      cisco.ios.ios_facts:
+        gather_subset: min
+        gather_network_resources: all
+      register: facts
+
+    - name: Write
+      ansible.builtin.copy:
+        content: "{{ ansible_network_resources | to_nice_yaml(indent=2) }}"
+        dest: "{{ playbook_dir }}/../../backups/gathered/{{ inventory_hostname }}_all.yml"
+      delegate_to: localhost

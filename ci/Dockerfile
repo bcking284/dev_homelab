@@ -2,17 +2,22 @@ FROM python:3.12-slim
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
         git openssh-client libssh-dev gcc ca-certificates \
+        iputils-ping iproute2 net-tools dnsutils traceroute mtr-tiny \
+        tcpdump netcat-openbsd telnet socat \
+        curl wget jq \
+        vim less tree file \
+        python3-dev \
     && rm -rf /var/lib/apt/lists/*
 
 
 RUN pip install --no-cache-dir \
         ansible-core==2.17.* \
         ansible-pylibssh \
-        yamllint \
-        ansible-lint \
-        pyyaml \
-        jinja2 \
-        requests 
+        "pyats[full]" \
+        yamllint ansible-lint \
+        pyyaml jinja2 requests \
+        httpie \
+        netmiko napalm
 
 RUN pip install --no-cache-dir "pyats[full]"
 
