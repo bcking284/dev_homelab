@@ -1,12 +1,16 @@
 acl_interfaces: []
 bfd_interfaces:
 - name: Loopback10
+- name: Loopback900
 - name: GigabitEthernet1
 - name: GigabitEthernet1.10
+- name: GigabitEthernet1.900
 - name: GigabitEthernet2
 - name: GigabitEthernet2.10
+- name: GigabitEthernet2.900
 - name: GigabitEthernet3
 - name: GigabitEthernet3.10
+- name: GigabitEthernet3.900
 - name: GigabitEthernet4
 bfd_templates: []
 bgp_address_family: {}
@@ -18,76 +22,121 @@ hostname:
   hostname: kc-hq-cor03
 hsrp_interfaces:
 - name: Loopback10
+- name: Loopback900
 - name: GigabitEthernet1
 - name: GigabitEthernet1.10
+- name: GigabitEthernet1.900
 - name: GigabitEthernet2
 - name: GigabitEthernet2.10
+- name: GigabitEthernet2.900
 - name: GigabitEthernet3
 - name: GigabitEthernet3.10
+- name: GigabitEthernet3.900
 - name: GigabitEthernet4
 interfaces:
 - enabled: true
   name: GigabitEthernet1
 - enabled: true
   name: GigabitEthernet1.10
+- description: Link to R5
+  enabled: true
+  name: GigabitEthernet1.900
 - enabled: true
   name: GigabitEthernet2
 - enabled: true
   name: GigabitEthernet2.10
+- description: Link to R5
+  enabled: true
+  name: GigabitEthernet2.900
 - enabled: true
   name: GigabitEthernet3
 - enabled: true
   name: GigabitEthernet3.10
+- description: Link to Broadcast
+  enabled: true
+  name: GigabitEthernet3.900
 - enabled: false
   name: GigabitEthernet4
 - enabled: true
   name: Loopback10
+- description: R3 Router ID
+  enabled: true
+  name: Loopback900
 l2_interfaces:
 - name: Loopback10
+- name: Loopback900
 - name: GigabitEthernet1
 - encapsulation:
     type: dot1Q
     vlan_id: 10
   name: GigabitEthernet1.10
+- encapsulation:
+    type: dot1Q
+    vlan_id: 900
+  name: GigabitEthernet1.900
 - name: GigabitEthernet2
 - encapsulation:
     type: dot1Q
     vlan_id: 10
   name: GigabitEthernet2.10
+- encapsulation:
+    type: dot1Q
+    vlan_id: 900
+  name: GigabitEthernet2.900
 - name: GigabitEthernet3
 - encapsulation:
     type: dot1Q
     vlan_id: 10
   name: GigabitEthernet3.10
+- encapsulation:
+    type: dot1Q
+    vlan_id: 900
+  name: GigabitEthernet3.900
 - name: GigabitEthernet4
 l3_interfaces:
 - name: GigabitEthernet1
 - ipv4:
   - address: 10.8.3.6/30
   name: GigabitEthernet1.10
+- ipv4:
+  - address: 10.0.25.2/30
+  name: GigabitEthernet1.900
 - name: GigabitEthernet2
 - ipv4:
   - address: 10.8.3.13/30
   name: GigabitEthernet2.10
+- ipv4:
+  - address: 10.0.30.2/30
+  name: GigabitEthernet2.900
 - name: GigabitEthernet3
 - ipv4:
   - address: 10.8.1.114/24
   name: GigabitEthernet3.10
+- ipv4:
+  - address: 10.0.24.3/24
+  name: GigabitEthernet3.900
 - name: GigabitEthernet4
 - ipv4:
   - address: 10.8.2.3/32
   name: Loopback10
+- ipv4:
+  - address: 10.0.26.3/32
+  name: Loopback900
 lacp:
   system:
     priority: 32768
 lacp_interfaces:
 - name: loopback10
+- name: loopback900
 - name: GigabitEthernet1
 - name: GigabitEthernet1.10
+- name: GigabitEthernet1.900
 - name: GigabitEthernet2
 - name: GigabitEthernet2.10
+- name: GigabitEthernet2.900
 - name: GigabitEthernet3
 - name: GigabitEthernet3.10
+- name: GigabitEthernet3.900
 - name: GigabitEthernet4
 lag_interfaces: []
 lldp_global:
@@ -99,16 +148,25 @@ lldp_interfaces:
 - name: GigabitEthernet1.10
   receive: true
   transmit: true
+- name: GigabitEthernet1.900
+  receive: true
+  transmit: true
 - name: GigabitEthernet2
   receive: true
   transmit: true
 - name: GigabitEthernet2.10
   receive: true
   transmit: true
+- name: GigabitEthernet2.900
+  receive: true
+  transmit: true
 - name: GigabitEthernet3
   receive: true
   transmit: true
 - name: GigabitEthernet3.10
+  receive: true
+  transmit: true
+- name: GigabitEthernet3.900
   receive: true
   transmit: true
 - name: GigabitEthernet4
@@ -121,6 +179,12 @@ ospf_interfaces:
 - name: Loopback10
 - address_family:
   - afi: ipv4
+    process:
+      area_id: '0'
+      id: 900
+  name: Loopback900
+- address_family:
+  - afi: ipv4
     network:
       point_to_point: true
   name: GigabitEthernet1
@@ -129,6 +193,12 @@ ospf_interfaces:
     network:
       point_to_point: true
   name: GigabitEthernet1.10
+- address_family:
+  - afi: ipv4
+    process:
+      area_id: '0'
+      id: 900
+  name: GigabitEthernet1.900
 - address_family:
   - afi: ipv4
     network:
@@ -141,6 +211,12 @@ ospf_interfaces:
   name: GigabitEthernet2.10
 - address_family:
   - afi: ipv4
+    process:
+      area_id: '2'
+      id: 900
+  name: GigabitEthernet2.900
+- address_family:
+  - afi: ipv4
     network:
       broadcast: true
   name: GigabitEthernet3
@@ -149,6 +225,12 @@ ospf_interfaces:
     network:
       broadcast: true
   name: GigabitEthernet3.10
+- address_family:
+  - afi: ipv4
+    process:
+      area_id: '0'
+      id: 900
+  name: GigabitEthernet3.900
 - name: GigabitEthernet4
 ospfv2:
   processes:
@@ -159,6 +241,17 @@ ospfv2:
     process_id: 1
     router_id: 10.8.2.3
     vrf: MGMT
+  - areas:
+    - area_id: '2'
+      nssa:
+        set: true
+    passive_interfaces:
+      interface:
+        name:
+        - Loopback900
+        set_interface: true
+    process_id: 900
+    router_id: 10.0.26.3
 prefix_lists: []
 service:
   counters: 0
@@ -189,14 +282,18 @@ vrf_global:
 vrf_interfaces:
 - name: Loopback10
   vrf_name: MGMT
+- name: Loopback900
 - name: GigabitEthernet1
 - name: GigabitEthernet1.10
   vrf_name: MGMT
+- name: GigabitEthernet1.900
 - name: GigabitEthernet2
 - name: GigabitEthernet2.10
   vrf_name: MGMT
+- name: GigabitEthernet2.900
 - name: GigabitEthernet3
 - name: GigabitEthernet3.10
   vrf_name: MGMT
+- name: GigabitEthernet3.900
 - name: GigabitEthernet4
 vxlan_vtep: {}

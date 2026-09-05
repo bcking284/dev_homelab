@@ -1,22 +1,49 @@
 acl_interfaces: []
 bfd_interfaces:
 - name: Loopback10
+- name: Loopback900
 - name: GigabitEthernet1
 - name: GigabitEthernet1.13
+- name: GigabitEthernet1.900
 - name: GigabitEthernet2
 - name: GigabitEthernet2.12
 - name: GigabitEthernet3
 - name: GigabitEthernet3.11
+- name: GigabitEthernet3.900
 - name: GigabitEthernet4
 - name: GigabitEthernet4.10
 - name: GigabitEthernet4.11
+- name: GigabitEthernet4.900
 - name: GigabitEthernet5
 - name: GigabitEthernet5.10
 - name: GigabitEthernet6
 - name: GigabitEthernet6.10
 bfd_templates: []
-bgp_address_family: {}
-bgp_global: {}
+bgp_address_family:
+  address_family:
+  - afi: ipv4
+    neighbors:
+    - activate: true
+      neighbor_address: 10.30.30.1
+      route_maps:
+      - in: true
+        name: ASN_65512
+    networks:
+    - address: 10.8.4.253
+      mask: 255.255.255.255
+    safi: unicast
+  as_number: '65514'
+bgp_global:
+  as_number: '65514'
+  bgp:
+    default:
+      ipv4_unicast: true
+      route_target:
+        filter: true
+    log_neighbor_changes: true
+  neighbors:
+  - neighbor_address: 10.30.30.1
+    remote_as: '65512'
 evpn_ethernet: null
 evpn_evi: []
 evpn_global: {}
@@ -24,15 +51,19 @@ hostname:
   hostname: kc-hq-edg01
 hsrp_interfaces:
 - name: Loopback10
+- name: Loopback900
 - name: GigabitEthernet1
 - name: GigabitEthernet1.13
+- name: GigabitEthernet1.900
 - name: GigabitEthernet2
 - name: GigabitEthernet2.12
 - name: GigabitEthernet3
 - name: GigabitEthernet3.11
+- name: GigabitEthernet3.900
 - name: GigabitEthernet4
 - name: GigabitEthernet4.10
 - name: GigabitEthernet4.11
+- name: GigabitEthernet4.900
 - name: GigabitEthernet5
 - name: GigabitEthernet5.10
 - name: GigabitEthernet6
@@ -43,6 +74,8 @@ interfaces:
 - enabled: true
   name: GigabitEthernet1.13
 - enabled: true
+  name: GigabitEthernet1.900
+- enabled: true
   name: GigabitEthernet2
 - enabled: true
   name: GigabitEthernet2.12
@@ -51,11 +84,15 @@ interfaces:
 - enabled: true
   name: GigabitEthernet3.11
 - enabled: true
+  name: GigabitEthernet3.900
+- enabled: true
   name: GigabitEthernet4
 - enabled: true
   name: GigabitEthernet4.10
 - enabled: true
   name: GigabitEthernet4.11
+- enabled: true
+  name: GigabitEthernet4.900
 - enabled: true
   name: GigabitEthernet5
 - description: MGMT to znt-pe01
@@ -68,13 +105,17 @@ interfaces:
   name: GigabitEthernet6.10
 - enabled: true
   name: Loopback10
+- enabled: true
+  name: Loopback900
 l2_interfaces:
 - name: Loopback10
+- name: Loopback900
 - name: GigabitEthernet1
 - encapsulation:
     type: dot1Q
     vlan_id: 13
   name: GigabitEthernet1.13
+- name: GigabitEthernet1.900
 - name: GigabitEthernet2
 - encapsulation:
     type: dot1Q
@@ -85,12 +126,17 @@ l2_interfaces:
     type: dot1Q
     vlan_id: 11
   name: GigabitEthernet3.11
+- encapsulation:
+    type: dot1Q
+    vlan_id: 900
+  name: GigabitEthernet3.900
 - name: GigabitEthernet4
 - encapsulation:
     type: dot1Q
     vlan_id: 10
   name: GigabitEthernet4.10
 - name: GigabitEthernet4.11
+- name: GigabitEthernet4.900
 - name: GigabitEthernet5
 - encapsulation:
     type: dot1Q
@@ -106,6 +152,7 @@ l3_interfaces:
 - ipv4:
   - address: 10.8.3.26/30
   name: GigabitEthernet1.13
+- name: GigabitEthernet1.900
 - name: GigabitEthernet2
 - ipv4:
   - address: 10.8.3.22/30
@@ -114,11 +161,15 @@ l3_interfaces:
 - ipv4:
   - address: 10.8.3.18/30
   name: GigabitEthernet3.11
+- ipv4:
+  - address: 10.30.30.2/30
+  name: GigabitEthernet3.900
 - name: GigabitEthernet4
 - ipv4:
   - address: 10.8.1.102/24
   name: GigabitEthernet4.10
 - name: GigabitEthernet4.11
+- name: GigabitEthernet4.900
 - name: GigabitEthernet5
 - ipv4:
   - address: 10.8.4.55/31
@@ -130,20 +181,27 @@ l3_interfaces:
 - ipv4:
   - address: 10.8.2.253/32
   name: Loopback10
+- ipv4:
+  - address: 10.8.4.253/32
+  name: Loopback900
 lacp:
   system:
     priority: 32768
 lacp_interfaces:
 - name: loopback10
+- name: loopback900
 - name: GigabitEthernet1
 - name: GigabitEthernet1.13
+- name: GigabitEthernet1.900
 - name: GigabitEthernet2
 - name: GigabitEthernet2.12
 - name: GigabitEthernet3
 - name: GigabitEthernet3.11
+- name: GigabitEthernet3.900
 - name: GigabitEthernet4
 - name: GigabitEthernet4.10
 - name: GigabitEthernet4.11
+- name: GigabitEthernet4.900
 - name: GigabitEthernet5
 - name: GigabitEthernet5.10
 - name: GigabitEthernet6
@@ -158,6 +216,9 @@ lldp_interfaces:
 - name: GigabitEthernet1.13
   receive: true
   transmit: true
+- name: GigabitEthernet1.900
+  receive: true
+  transmit: true
 - name: GigabitEthernet2
   receive: true
   transmit: true
@@ -170,6 +231,9 @@ lldp_interfaces:
 - name: GigabitEthernet3.11
   receive: true
   transmit: true
+- name: GigabitEthernet3.900
+  receive: true
+  transmit: true
 - name: GigabitEthernet4
   receive: true
   transmit: true
@@ -177,6 +241,9 @@ lldp_interfaces:
   receive: true
   transmit: true
 - name: GigabitEthernet4.11
+  receive: true
+  transmit: true
+- name: GigabitEthernet4.900
   receive: true
   transmit: true
 - name: GigabitEthernet5
@@ -196,8 +263,15 @@ logging_global:
 ntp_global: {}
 ospf_interfaces:
 - name: Loopback10
+- name: Loopback900
 - name: GigabitEthernet1
 - name: GigabitEthernet1.13
+- address_family:
+  - afi: ipv4
+    process:
+      area_id: '2'
+      id: 900
+  name: GigabitEthernet1.900
 - name: GigabitEthernet2
 - name: GigabitEthernet2.12
 - name: GigabitEthernet3
@@ -206,9 +280,25 @@ ospf_interfaces:
     network:
       point_to_point: true
   name: GigabitEthernet3.11
+- address_family:
+  - afi: ipv4
+    network:
+      point_to_point: true
+    process:
+      area_id: '0'
+      id: 900
+  name: GigabitEthernet3.900
 - name: GigabitEthernet4
 - name: GigabitEthernet4.10
 - name: GigabitEthernet4.11
+- address_family:
+  - afi: ipv4
+    network:
+      broadcast: true
+    process:
+      area_id: '0'
+      id: 900
+  name: GigabitEthernet4.900
 - name: GigabitEthernet5
 - address_family:
   - afi: ipv4
@@ -230,7 +320,51 @@ ospfv2:
     process_id: 1
     router_id: 10.8.2.253
     vrf: MGMT_vrf
-prefix_lists: []
+  - areas:
+    - area_id: '2'
+      nssa:
+        set: true
+    passive_interfaces:
+      interface:
+        name:
+        - Loopback900
+        set_interface: true
+    process_id: 900
+    router_id: 10.8.4.253
+prefix_lists:
+- afi: ipv4
+  prefix_lists:
+  - entries:
+    - action: permit
+      prefix: 10.0.16.0/20
+      sequence: 10
+    name: ASN_65512
+  - entries:
+    - action: permit
+      prefix: 9.9.9.9/32
+      sequence: 10
+    name: ASN_65513
+route_maps:
+- entries:
+  - action: permit
+    match:
+      ip:
+        address:
+          prefix_lists:
+          - ASN_65512
+    sequence: 10
+    set:
+      local_preference: 110
+  route_map: ASN_65512
+- entries:
+  - action: permit
+    match:
+      ip:
+        address:
+          prefix_lists:
+          - ASN_65513
+    sequence: 10
+  route_map: ASN_65513
 service:
   counters: 0
   dhcp: true
@@ -260,19 +394,23 @@ vrf_global:
 vrf_interfaces:
 - name: Loopback10
   vrf_name: MGMT_vrf
+- name: Loopback900
 - name: GigabitEthernet1
 - name: GigabitEthernet1.13
   vrf_name: MGMT_vrf
+- name: GigabitEthernet1.900
 - name: GigabitEthernet2
 - name: GigabitEthernet2.12
   vrf_name: MGMT_vrf
 - name: GigabitEthernet3
 - name: GigabitEthernet3.11
   vrf_name: MGMT_vrf
+- name: GigabitEthernet3.900
 - name: GigabitEthernet4
 - name: GigabitEthernet4.10
   vrf_name: MGMT_vrf
 - name: GigabitEthernet4.11
+- name: GigabitEthernet4.900
 - name: GigabitEthernet5
 - name: GigabitEthernet5.10
   vrf_name: MGMT_vrf
