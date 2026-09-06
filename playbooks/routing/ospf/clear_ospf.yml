@@ -1,0 +1,68 @@
+---
+# Clear OSPF processes.
+#
+#   ansible-playbook clear_ospf.yml                        # prod process only
+#   ansible-playbook clear_ospf.yml -e target=kingcorp
+#   ansible-playbook clear_ospf.yml -e ospf_process=1      # DANGER, see below
+#
+# Defaults to process 900 (production). Clearing process 1 tears down the
+# management plane you are reaching the devices over - see the guard task.
+
+- name: Clear OSPF processes
+  hosts: "{{ target | default('all') }}"
+  gather_facts: false
+  serial: "{{ batch | default('25%') }}"
+
+  vars:
+    ospf_process: 900
+    confirm_mgmt: false
+
+  tasks:
+    - name: Refuse to clear the management process without explicit consent
+      ansible.builtin.fail:
+        msg: >-
+          Process {{ ospf_process }} carries VRF MGMT, which is how Ansible
+          reaches this device. Re-run with -e confirm_mgmt=true if you mean it,
+          and have console access ready.
+      when:
+        - ospf_process | string == "1"
+        - not confirm_mgmt | bool
+
+    - name: Neighbors before
+      cisco.ios.ios_command:
+        commands:
+          - "show ip ospf {{ ospf_process }} neighbor | count FULL"
+      register: before
+
+    - name: Clear the process
+      cisco.ios.ios_command:
+        commands:
+          - command: "clear ip ospf {{ ospf_process }} process"
+            prompt: "Reset ALL OSPF processes"
+            answer: "y"
+      vars:
+        ansible_command_timeout: 60
+
+    - name: Wait for adjacencies to re-form
+      cisco.ios.ios_command:
+        commands:
+          - "show ip ospf {{ ospf_process }} neighbor"
+      register: after
+      until: "'FULL' in after.stdout[0]"
+      retries: 12
+      delay: 10
+
+    - name: Compare
+      ansible.builtin.debug:
+        msg: >-
+          {{ inventory_hostname }}:
+          {{ before.stdout[0] | trim }} FULL before,
+          {{ after.stdout[0] | regex_findall('FULL') | length }} FULL after
+
+    - name: Fail if a device came back with fewer neighbors
+      ansible.builtin.assert:
+        that:
+          - (after.stdout[0] | regex_findall('FULL') | length) >= (before.stdout[0] | trim | int)
+        fail_msg: >-
+          {{ inventory_hostname }} lost adjacencies:
+          {{ before.stdout[0] | trim }} -> {{ after.stdout[0] | regex_findall('FULL') | length }}
