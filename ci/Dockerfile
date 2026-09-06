@@ -12,7 +12,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN pip install --no-cache-dir --timeout 120 --retries 10 \
         ansible-core==2.17.* ansible-pylibssh \
         yamllint ansible-lint pyyaml jinja2 requests httpie \
-        netmiko napalm
+        netmiko napalm pynetbox pytz
 
 RUN pip install --no-cache-dir --timeout 120 --retries 10 \
         "pyats[library]"
@@ -28,7 +28,8 @@ RUN ansible-galaxy collection install \
         cisco.ios:==11.5.1 \
         cisco.asa:==6.1.0 \
         ansible.netcommon:==8.6.2 \
-        ansible.posix
+        ansible.posix \
+        netbox.netbox
 
 ENV ANSIBLE_HOST_KEY_CHECKING=False \
     PYTHONUNBUFFERED=1
