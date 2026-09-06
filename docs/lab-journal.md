@@ -1,11 +1,113 @@
 # Work Notes:
 The environment currently includes Cisco routers, switches, and ASA firewalls managed through Ansible playbooks and version-controlled through GitHub. 
 
+# 09/01 – 09/06/26
+
+- Deployed
+  - **NetBox as source of truth**, running as a six-container Compose stack on
+    AUTO_box (app, worker, housekeeping, Postgres, two Redis). Reachable from the
+    LAN at 192.168.50.23:8080 through inet-rtr's existing static NAT, no routing
+    changes needed
+  - Populated it: 8 device roles, 4 sites, 10 tenants, 36 devices, every
+    interface, every IP, VRFs, and cables
+  - Three import scripts, all idempotent with `--dry-run`:
+    - `device_import_netbox.py` - hostname parsing plus explicit mapping tables
+      for site, tenant, role, device type. Resolves every slug up front so a typo
+      fails before anything is created
+    - `import_interfaces.py` - reads gathered YAML, creates interfaces with
+      correct types and parent relationships, attaches IPs, sets `primary_ip4`
+      from Loopback10
+    - `import_cables.py` - derives links by pairing /31 and /30 addresses, cables
+      the parent physical interfaces, and reports orphans
+  - **`nb_inventory` working.** `hosts.ini` is gone. Groups come from device
+    roles, tenants, sites, platforms, and tags. Adding a device is now a NetBox
+    operation, not a file edit
+  - Container rebuilt with troubleshooting and API tooling: ping, traceroute,
+    mtr, tcpdump, nc, socat, curl, jq, dig, vim, netmiko, napalm, pynetbox, pytz
+  - `inet-rtr` converted from CSR1000v to vIOS, removing the 1000 kb/s unlicensed
+    throughput cap that had been limiting every download since day one
+  - i9-9900KF and Peerless Assassin installed. 8C/16T, memory at DDR4-2666,
+    PL1 raised to 125W. Idles at 38-46C under 40% load with 24 QEMU processes
+
+- Fixed
+  - **Duplicate loopback on `kc-hq-nsa01`.** It had `10.8.2.5` on Loopback10,
+    the same address as `kc-hq-stb01`. Its own router LSA gave it away: advertising
+    router `10.8.2.4` but the stub network listed as `10.8.2.5`. OSPF router-id is
+    sticky and does not follow a loopback change until the process is cleared, so
+    the LSA was signed with the old ID while advertising the new address.
+    Explained the 5-on-5-off ping pattern, the SSH resets, and `10.8.2.4` being
+    absent from every routing table
+  - **Six devices with unsaved interface config**, found with
+    `show ip interface brief | include manual`. Included the `nsa01` loopback fix
+    itself - a reload would have undone the morning's work
+  - `ktr-p02` was built with fewer Ethernets than the topology needed, so EVE-NG
+    drew a link to a `Gi6` that did not exist on the device
+  - `10.0.3.2/24` facing `10.0.3.1/30` on the KingCorp transit. Different networks
+    as far as the cable script was concerned, so the link never paired
+  - vIOS has no LACP, so `gather_network_resources: all` aborted on `inet-rtr`.
+    Fixed with a `gather_resources` variable - restricted list in host_vars,
+    `all` as the default in group_vars
+  - `localhost:8080` inside the container is the container, not AUTO_box. NetBox
+    needs `10.8.1.22:8080`
+  - Import script bug of mine: `ORG_TO_TENANT.get(org) or sys.exit(...)` raises
+    `SystemExit` while evaluating the expression, whether or not the lookup
+    succeeded
+
+- Learned
+  - **A link is one object with two terminations.** 36 independent host_vars files
+    have no way to disagree with each other - two halves of a link that contradict
+    are not an error state because nothing relates them. NetBox rejects a second
+    cable on a terminated interface, which is why the cable import found real bugs
+    the YAML never could
+  - NetBox enforces IP uniqueness on the **host address**, not the full CIDR. A
+    stale `10.0.3.2/24` blocks creating `10.0.3.2/30`. Duplicate checks should
+    query by host address, not exact prefix
+  - `group_by` in `nb_inventory` accepts `tenants` but not `tenant_groups`. Tags
+    are the way to express cross-cutting attributes - tier, protocol, API
+    capability - that single-value fields cannot
+  - `group_names_raw: true` strips the dimension prefixes, so groups come out as
+    `provider_edge` rather than `device_roles_provider_edge`
+  - `api_endpoint` in the inventory config is not templated. The plugin reads
+    `NETBOX_API` and `NETBOX_TOKEN` from the environment directly
+  - `group_by: tags` reads device tags only. Tagging a tenant or site does not
+    propagate to its devices
+  - NetBox slugs become Ansible group names, so hyphens there mean
+    `{{ groups['birmingham-hq'] }}` instead of `{{ groups.birmingham_hq }}`.
+    Worth normalizing to underscores before anything references them
+  - **NetBox does not store configuration.** Inventory, IPAM, and physical
+    connectivity only. OSPF areas, BGP policy, and route-maps stay in the repo.
+    The clean split: NetBox owns identity and addressing, the repo owns intent
+  - Terraform sits in Domain 1 (Network Automation), not Infrastructure as Code.
+    The exam expects it configuring VLANs, OSPF, ACLs, and interfaces on Cisco
+    devices - not cloud, not Kubernetes. The `CiscoDevNet/iosxe` provider is the
+    right target
+  - Anycast synchronizes nothing. Same IP in multiple places, routing picks the
+    nearest. Health checking is separate (withdraw the route by removing the
+    loopback address); state replication belongs entirely to the application
+
+- Open
+  - Three devices have no platform set in NetBox (`kc-hq-cor01`, `kc-hq-cor02`,
+    `fc-hq-acc01`), so they will fail to connect the same way `inet_rtr` did
+  - Site slugs still hyphenated; `kingcorp-cloud` tenant too
+  - `providers`, `customers`, `tier1` tags not yet applied
+  - `dc-den-lef01`'s bootstrap file was corrupt (contained a single character)
+  - `kc-hq-edg01` has `vrf definition MGMT` but `vrf forwarding MGMT_vrf` on both
+    subinterfaces
+
+- Next up
+  1. Finish the tagging and slug normalization, drop the static groups file
+  2. Point `ansible.cfg` at the NetBox inventory so no playbook needs `-i`
+  3. Drift detection in the pipeline - gather, diff against NetBox, fail on
+     mismatch. Without it NetBox rots, and this week proved how fast reality
+     diverges
+  4. Domain 4 / MCP - 20% of the exam, still zero coverage
+  5. Terraform against a scratch node
+  6. Convert the rest of the fleet to vIOS for throughput and RAM headroom
+
 # 08/25/26
 - Documentation
     - updated README, cleaned up, moved some stuff around
     - documentation can be boring but its worth it
-
 
 # 08/24 – 09/01/26
 
