@@ -89,6 +89,7 @@ SITE_OVERRIDES = {
     "ktr-p03":     "denver-colo",
     "ktr-p01":     "denver-colo",
     "ktr-p05":     "denver-colo",
+    "inet-":    "birmingham-hq",
 }
 
 # Which image each device runs. Everything not listed defaults to CSR1000v.
@@ -97,6 +98,7 @@ DEVICE_TYPE_OVERRIDES = {
     "dc-den-spn": "vios_l3_switch",
     "fc-hq-acc":  "vios_l3_switch",
     "fc-hq-dst":  "vios_l3_switch",
+    "inet-":    "vios_router",
 }
 DEFAULT_DEVICE_TYPE = "csr1000v"
 
@@ -143,7 +145,7 @@ DEVICES = {
     "dc-den-lef03": "10.8.2.152",
     "dc-den-spn01": "10.8.2.153",
     "dc-den-spn02": "10.8.2.154",
-    "inet-rtr01":  "10.8.2.254",
+    "inet-rtr":  "10.8.2.254",
 }
 
 
@@ -199,12 +201,14 @@ def plan():
     rows = []
     for name, mgmt_ip in sorted(DEVICES.items()):
         org = name.split("-")[0]
+        tenant = ORG_TO_TENANT.get(org)
+        if tenant is None:
+            sys.exit(f"no tenant mapping for org '{org}' in '{name}'")
         rows.append({
             "name": name,
             "mgmt_ip": mgmt_ip,
             "role": parse_role(name),
-            "tenant": ORG_TO_TENANT.get(org) or sys.exit(
-                f"no tenant mapping for org '{org}' in '{name}'"),
+            "tenant": tenant,
             "site": pick(name, SITE_OVERRIDES, label="site"),
             "device_type": pick(name, DEVICE_TYPE_OVERRIDES,
                                 default=DEFAULT_DEVICE_TYPE),
