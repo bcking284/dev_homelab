@@ -116,7 +116,10 @@ interfaces:
 l2_interfaces:
 - name: Loopback10
 - name: Ethernet0/0
-- name: Ethernet0/0.10
+- encapsulation:
+    type: dot1Q
+    vlan_id: 10
+  name: Ethernet0/0.10
 - name: Ethernet0/1
 - encapsulation:
     type: dot1Q
@@ -143,7 +146,9 @@ l2_interfaces:
 - name: Ethernet3/3
 l3_interfaces:
 - name: Ethernet0/0
-- name: Ethernet0/0.10
+- ipv4:
+  - address: 10.8.4.105/31
+  name: Ethernet0/0.10
 - name: Ethernet0/1
 - ipv4:
   - address: 10.8.4.5/31
@@ -199,7 +204,11 @@ ntp_global: {}
 ospf_interfaces:
 - name: Loopback10
 - name: Ethernet0/0
-- name: Ethernet0/0.10
+- address_family:
+  - afi: ipv4
+    network:
+      point_to_point: true
+  name: Ethernet0/0.10
 - name: Ethernet0/1
 - address_family:
   - afi: ipv4
@@ -295,6 +304,7 @@ vrf_interfaces:
   vrf_name: MGMT
 - name: Ethernet0/0
 - name: Ethernet0/0.10
+  vrf_name: MGMT
 - name: Ethernet0/1
 - name: Ethernet0/1.10
   vrf_name: MGMT

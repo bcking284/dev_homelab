@@ -10,6 +10,7 @@ bfd_interfaces:
 - name: GigabitEthernet4
 - name: GigabitEthernet4.10
 - name: GigabitEthernet5
+- name: GigabitEthernet5.10
 bfd_templates: []
 bgp_address_family: {}
 bgp_global: {}
@@ -29,6 +30,7 @@ hsrp_interfaces:
 - name: GigabitEthernet4
 - name: GigabitEthernet4.10
 - name: GigabitEthernet5
+- name: GigabitEthernet5.10
 interfaces:
 - enabled: true
   name: GigabitEthernet1
@@ -50,8 +52,10 @@ interfaces:
 - description: MGMT to ktr-p05
   enabled: true
   name: GigabitEthernet4.10
-- enabled: false
+- enabled: true
   name: GigabitEthernet5
+- enabled: true
+  name: GigabitEthernet5.10
 - description: MGMT loopback
   enabled: true
   name: Loopback10
@@ -78,6 +82,10 @@ l2_interfaces:
     vlan_id: 10
   name: GigabitEthernet4.10
 - name: GigabitEthernet5
+- encapsulation:
+    type: dot1Q
+    vlan_id: 10
+  name: GigabitEthernet5.10
 l3_interfaces:
 - name: GigabitEthernet1
 - ipv4:
@@ -97,6 +105,9 @@ l3_interfaces:
   name: GigabitEthernet4.10
 - name: GigabitEthernet5
 - ipv4:
+  - address: 10.8.4.41/31
+  name: GigabitEthernet5.10
+- ipv4:
   - address: 10.8.2.106/32
   name: Loopback10
 lacp:
@@ -113,6 +124,7 @@ lacp_interfaces:
 - name: GigabitEthernet4
 - name: GigabitEthernet4.10
 - name: GigabitEthernet5
+- name: GigabitEthernet5.10
 lag_interfaces: []
 lldp_global:
   enabled: true
@@ -142,6 +154,9 @@ lldp_interfaces:
   receive: true
   transmit: true
 - name: GigabitEthernet5
+  receive: true
+  transmit: true
+- name: GigabitEthernet5.10
   receive: true
   transmit: true
 logging_global:
@@ -174,6 +189,11 @@ ospf_interfaces:
       point_to_point: true
   name: GigabitEthernet4.10
 - name: GigabitEthernet5
+- address_family:
+  - afi: ipv4
+    network:
+      point_to_point: true
+  name: GigabitEthernet5.10
 ospfv2:
   processes:
   - network:
@@ -231,4 +251,6 @@ vrf_interfaces:
 - name: GigabitEthernet4.10
   vrf_name: MGMT
 - name: GigabitEthernet5
+- name: GigabitEthernet5.10
+  vrf_name: MGMT
 vxlan_vtep: {}

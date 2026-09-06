@@ -107,6 +107,33 @@ lacp_interfaces:
 - name: GigabitEthernet4
 - name: GigabitEthernet4.10
 lag_interfaces: []
+lldp_global:
+  enabled: true
+lldp_interfaces:
+- name: GigabitEthernet1
+  receive: true
+  transmit: true
+- name: GigabitEthernet1.10
+  receive: true
+  transmit: true
+- name: GigabitEthernet2
+  receive: true
+  transmit: true
+- name: GigabitEthernet2.10
+  receive: true
+  transmit: true
+- name: GigabitEthernet3
+  receive: true
+  transmit: true
+- name: GigabitEthernet3.10
+  receive: true
+  transmit: true
+- name: GigabitEthernet4
+  receive: true
+  transmit: true
+- name: GigabitEthernet4.10
+  receive: true
+  transmit: true
 logging_global:
   trap: informational
 ntp_global: {}

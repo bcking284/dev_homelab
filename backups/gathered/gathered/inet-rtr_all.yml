@@ -1,164 +1,136 @@
-acl_interfaces: []
-acls:
-- acls:
-  - aces:
-    - destination:
-        any: true
-      grant: permit
-      protocol: ip
-      source:
-        host: 10.8.1.22
-    acl_type: extended
-    name: '101'
-  afi: ipv4
-bfd_interfaces:
-- name: Loopback10
-- name: GigabitEthernet1
-- name: GigabitEthernet2
-- name: GigabitEthernet3
-- name: GigabitEthernet3.10
-- name: GigabitEthernet4
-bfd_templates: []
-bgp_address_family: {}
-bgp_global: {}
-evpn_ethernet: null
-evpn_evi: []
-evpn_global: {}
-hostname:
-  hostname: inet_rtr
-hsrp_interfaces:
-- name: Loopback10
-- name: GigabitEthernet1
-- name: GigabitEthernet2
-- name: GigabitEthernet3
-- name: GigabitEthernet3.10
-- name: GigabitEthernet4
+bgp_address_family:
+  address_family:
+  - afi: ipv4
+    neighbors:
+    - activate: true
+      neighbor_address: 10.20.20.1
+      route_maps:
+      - name: ASN_65512
+        out: true
+    networks:
+    - address: 9.9.9.9
+      mask: 255.255.255.255
+    safi: unicast
+  as_number: '65513'
+bgp_global:
+  as_number: '65513'
+  bgp:
+    default:
+      ipv4_unicast: true
+      route_target:
+        filter: true
+    log_neighbor_changes: true
+  neighbors:
+  - neighbor_address: 10.20.20.1
+    remote_as: '65512'
 interfaces:
+- duplex: auto
+  enabled: true
+  name: GigabitEthernet0/0
+  speed: auto
+- duplex: auto
+  enabled: true
+  name: GigabitEthernet0/1
+  speed: auto
 - enabled: true
-  name: GigabitEthernet1
+  name: GigabitEthernet0/1.10
+- duplex: auto
+  enabled: true
+  name: GigabitEthernet0/2
+  speed: auto
 - enabled: true
-  name: GigabitEthernet2
+  name: GigabitEthernet0/2.900
+- duplex: auto
+  enabled: true
+  name: GigabitEthernet0/3
+  speed: auto
 - enabled: true
-  name: GigabitEthernet3
-- enabled: true
-  name: GigabitEthernet3.10
-- enabled: false
-  name: GigabitEthernet4
+  name: GigabitEthernet0/3.10
 - enabled: true
   name: Loopback10
+- enabled: true
+  name: Loopback900
 l2_interfaces:
 - name: Loopback10
-- name: GigabitEthernet1
-- name: GigabitEthernet2
-- name: GigabitEthernet3
+- name: Loopback900
+- name: GigabitEthernet0/0
+- name: GigabitEthernet0/1
+- name: GigabitEthernet0/1.10
+- name: GigabitEthernet0/2
+- encapsulation:
+    type: dot1Q
+    vlan_id: 900
+  name: GigabitEthernet0/2.900
+- name: GigabitEthernet0/3
 - encapsulation:
     type: dot1Q
     vlan_id: 10
-  name: GigabitEthernet3.10
-- name: GigabitEthernet4
+  name: GigabitEthernet0/3.10
 l3_interfaces:
+- name: GigabitEthernet0/0
 - ipv4:
   - address: 192.168.50.23/24
     secondary: true
   - address: 192.168.50.22/24
-  name: GigabitEthernet1
+  name: GigabitEthernet0/1
+- name: GigabitEthernet0/1.10
 - ipv4:
   - address: 10.0.3.1/30
-  name: GigabitEthernet2
-- name: GigabitEthernet3
+  name: GigabitEthernet0/2
+- ipv4:
+  - address: 10.20.20.2/30
+  name: GigabitEthernet0/2.900
+- name: GigabitEthernet0/3
 - ipv4:
   - address: 10.8.1.254/24
-  name: GigabitEthernet3.10
-- name: GigabitEthernet4
+  name: GigabitEthernet0/3.10
 - ipv4:
   - address: 10.8.2.254/32
   name: Loopback10
-lacp:
-  system:
-    priority: 32768
-lacp_interfaces:
-- name: loopback10
-- name: GigabitEthernet1
-- name: GigabitEthernet2
-- name: GigabitEthernet3
-- name: GigabitEthernet3.10
-- name: GigabitEthernet4
-lag_interfaces: []
-lldp_global:
-  enabled: true
-lldp_interfaces:
-- name: GigabitEthernet1
-  receive: true
-  transmit: true
-- name: GigabitEthernet2
-  receive: true
-  transmit: true
-- name: GigabitEthernet3
-  receive: true
-  transmit: true
-- name: GigabitEthernet3.10
-  receive: true
-  transmit: true
-- name: GigabitEthernet4
-  receive: true
-  transmit: true
-logging_global:
-  trap: informational
-ntp_global: {}
+- ipv4:
+  - address: 9.9.9.9/32
+  name: Loopback900
 ospf_interfaces:
 - name: Loopback10
-- name: GigabitEthernet1
-- name: GigabitEthernet2
+- name: Loopback900
+- name: GigabitEthernet0/0
+- name: GigabitEthernet0/1
+- name: GigabitEthernet0/1.10
+- name: GigabitEthernet0/2
+- name: GigabitEthernet0/2.900
 - address_family:
   - afi: ipv4
     network:
       broadcast: true
-  name: GigabitEthernet3
-- name: GigabitEthernet3.10
-- name: GigabitEthernet4
+  name: GigabitEthernet0/3
+- name: GigabitEthernet0/3.10
 ospfv2:
   processes:
   - network:
-    - address: 10.8.1.0
-      area: '0'
-      wildcard_bits: 0.0.0.255
     - address: 0.0.0.0
       area: '0'
       wildcard_bits: 255.255.255.255
-    passive_interfaces:
-      interface:
-        name:
-        - GigabitEthernet1
-        set_interface: true
     process_id: 1
     router_id: 10.8.2.254
     vrf: MGMT
-prefix_lists: []
-service:
-  counters: 0
-  dhcp: true
-  pad: true
-  password_recovery: true
-  prompt: true
-  slave_log: true
-  timestamps:
-  - datetime_options:
-      msec: true
-    msg: debug
-    timestamp: datetime
-  - datetime_options:
-      msec: true
-    msg: log
-    timestamp: datetime
-snmp_server: {}
-static_routes:
-- address_families:
-  - afi: ipv4
-    routes:
-    - dest: 0.0.0.0/0
-      next_hops:
-      - forward_router_address: 192.168.50.1
-  vrf: MGMT
+prefix_lists:
+- afi: ipv4
+  prefix_lists:
+  - entries:
+    - action: permit
+      prefix: 10.0.16.0/20
+      sequence: 10
+    name: ASN_65512
+route_maps:
+- entries:
+  - action: permit
+    match:
+      ip:
+        address:
+          prefix_lists:
+          - ASN_65512
+    sequence: 10
+  route_map: ASN_65512
 vrf_address_family:
 - address_families:
   - afi: ipv4
@@ -170,11 +142,13 @@ vrf_global:
 vrf_interfaces:
 - name: Loopback10
   vrf_name: MGMT
-- name: GigabitEthernet1
+- name: Loopback900
+- name: GigabitEthernet0/0
+- name: GigabitEthernet0/1
   vrf_name: MGMT
-- name: GigabitEthernet2
-- name: GigabitEthernet3
-- name: GigabitEthernet3.10
+- name: GigabitEthernet0/1.10
+- name: GigabitEthernet0/2
+- name: GigabitEthernet0/2.900
+- name: GigabitEthernet0/3
+- name: GigabitEthernet0/3.10
   vrf_name: MGMT
-- name: GigabitEthernet4
-vxlan_vtep: {}

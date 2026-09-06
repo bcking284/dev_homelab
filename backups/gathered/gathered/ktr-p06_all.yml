@@ -130,7 +130,7 @@ l3_interfaces:
   name: GigabitEthernet4.10
 - name: GigabitEthernet5
 - ipv4:
-  - address: 10.8.4.19/31
+  - address: 10.8.4.43/31
   name: GigabitEthernet5.10
 - name: GigabitEthernet6
 - name: GigabitEthernet6.10

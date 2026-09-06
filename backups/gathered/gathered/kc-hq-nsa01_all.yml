@@ -6,6 +6,7 @@ bfd_interfaces:
 - name: GigabitEthernet1.900
 - name: GigabitEthernet2
 - name: GigabitEthernet2.10
+- name: GigabitEthernet2.900
 - name: GigabitEthernet3
 - name: GigabitEthernet3.13
 - name: GigabitEthernet4
@@ -46,6 +47,7 @@ hsrp_interfaces:
 - name: GigabitEthernet1.900
 - name: GigabitEthernet2
 - name: GigabitEthernet2.10
+- name: GigabitEthernet2.900
 - name: GigabitEthernet3
 - name: GigabitEthernet3.13
 - name: GigabitEthernet4
@@ -60,6 +62,8 @@ interfaces:
   name: GigabitEthernet2
 - enabled: true
   name: GigabitEthernet2.10
+- enabled: true
+  name: GigabitEthernet2.900
 - enabled: true
   name: GigabitEthernet3
 - enabled: true
@@ -84,6 +88,10 @@ l2_interfaces:
     type: dot1Q
     vlan_id: 10
   name: GigabitEthernet2.10
+- encapsulation:
+    type: dot1Q
+    vlan_id: 900
+  name: GigabitEthernet2.900
 - name: GigabitEthernet3
 - encapsulation:
     type: dot1Q
@@ -96,12 +104,15 @@ l3_interfaces:
   - address: 10.8.3.2/30
   name: GigabitEthernet1.10
 - ipv4:
-  - address: 10.0.28.1/30
+  - address: 10.0.30.5/30
   name: GigabitEthernet1.900
 - name: GigabitEthernet2
 - ipv4:
   - address: 10.8.3.14/30
   name: GigabitEthernet2.10
+- ipv4:
+  - address: 10.0.30.1/30
+  name: GigabitEthernet2.900
 - name: GigabitEthernet3
 - ipv4:
   - address: 10.8.3.25/30
@@ -120,6 +131,7 @@ lacp_interfaces:
 - name: GigabitEthernet1.900
 - name: GigabitEthernet2
 - name: GigabitEthernet2.10
+- name: GigabitEthernet2.900
 - name: GigabitEthernet3
 - name: GigabitEthernet3.13
 - name: GigabitEthernet4
@@ -140,6 +152,9 @@ lldp_interfaces:
   receive: true
   transmit: true
 - name: GigabitEthernet2.10
+  receive: true
+  transmit: true
+- name: GigabitEthernet2.900
   receive: true
   transmit: true
 - name: GigabitEthernet3
@@ -169,6 +184,7 @@ ospf_interfaces:
     network:
       point_to_point: true
   name: GigabitEthernet2.10
+- name: GigabitEthernet2.900
 - name: GigabitEthernet3
 - address_family:
   - afi: ipv4
@@ -240,6 +256,7 @@ vrf_interfaces:
 - name: GigabitEthernet2
 - name: GigabitEthernet2.10
   vrf_name: MGMT
+- name: GigabitEthernet2.900
 - name: GigabitEthernet3
 - name: GigabitEthernet3.13
   vrf_name: MGMT

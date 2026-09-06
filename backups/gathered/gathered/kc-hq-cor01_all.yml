@@ -158,7 +158,7 @@ l3_interfaces:
   - address: 10.30.30.1/30
   name: GigabitEthernet3.900
 - ipv4:
-  - address: 10.0.3.2/24
+  - address: 10.0.3.2/30
   name: GigabitEthernet4
 - ipv4:
   - address: 10.20.20.1/30
