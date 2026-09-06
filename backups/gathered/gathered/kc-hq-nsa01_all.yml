@@ -3,6 +3,7 @@ bfd_interfaces:
 - name: Loopback10
 - name: GigabitEthernet1
 - name: GigabitEthernet1.10
+- name: GigabitEthernet1.900
 - name: GigabitEthernet2
 - name: GigabitEthernet2.10
 - name: GigabitEthernet3
@@ -42,6 +43,7 @@ hsrp_interfaces:
 - name: Loopback10
 - name: GigabitEthernet1
 - name: GigabitEthernet1.10
+- name: GigabitEthernet1.900
 - name: GigabitEthernet2
 - name: GigabitEthernet2.10
 - name: GigabitEthernet3
@@ -52,6 +54,8 @@ interfaces:
   name: GigabitEthernet1
 - enabled: true
   name: GigabitEthernet1.10
+- enabled: true
+  name: GigabitEthernet1.900
 - enabled: true
   name: GigabitEthernet2
 - enabled: true
@@ -71,6 +75,10 @@ l2_interfaces:
     type: dot1Q
     vlan_id: 10
   name: GigabitEthernet1.10
+- encapsulation:
+    type: dot1Q
+    vlan_id: 900
+  name: GigabitEthernet1.900
 - name: GigabitEthernet2
 - encapsulation:
     type: dot1Q
@@ -85,8 +93,11 @@ l2_interfaces:
 l3_interfaces:
 - name: GigabitEthernet1
 - ipv4:
-  - address: 10.8.3.10/30
+  - address: 10.8.3.2/30
   name: GigabitEthernet1.10
+- ipv4:
+  - address: 10.0.28.1/30
+  name: GigabitEthernet1.900
 - name: GigabitEthernet2
 - ipv4:
   - address: 10.8.3.14/30
@@ -106,6 +117,7 @@ lacp_interfaces:
 - name: loopback10
 - name: GigabitEthernet1
 - name: GigabitEthernet1.10
+- name: GigabitEthernet1.900
 - name: GigabitEthernet2
 - name: GigabitEthernet2.10
 - name: GigabitEthernet3
@@ -119,6 +131,9 @@ lldp_interfaces:
   receive: true
   transmit: true
 - name: GigabitEthernet1.10
+  receive: true
+  transmit: true
+- name: GigabitEthernet1.900
   receive: true
   transmit: true
 - name: GigabitEthernet2
@@ -147,6 +162,7 @@ ospf_interfaces:
     network:
       point_to_point: true
   name: GigabitEthernet1.10
+- name: GigabitEthernet1.900
 - name: GigabitEthernet2
 - address_family:
   - afi: ipv4
@@ -220,6 +236,7 @@ vrf_interfaces:
 - name: GigabitEthernet1
 - name: GigabitEthernet1.10
   vrf_name: MGMT
+- name: GigabitEthernet1.900
 - name: GigabitEthernet2
 - name: GigabitEthernet2.10
   vrf_name: MGMT
