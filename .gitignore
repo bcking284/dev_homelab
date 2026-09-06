@@ -10,3 +10,5 @@ sync.ps1
 
 #pyats
 *.txt
+
+scripts/netbox/netbox.env

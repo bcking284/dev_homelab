@@ -28,23 +28,45 @@ EVE-NG on an old gaming PC, plus an Ubuntu VM that runs the automation.
 
 ![Topology](docs/diagrams/topology.png)
 
-The diagram above is the **target** topology: two customer networks, a service provider core with tiered transit relationships, and a spine-leaf datacenter. It's being built out now.
+Thirty-six devices across four sites, modelling a small internet: two customer networks buying transit, seven service providers with tiered peering relationships, and a spine-leaf datacenter.
 
-What's **currently automated** is the KingCorp block plus its edges:
+| Zone | AS | Contents |
+|---|---|---|
+| **KingCorp** | 65512 | OSPF area 0 backbone, area 1 stub, area 2 NSSA |
+| **FlynnCorp** | 65513 | Edge pair, distribution, access switches |
+| **KingCorp Cloud** | 65520 | Two spines, three leaves, routed fabric |
+| **Ku Transit** | 64502 | Tier 1 backbone, six P routers |
+| **Corvid, Vantiq, Meridian, Zenith, Halcyon, Nimbus** | 64496–64501 | Tier 2, PE and P routers |
+| **Management** | — | VRF `MGMT`, separate OSPF process, out-of-band from production |
 
-| Zone | Contents |
-|---|---|
-| **OSPF Area 0** | R1, R2, R3, backbone |
-| **OSPF Area 1 (stub)** | R5, behind R1 as ABR |
-| **OSPF Area 2 (NSSA)** | R4, redistributing EIGRP 100 |
-| **BGP AS 65512** | The internal network |
-| **BGP AS 65513** | `inet_rtr`, internet edge and NAT |
-| **BGP AS 65514** | `DMZ_rtr` |
-| **Management** | VRF `MGMT`, VLAN 10, separate OSPF process, out-of-band from production |
+Public-facing addressing uses `198.18.0.0/15` (RFC 2544, reserved for benchmarking) and documentation ASNs from `64496–64511` (RFC 5398). Both are unowned and unrouted, which makes them safe for modelling public infrastructure without borrowing someone else's identity.
 
 Every device runs a second OSPF process (`900`) for production routing and process `1` inside VRF MGMT for management. That separation matters: **the pipeline reaches devices over the management plane, so breaking production routing doesn't cut off the tool that fixes it.**
 
-`AUTO_box` is an Ubuntu VM on the management network running Docker, the GitLab runner, and nothing else of consequence.
+`AUTO_box` is an Ubuntu VM on the management network running Docker, the GitLab runner, NetBox, and nothing else of consequence.
+
+---
+
+## Source of truth
+
+NetBox holds the devices, interfaces, addresses, VRFs, and cables. Ansible's inventory is generated from it — there is no `hosts.ini`.
+
+The reason to bother is structural. Thirty-six independent YAML files have no way to disagree with each other; two halves of a link that contradict is not an error state, because nothing relates them. NetBox models a cable as **one object with two terminations**, and refuses to terminate an interface twice.
+
+Populating it surfaced five defects in a topology that had been running for weeks and looked healthy: a duplicate loopback causing a five-on-five-off ping pattern, a physical interface claimed by two links, a node built with fewer ports than the topology needed, a /24 facing a /30 on a transit, and six devices with unsaved config that a reload would have erased.
+
+None of those would have surfaced from the YAML.
+
+Groups are now derived rather than declared. A device is in `provider_edge` because its role is provider_edge, not because someone typed it under a heading:
+
+```yaml
+plugin: netbox.netbox.nb_inventory
+api_endpoint: http://10.8.1.22:8080
+group_names_raw: true
+group_by: [device_roles, tenants, sites, platforms, tags]
+```
+
+Full detail, including the import scripts and what cost time: **[docs/source-of-truth.md](docs/source-of-truth.md)**
 
 ---
 
@@ -109,9 +131,11 @@ The same OSPF process gets configured three different ways in this repo, deliber
 | **RESTCONF scripts** | HTTPS, YANG | Structured end to end, no parsing, but device support is thin |
 | **Terraform** `CiscoDevNet/iosxe` | NETCONF | Declarative with real state tracking and drift detection |
 
-They're not redundant. Ansible works against anything with SSH, including IOL nodes that have no API at all. RESTCONF is architecturally cleanest but only exists on newer IOS-XE. Terraform brings a state file, which is a fundamentally different model: Ansible asks the device what it looks like every run, Terraform remembers what it built.
+They're not redundant. Ansible works against anything with SSH, including IOL and vIOS nodes that have no API at all. RESTCONF is architecturally cleanest but only exists on newer IOS-XE. Terraform brings a state file, which is a fundamentally different model: Ansible asks the device what it looks like every run, Terraform remembers what it built.
 
 That last difference is the one worth understanding. It also means **Terraform and Ansible must not manage the same resource** or they'll fight over ownership. In this lab the boundary is by device: Ansible owns the customer networks, Terraform owns the datacenter.
+
+All three now read their inventory from NetBox.
 
 ---
 
@@ -129,10 +153,10 @@ Restoring is one playbook that handles both cases:
 
 ```bash
 # undo the last deploy
-ansible-playbook -i $INV playbooks/rollback/rollback_replace.yml
+ansible-playbook playbooks/rollback/rollback_replace.yml
 
 # go back to any checkpoint on flash
-ansible-playbook -i $INV playbooks/rollback/rollback_replace.yml \
+ansible-playbook playbooks/rollback/rollback_replace.yml \
   -e ckpt_override=ckpt-20260825-200225.cfg
 ```
 
@@ -180,6 +204,12 @@ It also saves resources, because they all run on Docker and share a host VM.
 
 The concrete version of this: `AUTO_box` runs Ubuntu 20.04 with Python 3.8, which is EOL. `pip install pyats` there resolves to a two-year-old release and still collides with apt-installed packages. The same install inside `python:3.12-slim` just works. **The host stays legacy; the toolchain stays current.**
 
+### Why NetBox sits on the management network, not in the datacenter
+
+The datacenter is the more interesting home for it, and it was the original plan. But NetBox generates the inventory used to fix the network. Behind the fabric, a routing failure takes away the tool needed to repair it.
+
+Same principle as running management in its own VRF: the thing that fixes the network must not depend on the network being healthy.
+
 ---
 
 ## Known gaps and workarounds
@@ -189,6 +219,8 @@ This section exists because a pipeline that only documents its successes isn't u
 **`ios_ospfv2` doesn't write stub area config.** The module's parser reads `area 1 stub` back as `{stub: {set: true}}`, and the argspec documents `stub` with `set` / `no_summary` / `no_ext_capability` suboptions, but no generated command ever appears. Read-side coverage without write-side coverage. Worked around with a small `ios_config` task that loops over the area definitions.
 
 **No resource module covers `encapsulation dot1Q`.** Not in `ios_l3_interfaces`, not in `ios_interfaces`, not anywhere. Subinterface encapsulation needs an `ios_config` task, and it has to run *before* addressing or IOS rejects the `ip address` line.
+
+**There is no EIGRP resource module at all.** Nor IS-IS, PBR, NAT, QoS, or MPLS. `gather_network_resources: all` genuinely means all — the set is just smaller than the feature set.
 
 **`ios_ospfv2` reports `changed` on every run.** It emits a bare `router ospf 900` as a container for child commands, finds nothing to put under it, and emits the orphan anyway. `before` and `after` in its own output are byte-identical. Suppressed with:
 
@@ -205,6 +237,12 @@ changed_when: >-
 
 **Check mode validates the module, not the device.** `--check` proves Ansible can compute a command from your data. It never sends it, so the device never gets to reject it. `ip address 10.20.20.1 255.255.255.255` passed check mode and was refused by IOS as a bad mask for a point-to-point link.
 
+**NetBox enforces IP uniqueness on the host address, not the CIDR.** A stale `10.0.3.2/24` blocks creating `10.0.3.2/30`. Duplicate checks should query by host address and report the conflict rather than failing on the POST.
+
+**vIOS has no LACP, so `gather_network_resources: all` aborts on it.** Fixed with a `gather_resources` variable: a restricted list for vIOS, `all` as the group default. The mixed-platform lesson generalizes — `all` means all the modules exist, not that the device supports them.
+
+**Unlicensed CSR1000v is capped at 1000 kb/s.** Every download through the lab crawled at 100 KB/s for months before this surfaced. `show platform hardware throughput level` says so plainly. vIOS has no such cap, which is a good reason to use it anywhere an API isn't needed.
+
 **Legacy SSH crypto.** IOS-XE 16.09.07 only offers `diffie-hellman-group14-sha1`. Debian 12 dropped SHA-1 KEX from its defaults, so the container couldn't negotiate at all. `ansible_ssh_common_args` had no effect because Ansible was defaulting to Paramiko, which ignores SSH config entirely. Fixed by switching to `ansible_network_cli_ssh_type: libssh` and baking the algorithm config into `/etc/ssh/ssh_config` in the image.
 
 That last one is worth dwelling on. Every year the crypto floor rises and old gear sinks further below it. The long-run answer isn't weakening every client forever, it's a bastion allowed to speak legacy crypto with modern crypto everywhere else. That conversation is coming for a lot of OT networks.
@@ -220,14 +258,13 @@ That last one is worth dwelling on. Every year the crypto floor rises and old ge
 ├── ansible.cfg
 ├── ci/Dockerfile               the toolchain image
 ├── inventories/lab/
-│   ├── hosts.ini
+│   ├── netbox.yml              dynamic inventory, replaces hosts.ini
 │   ├── group_vars/             shared config shape
-│   ├── host_vars/              per-device values, the source of truth
+│   ├── host_vars/              per-device protocol intent
 │   └── gathered/               device state pulled back as YAML
 ├── playbooks/
 │   ├── prevalidation/          backup, checkpoint, state gathering
-│   ├── routing/ospf/           OSPF via resource modules
-│   ├── routing/bgp/            BGP, prefix lists, route maps
+│   ├── routing/                OSPF and BGP via resource modules
 │   ├── interfaces/
 │   ├── rollback/               configure replace
 │   └── quickies/               one-off operational tasks
@@ -238,13 +275,14 @@ That last one is worth dwelling on. Every year the crypto floor rises and old ge
 │   ├── validate_vars.py        schema and referential integrity
 │   ├── prettify.py             readable YAML from gathered state
 │   ├── gen_bootstrap.py        per-device bootstrap from a link map
+│   ├── netbox/                 device, interface, and cable import
 │   ├── RESTCONF/               direct API work against IOS-XE
 │   └── validation/
 └── docs/
+    ├── source-of-truth.md      NetBox model, imports, what it caught
     ├── lab-journal.md          daily notes since 05/02/26
     ├── addressing.md           IPAM schema and hostname convention
-    ├── diagrams/
-    └── addressing/
+    └── diagrams/
 ```
 
 ---
@@ -261,7 +299,14 @@ docker build -t netauto:local ci/
 
 Register a runner with `pull_policy = ["if-not-present"]` so it uses the local image rather than reaching for a registry.
 
-Set `NET_USERNAME`, `NET_PASSWORD`, and `NET_ENABLE` as masked CI/CD variables in GitLab. Locally, the same names live in a gitignored `.env`. One mechanism, two environments:
+Bring up NetBox:
+
+```bash
+cd ~/netbox && docker compose up -d
+docker compose exec netbox /opt/netbox/netbox/manage.py createsuperuser
+```
+
+Set `NET_USERNAME`, `NET_PASSWORD`, `NET_ENABLE`, and `NETBOX_TOKEN` as masked CI/CD variables in GitLab. Locally, the same names live in a gitignored `.env`. One mechanism, two environments:
 
 ```yaml
 ansible_user: "{{ lookup('env', 'NET_USERNAME') }}"
@@ -273,6 +318,7 @@ Working interactively:
 ```bash
 docker run --rm -it -v "$PWD:/work" -w /work \
   -e NET_USERNAME -e NET_PASSWORD -e NET_ENABLE \
+  -e NETBOX_API -e NETBOX_TOKEN \
   netauto:local bash
 ```
 
@@ -281,7 +327,7 @@ Check before you push. CI is the backstop, not the feedback loop:
 ```bash
 yamllint inventories/ playbooks/
 python scripts/validate_vars.py
-ansible-playbook -i inventories/lab/hosts.ini playbooks/routing/full_route_state.yml --check
+ansible-playbook playbooks/routing/full_route_state.yml --check
 ```
 
 ---
@@ -296,6 +342,8 @@ ansible-playbook -i inventories/lab/hosts.ini playbooks/routing/full_route_state
 
 **A skipped task is silent, not safe.** `ok` means Ansible checked and the state was already correct. `skipped` means it never looked. Only one of those is evidence.
 
+**A data model with relationships catches what a pile of files cannot.** Thirty-six YAML files describing half a link each will happily contradict each other forever. One object with two ends will not.
+
 **Automation multiplies mistakes.** A bad manual change hits one device. A bad playbook hits two hundred. The gates matter *more* in automation than they did in the CLI era, not less.
 
 **Most of the difficulty isn't the network.** It was git, line endings, version skew, and container plumbing. The OSPF was the easy part.
@@ -304,9 +352,10 @@ ansible-playbook -i inventories/lab/hosts.ini playbooks/routing/full_route_state
 
 ## Roadmap
 
-- NetBox as source of truth, generating inventory and host_vars from a real IPAM record
+- Drift detection: gather device state, diff against NetBox, fail the pipeline on mismatch. Without it a source of truth rots, and rots worse than having none, because people trust it
+- NetBox config contexts replacing identity-shaped `group_vars`
+- Generating the pyATS testbed from NetBox instead of maintaining it by hand
 - Terraform against the datacenter, so the two IaC models can be compared directly
-- Building out the full topology: two customer networks, tiered service providers, spine-leaf DC
 - Anycast service in the datacenter, with BGP health checking from the hosts
 - Nornir for gather and drift detection at scale, threads rather than processes
 - MPLS with simulated field sites
@@ -316,4 +365,4 @@ Full daily notes going back to the first day of the lab are in [docs/lab-journal
 
 ---
 
-*Built while studying for CCNP Automation. The pipeline maps closely to the AUTOCOR v2.0 blueprint (infrastructure as code, change validation, secret management), which was a happy accident rather than a plan.*
+*Built while studying for CCNP Automation. The pipeline maps closely to the AUTOCOR v2.0 blueprint (infrastructure as code, change validation, secret management, source of truth), which was a happy accident rather than a plan.*
