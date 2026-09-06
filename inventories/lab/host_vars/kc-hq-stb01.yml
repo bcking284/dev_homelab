@@ -2,7 +2,7 @@
 router_id: 10.0.26.4
 
 restconf:
-  host: 10.8.2.4
+  host: 10.8.2.5
 
 interfaces:
   - name: GigabitEthernet1
@@ -89,7 +89,7 @@ l3_ifaces:
   - name: GigabitEthernet4
   - name: Loopback10
     ipv4:
-      - address: 10.8.2.4/32
+      - address: 10.8.2.5/32
   - name: Loopback900
     ipv4:
       - address: 10.0.26.4/32
@@ -133,7 +133,7 @@ ospf_cfg:
           area: '0'
           wildcard_bits: 255.255.255.255
       process_id: 1
-      router_id: 10.8.2.4
+      router_id: 10.8.2.5
       vrf: MGMT
     - areas:
         - area_id: '2'
