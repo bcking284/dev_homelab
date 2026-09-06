@@ -44,3 +44,13 @@ Rolling back to greenfield state -- MGMT vrf only
 ansible-playbook -i inventories/lab/hosts.ini \
   playbooks/rollback/manual_rollback_replace.yml \
   -e ckpt_override=ckpt-20260828-125050.cfg
+
+
+##playbook one liners
+
+#show router-id dupes
+ansible -i inventories/lab/hosts.ini all -m cisco.ios.ios_command \
+  -a "commands='show ip interface brief | include 10.8'" 2>/dev/null | grep -oE '10\.8\.[0-9]+\.[0-9]+' | sort | uniq -d
+
+#log to console
+ansible-playbook -i inventories/lab/hosts.ini playbooks/quickies/enable_logging.yml
