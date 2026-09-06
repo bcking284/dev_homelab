@@ -1,0 +1,12 @@
+plugin: netbox.netbox.nb_inventory
+api_endpoint: http://10.8.1.22:8080
+validate_certs: false
+config_context: true
+group_names_raw: true
+
+group_by:
+  - device_roles
+  - tenants
+  - sites
+  - platforms
+  - tags
