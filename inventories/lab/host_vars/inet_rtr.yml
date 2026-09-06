@@ -1,4 +1,18 @@
 ---
+gather_resources:
+  - interfaces
+  - l3_interfaces
+  - l2_interfaces
+  - vrf_global
+  - vrf_interfaces
+  - vrf_address_family
+  - ospfv2
+  - ospf_interfaces
+  - bgp_global
+  - bgp_address_family
+  - prefix_lists
+  - route_maps
+
 restconf:
   - host: 10.8.2.254
   - username: admin

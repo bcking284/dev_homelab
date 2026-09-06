@@ -15,7 +15,7 @@
     - name: Gather everything
       cisco.ios.ios_facts:
         gather_subset: min
-        gather_network_resources: all
+        gather_network_resources: "{{ gather_resources }}"
       register: facts
 
     - name: Write
